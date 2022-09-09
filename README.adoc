@@ -45,7 +45,7 @@ With Maven:
 <dependencies>
     <dependency>
         <groupId>org.apache.pulsar</groupId>
-        <artifactId>reactive-pulsar-adapter</artifactId>
+        <artifactId>pulsar-client-reactive-adapter</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
@@ -100,7 +100,7 @@ Adding Caffeine based producer cache with Maven:
 <dependencies>
     <dependency>
         <groupId>org.apache.pulsar</groupId>
-        <artifactId>reactive-pulsar-adapter</artifactId>
+        <artifactId>pulsar-client-reactive-adapter</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
