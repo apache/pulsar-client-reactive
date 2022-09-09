@@ -1,0 +1,38 @@
+[versions]
+pulsar = "2.10.1"
+junit-jupiter = "5.8.2"
+log4j = "2.18.0"
+slf4j = "1.7.36"
+reactor = "3.4.22"
+assertj = "3.23.1"
+testcontainers = "1.17.3"
+jctools = "3.3.0"
+caffeine = "2.9.3"
+checkstyle = '8.45.1'
+spring-javaformat = '0.0.34'
+licenser = "0.6.1"
+
+[libraries]
+pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
+pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
+reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
+reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+testcontainers-pulsar = { module = "org.testcontainers:pulsar", version.ref = "testcontainers" }
+jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "spring-javaformat" }
+spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
+licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
+
+[bundles]
+log4j = ["log4j-api", "log4j-core", "log4j-slf4j-impl", "slf4j-api"]
+
+[plugins]
+versions = "com.github.ben-manes.versions:0.42.0"

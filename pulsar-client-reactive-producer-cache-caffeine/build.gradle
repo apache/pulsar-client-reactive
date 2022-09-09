@@ -1,0 +1,16 @@
+plugins {
+	id 'pulsar-client-reactive.codestyle-conventions'
+	id 'pulsar-client-reactive.library-conventions'
+}
+
+dependencies {
+	api project(':pulsar-client-reactive-adapter')
+	api libs.caffeine
+	testImplementation libs.junit.jupiter
+	testImplementation libs.assertj.core
+	testImplementation libs.reactor.test
+}
+
+description = "Caffeine implementation of producer cache"
+
+

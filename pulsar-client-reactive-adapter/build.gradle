@@ -1,0 +1,26 @@
+plugins {
+	id 'pulsar-client-reactive.codestyle-conventions'
+	id 'pulsar-client-reactive.library-conventions'
+	id 'pulsar-client-reactive.integration-test-conventions'
+}
+
+dependencies {
+	api project(':pulsar-client-reactive-api')
+	api libs.pulsar.client.shaded
+	api libs.reactor.core
+	api libs.slf4j.api
+
+	testImplementation libs.junit.jupiter
+	testImplementation libs.junit.jupiter.params
+	testImplementation libs.reactor.test
+	testImplementation libs.assertj.core
+	testImplementation libs.bundles.log4j
+
+	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
+	intTestImplementation libs.junit.jupiter
+	intTestImplementation libs.testcontainers.pulsar
+	intTestImplementation libs.assertj.core
+	intTestImplementation libs.bundles.log4j
+}
+
+description = "Reactive Streams adapter for Apache Pulsar Java client"

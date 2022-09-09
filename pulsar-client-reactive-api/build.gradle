@@ -1,0 +1,14 @@
+plugins {
+	id 'pulsar-client-reactive.codestyle-conventions'
+	id 'pulsar-client-reactive.library-conventions'
+	id 'pulsar-client-reactive.integration-test-conventions'
+}
+
+dependencies {
+	api libs.reactor.core
+	api libs.pulsar.client.api
+	api libs.slf4j.api
+	implementation libs.jctools.core
+}
+
+description = "Reactive Java client for Apache Pulsar"
