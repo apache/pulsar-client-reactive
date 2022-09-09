@@ -19,6 +19,6 @@ plugins {
 }
 
 allprojects {
-    group = 'org.apache.pulsar.reactive.client'
+    group = 'org.apache.pulsar'
     apply plugin: 'io.spring.javaformat'
 }
