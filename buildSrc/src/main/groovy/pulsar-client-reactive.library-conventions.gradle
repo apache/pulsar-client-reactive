@@ -38,7 +38,7 @@ publishing {
 				url = project.property("publishDebug")
 			} else {
 				name = 'asf'
-				url = version.endsWith('-SNAPSHOT') ? 'https://repository.apache.org/snapshots' : 'https://repository.apache.org/service/local/staging/deploy/maven2'
+				url = version.endsWith('-SNAPSHOT') ? 'https://repository.apache.org/content/repositories/snapshots/' : 'https://repository.apache.org/service/local/staging/deploy/maven2'
 				credentials(PasswordCredentials)
 			}
 		}
