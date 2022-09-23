@@ -86,6 +86,44 @@ public class ImmutableReactiveMessageSenderSpec implements ReactiveMessageSender
 
 	private final Map<String, String> properties;
 
+	public ImmutableReactiveMessageSenderSpec(String topicName, String producerName, Duration sendTimeout,
+			Integer maxPendingMessages, Integer maxPendingMessagesAcrossPartitions,
+			MessageRoutingMode messageRoutingMode, HashingScheme hashingScheme,
+			ProducerCryptoFailureAction cryptoFailureAction, MessageRouter messageRouter,
+			Duration batchingMaxPublishDelay, Integer roundRobinRouterBatchingPartitionSwitchFrequency,
+			Integer batchingMaxMessages, Integer batchingMaxBytes, Boolean batchingEnabled,
+			BatcherBuilder batcherBuilder, Boolean chunkingEnabled, CryptoKeyReader cryptoKeyReader,
+			Set<String> encryptionKeys, CompressionType compressionType, Long initialSequenceId,
+			Boolean autoUpdatePartitions, Duration autoUpdatePartitionsInterval, Boolean multiSchema,
+			ProducerAccessMode accessMode, Boolean lazyStartPartitionedProducers, Map<String, String> properties) {
+		this.topicName = topicName;
+		this.producerName = producerName;
+		this.sendTimeout = sendTimeout;
+		this.maxPendingMessages = maxPendingMessages;
+		this.maxPendingMessagesAcrossPartitions = maxPendingMessagesAcrossPartitions;
+		this.messageRoutingMode = messageRoutingMode;
+		this.hashingScheme = hashingScheme;
+		this.cryptoFailureAction = cryptoFailureAction;
+		this.messageRouter = messageRouter;
+		this.batchingMaxPublishDelay = batchingMaxPublishDelay;
+		this.roundRobinRouterBatchingPartitionSwitchFrequency = roundRobinRouterBatchingPartitionSwitchFrequency;
+		this.batchingMaxMessages = batchingMaxMessages;
+		this.batchingMaxBytes = batchingMaxBytes;
+		this.batchingEnabled = batchingEnabled;
+		this.batcherBuilder = batcherBuilder;
+		this.chunkingEnabled = chunkingEnabled;
+		this.cryptoKeyReader = cryptoKeyReader;
+		this.encryptionKeys = encryptionKeys;
+		this.compressionType = compressionType;
+		this.initialSequenceId = initialSequenceId;
+		this.autoUpdatePartitions = autoUpdatePartitions;
+		this.autoUpdatePartitionsInterval = autoUpdatePartitionsInterval;
+		this.multiSchema = multiSchema;
+		this.accessMode = accessMode;
+		this.lazyStartPartitionedProducers = lazyStartPartitionedProducers;
+		this.properties = properties;
+	}
+
 	public ImmutableReactiveMessageSenderSpec(ReactiveMessageSenderSpec senderSpec) {
 		this.topicName = senderSpec.getTopicName();
 		this.producerName = senderSpec.getProducerName();

@@ -168,6 +168,53 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.expireTimeOfIncompleteChunkedMessage = consumerSpec.getExpireTimeOfIncompleteChunkedMessage();
 	}
 
+	public ImmutableReactiveMessageConsumerSpec(List<String> topicNames, Pattern topicsPattern,
+			RegexSubscriptionMode topicsPatternSubscriptionMode, Duration topicsPatternAutoDiscoveryPeriod,
+			String subscriptionName, SubscriptionMode subscriptionMode, SubscriptionType subscriptionType,
+			KeySharedPolicy keySharedPolicy, Boolean replicateSubscriptionState,
+			Map<String, String> subscriptionProperties, String consumerName, Map<String, String> properties,
+			Integer priorityLevel, Boolean readCompacted, Boolean batchIndexAckEnabled, Duration ackTimeout,
+			Duration ackTimeoutTickTime, Duration acknowledgementsGroupTime, Boolean acknowledgeAsynchronously,
+			Scheduler acknowledgeScheduler, Duration negativeAckRedeliveryDelay, DeadLetterPolicy deadLetterPolicy,
+			Boolean retryLetterTopicEnable, Integer receiverQueueSize,
+			Integer maxTotalReceiverQueueSizeAcrossPartitions, Boolean autoUpdatePartitions,
+			Duration autoUpdatePartitionsInterval, CryptoKeyReader cryptoKeyReader,
+			ConsumerCryptoFailureAction cryptoFailureAction, Integer maxPendingChunkedMessage,
+			Boolean autoAckOldestChunkedMessageOnQueueFull, Duration expireTimeOfIncompleteChunkedMessage) {
+		this.topicNames = topicNames;
+		this.topicsPattern = topicsPattern;
+		this.topicsPatternSubscriptionMode = topicsPatternSubscriptionMode;
+		this.topicsPatternAutoDiscoveryPeriod = topicsPatternAutoDiscoveryPeriod;
+		this.subscriptionName = subscriptionName;
+		this.subscriptionMode = subscriptionMode;
+		this.subscriptionType = subscriptionType;
+		this.keySharedPolicy = keySharedPolicy;
+		this.replicateSubscriptionState = replicateSubscriptionState;
+		this.subscriptionProperties = subscriptionProperties;
+		this.consumerName = consumerName;
+		this.properties = properties;
+		this.priorityLevel = priorityLevel;
+		this.readCompacted = readCompacted;
+		this.batchIndexAckEnabled = batchIndexAckEnabled;
+		this.ackTimeout = ackTimeout;
+		this.ackTimeoutTickTime = ackTimeoutTickTime;
+		this.acknowledgementsGroupTime = acknowledgementsGroupTime;
+		this.acknowledgeAsynchronously = acknowledgeAsynchronously;
+		this.acknowledgeScheduler = acknowledgeScheduler;
+		this.negativeAckRedeliveryDelay = negativeAckRedeliveryDelay;
+		this.deadLetterPolicy = deadLetterPolicy;
+		this.retryLetterTopicEnable = retryLetterTopicEnable;
+		this.receiverQueueSize = receiverQueueSize;
+		this.maxTotalReceiverQueueSizeAcrossPartitions = maxTotalReceiverQueueSizeAcrossPartitions;
+		this.autoUpdatePartitions = autoUpdatePartitions;
+		this.autoUpdatePartitionsInterval = autoUpdatePartitionsInterval;
+		this.cryptoKeyReader = cryptoKeyReader;
+		this.cryptoFailureAction = cryptoFailureAction;
+		this.maxPendingChunkedMessage = maxPendingChunkedMessage;
+		this.autoAckOldestChunkedMessageOnQueueFull = autoAckOldestChunkedMessageOnQueueFull;
+		this.expireTimeOfIncompleteChunkedMessage = expireTimeOfIncompleteChunkedMessage;
+	}
+
 	public List<String> getTopicNames() {
 		return this.topicNames;
 	}

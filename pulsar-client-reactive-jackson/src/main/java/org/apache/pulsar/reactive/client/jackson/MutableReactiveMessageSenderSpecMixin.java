@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.jackson;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.apache.pulsar.reactive.client.api.MutableReactiveMessageSenderSpec;
+
+@JsonDeserialize(as = MutableReactiveMessageSenderSpec.class)
+class MutableReactiveMessageSenderSpecMixin {
+
+}

@@ -14,9 +14,31 @@
  * limitations under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.jackson;
 
+import java.util.Map;
+
+@SuppressWarnings("unused")
+class ClassConf {
+
+	private String className;
+
+	private Map<String, Object> args;
+
+	String getClassName() {
+		return this.className;
+	}
+
+	void setClassName(String className) {
+		this.className = className;
+	}
+
+	Map<String, Object> getArgs() {
+		return this.args;
+	}
+
+	void setArgs(Map<String, Object> args) {
+		this.args = args;
+	}
+
+}
