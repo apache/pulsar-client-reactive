@@ -14,9 +14,29 @@
  * limitations under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.jackson;
 
+@SuppressWarnings("unused")
+class RangeConf {
+
+	private int start;
+
+	private int end;
+
+	int getStart() {
+		return this.start;
+	}
+
+	void setStart(int start) {
+		this.start = start;
+	}
+
+	int getEnd() {
+		return this.end;
+	}
+
+	void setEnd(int end) {
+		this.end = end;
+	}
+
+}

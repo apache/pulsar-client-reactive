@@ -44,6 +44,21 @@ public class ImmutableReactiveMessageReaderSpec implements ReactiveMessageReader
 
 	private final ConsumerCryptoFailureAction cryptoFailureAction;
 
+	public ImmutableReactiveMessageReaderSpec(List<String> topicNames, String readerName, String subscriptionName,
+			String generatedSubscriptionNamePrefix, Integer receiverQueueSize, Boolean readCompacted,
+			List<Range> keyHashRanges, CryptoKeyReader cryptoKeyReader,
+			ConsumerCryptoFailureAction cryptoFailureAction) {
+		this.topicNames = topicNames;
+		this.readerName = readerName;
+		this.subscriptionName = subscriptionName;
+		this.generatedSubscriptionNamePrefix = generatedSubscriptionNamePrefix;
+		this.receiverQueueSize = receiverQueueSize;
+		this.readCompacted = readCompacted;
+		this.keyHashRanges = keyHashRanges;
+		this.cryptoKeyReader = cryptoKeyReader;
+		this.cryptoFailureAction = cryptoFailureAction;
+	}
+
 	public ImmutableReactiveMessageReaderSpec(ReactiveMessageReaderSpec readerSpec) {
 		this.topicNames = (readerSpec.getTopicNames() != null && !readerSpec.getTopicNames().isEmpty())
 				? Collections.unmodifiableList(new ArrayList<>(readerSpec.getTopicNames())) : null;
