@@ -26,6 +26,7 @@ import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumerSpec;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
@@ -205,11 +206,14 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 	}
 
 	@Override
-	public <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Flux<MessageResult<R>>> messageHandler) {
-		return createReactiveConsumerAdapter().usingConsumerMany((consumer) -> Flux.using(this::pinAcknowledgeScheduler,
-				(pinnedAcknowledgeScheduler) -> messageHandler.apply(readNextMessage(consumer).repeat()).delayUntil(
-						(messageResult) -> handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler))
-						.handle(this::handleMessageResult),
+	public <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
+		return createReactiveConsumerAdapter().usingConsumerMany((consumer) -> Flux.using(
+				this::pinAcknowledgeScheduler, (
+						pinnedAcknowledgeScheduler) -> Flux
+								.from(messageHandler.apply(readNextMessage(consumer).repeat()))
+								.delayUntil((messageResult) -> handleAcknowledgement(consumer, messageResult,
+										pinnedAcknowledgeScheduler))
+								.handle(this::handleMessageResult),
 				Scheduler::dispose));
 	}
 

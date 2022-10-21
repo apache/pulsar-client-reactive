@@ -21,18 +21,19 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.apache.pulsar.client.api.Message;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 public interface ReactiveMessagePipelineBuilder<T> {
 
-	OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
+	OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Publisher<Void>> messageHandler);
 
 	ReactiveMessagePipelineBuilder<T> streamingMessageHandler(
-			Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler);
+			Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler);
 
-	ReactiveMessagePipelineBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
+	ReactiveMessagePipelineBuilder<T> transformPipeline(Function<Mono<Void>, Publisher<Void>> transformer);
 
 	ReactiveMessagePipelineBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec);
 

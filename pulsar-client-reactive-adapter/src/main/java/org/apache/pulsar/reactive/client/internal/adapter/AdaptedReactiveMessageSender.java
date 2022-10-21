@@ -31,6 +31,7 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderSpec;
 import org.apache.pulsar.reactive.client.internal.api.InternalMessageSpec;
 import org.apache.pulsar.reactive.client.internal.api.PublisherTransformer;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -178,9 +179,8 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 	}
 
 	@Override
-	public Mono<MessageId> sendMessage(Mono<MessageSpec<T>> messageSpec) {
-		return createReactiveProducerAdapter()
-				.usingProducer((producer) -> messageSpec.flatMap((m) -> createMessageMono(m, producer)));
+	public Mono<MessageId> send(MessageSpec<T> messageSpec) {
+		return createReactiveProducerAdapter().usingProducer((producer) -> createMessageMono(messageSpec, producer));
 	}
 
 	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
@@ -192,11 +192,12 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 	}
 
 	@Override
-	public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
+	public Flux<MessageId> send(Publisher<MessageSpec<T>> messageSpecs) {
 		return createReactiveProducerAdapter().usingProducerMany((producer) ->
 		// TODO: ensure that inner publishers are subscribed in order so that message
 		// order is retained
-		messageSpecs.flatMapSequential((messageSpec) -> createMessageMono(messageSpec, producer), this.maxConcurrency));
+		Flux.from(messageSpecs).flatMapSequential((messageSpec) -> createMessageMono(messageSpec, producer),
+				this.maxConcurrency));
 	}
 
 }
