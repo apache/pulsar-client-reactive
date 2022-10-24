@@ -17,13 +17,26 @@
 package org.apache.pulsar.reactive.client.api;
 
 import org.apache.pulsar.client.api.MessageId;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageSender<T> {
 
-	Mono<MessageId> sendMessage(Mono<MessageSpec<T>> messageSpec);
+	/**
+	 * Send one message.
+	 * @param messageSpec the spec of the message to send
+	 * @return a publisher that will emit one message id and complete
+	 */
+	Mono<MessageId> send(MessageSpec<T> messageSpec);
 
-	Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs);
+	/**
+	 * Send multiple messages and get the associated message ids in the same order as the
+	 * sent messages.
+	 * @param messageSpecs the specs of the messages to send
+	 * @return a publisher that will emit a message id per message successfully sent in
+	 * the order that they have been sent
+	 */
+	Flux<MessageId> send(Publisher<MessageSpec<T>> messageSpecs);
 
 }

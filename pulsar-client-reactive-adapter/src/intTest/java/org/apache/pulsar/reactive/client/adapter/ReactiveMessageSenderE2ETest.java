@@ -37,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +63,7 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.topic(topicName).maxInflight(1).build();
-			MessageId messageId = messageSender.sendMessage(Mono.just(MessageSpec.of("Hello world!"))).block();
+			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 
 			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
@@ -87,7 +86,7 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.cache(producerCache).maxInflight(1).topic(topicName).build();
-			MessageId messageId = messageSender.sendMessage(Mono.just(MessageSpec.of("Hello world!"))).block();
+			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 
 			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);

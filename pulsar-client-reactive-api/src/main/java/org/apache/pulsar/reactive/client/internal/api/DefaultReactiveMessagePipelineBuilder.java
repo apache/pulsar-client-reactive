@@ -29,6 +29,7 @@ import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipeline;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipelineBuilder;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -55,7 +56,7 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	private final ReactiveMessageConsumer<T> messageConsumer;
 
-	private Function<Message<T>, Mono<Void>> messageHandler;
+	private Function<Message<T>, Publisher<Void>> messageHandler;
 
 	private BiConsumer<Message<T>, Throwable> errorLogger;
 
@@ -67,9 +68,9 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	private Duration handlingTimeout = Duration.ofSeconds(120);
 
-	private Function<Mono<Void>, Mono<Void>> transformer = Function.identity();
+	private Function<Mono<Void>, Publisher<Void>> transformer = (it) -> it;
 
-	private Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
+	private Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler;
 
 	private int concurrency;
 
@@ -82,14 +83,14 @@ class DefaultReactiveMessagePipelineBuilder<T>
 	}
 
 	@Override
-	public OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler) {
+	public OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Publisher<Void>> messageHandler) {
 		this.messageHandler = messageHandler;
 		return this;
 	}
 
 	@Override
 	public ReactiveMessagePipelineBuilder<T> streamingMessageHandler(
-			Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler) {
+			Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler) {
 		this.streamingMessageHandler = streamingMessageHandler;
 		return this;
 	}
@@ -145,7 +146,7 @@ class DefaultReactiveMessagePipelineBuilder<T>
 	}
 
 	@Override
-	public ReactiveMessagePipelineBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer) {
+	public ReactiveMessagePipelineBuilder<T> transformPipeline(Function<Mono<Void>, Publisher<Void>> transformer) {
 		this.transformer = transformer;
 		return this;
 	}
