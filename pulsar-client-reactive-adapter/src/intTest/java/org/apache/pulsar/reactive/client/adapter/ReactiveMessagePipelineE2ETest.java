@@ -39,8 +39,8 @@ import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.MessageSpecBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipeline;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipelineBuilder;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.api.ReactorMessageSender;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -66,8 +66,8 @@ public class ReactiveMessagePipelineE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.topic(topicName).build();
+			ReactorMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+					.topic(topicName).buildReactor();
 			messageSender.send(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			List<String> messages = Collections.synchronizedList(new ArrayList<>());
@@ -96,8 +96,8 @@ public class ReactiveMessagePipelineE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<Integer> messageSender = reactivePulsarClient.messageSender(Schema.INT32)
-					.topic(topicName).build();
+			ReactorMessageSender<Integer> messageSender = reactivePulsarClient.messageSender(Schema.INT32)
+					.topic(topicName).buildReactor();
 
 			List<MessageSpec<Integer>> messageSpecs = generateRandomOrderedMessagesWhereSingleKeyIsOrdered(
 					messageOrderScenario);

@@ -245,4 +245,21 @@ public interface ReactiveMessageConsumerBuilder<T> {
 
 	ReactiveMessageConsumer<T> build();
 
+	/**
+	 * Build a Reactor based message reader.
+	 * @return the reactor based message reader instance
+	 */
+	default ReactorMessageConsumer<T> buildReactor() {
+		return build().toReactor();
+	}
+
+	/**
+	 * Build a RxJava 3 based message reader. Use only if you have RxJava 3 on the class
+	 * path (not pulled by this pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message reader instance
+	 */
+	default RxJavaMessageConsumer<T> buildRxJava() {
+		return build().toRxJava();
+	}
+
 }

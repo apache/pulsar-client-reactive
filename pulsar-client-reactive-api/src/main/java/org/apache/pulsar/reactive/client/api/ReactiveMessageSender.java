@@ -18,25 +18,43 @@ package org.apache.pulsar.reactive.client.api;
 
 import org.apache.pulsar.client.api.MessageId;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageSender<T> {
 
 	/**
-	 * Send one message.
-	 * @param messageSpec the spec of the message to send
-	 * @return a publisher that will emit one message id and complete
-	 */
-	Mono<MessageId> send(MessageSpec<T> messageSpec);
-
-	/**
-	 * Send multiple messages and get the associated message ids in the same order as the
-	 * sent messages.
+	 * Send messages and get the associated message ids in the same order as the sent
+	 * messages.
 	 * @param messageSpecs the specs of the messages to send
 	 * @return a publisher that will emit a message id per message successfully sent in
 	 * the order that they have been sent
 	 */
-	Flux<MessageId> send(Publisher<MessageSpec<T>> messageSpecs);
+	Publisher<MessageId> send(Publisher<MessageSpec<T>> messageSpecs);
+
+	default <R extends ReactiveMessageSender> R adapt(Class<R> adaptedSenderType) {
+		if (adaptedSenderType.equals(ReactorMessageSender.class)) {
+			return (R) toReactor();
+		}
+		if (adaptedSenderType.equals(RxJavaMessageSender.class)) {
+			return (R) toRxJava();
+		}
+		throw new IllegalArgumentException("Can only be adapted to ReactorMessageSender or RxJavaMessageSender");
+	}
+
+	/**
+	 * Convert to a reactor based message sender.
+	 * @return the reactor based message sender instance
+	 */
+	default ReactorMessageSender<T> toReactor() {
+		return new ReactorMessageSender<>(this);
+	}
+
+	/**
+	 * Convert to a RxJava 3 based message sender. Use only if you have RxJava 3 on the
+	 * class path (not pulled by pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message sender instance.
+	 */
+	default RxJavaMessageSender<T> toRxJava() {
+		return new RxJavaMessageSender<>(this);
+	}
 
 }

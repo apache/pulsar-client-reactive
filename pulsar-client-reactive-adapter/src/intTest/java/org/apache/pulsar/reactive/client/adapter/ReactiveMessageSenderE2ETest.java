@@ -28,9 +28,9 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.api.ReactorMessageSender;
 import org.apache.pulsar.reactive.client.internal.adapter.ConcurrentHashMapProducerCacheProvider;
 import org.apache.pulsar.reactive.client.producercache.CaffeineProducerCacheProvider;
 import org.junit.jupiter.api.Test;
@@ -61,8 +61,8 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.topic(topicName).maxInflight(1).build();
+			ReactorMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+					.topic(topicName).maxInflight(1).build().adapt(ReactorMessageSender.class);
 			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 
@@ -84,8 +84,8 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.cache(producerCache).maxInflight(1).topic(topicName).build();
+			ReactorMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+					.cache(producerCache).maxInflight(1).topic(topicName).build().adapt(ReactorMessageSender.class);
 			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 

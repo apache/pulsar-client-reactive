@@ -25,10 +25,10 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.api.ReactorMessageConsumer;
+import org.apache.pulsar.reactive.client.api.ReactorMessageSender;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
@@ -46,14 +46,14 @@ public class ReactiveMessageConsumerE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.cache(producerCache).topic(topicName).build();
+			ReactorMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+					.cache(producerCache).topic(topicName).buildReactor();
 			messageSender.send(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
-			ReactiveMessageConsumer<String> messageConsumer = reactivePulsarClient.messageConsumer(Schema.STRING)
-					.topic(topicName).subscriptionName("sub").build();
+			ReactorMessageConsumer<String> messageConsumer = reactivePulsarClient.messageConsumer(Schema.STRING)
+					.topic(topicName).subscriptionName("sub").buildReactor();
 			List<String> messages = messageConsumer
-					.consumeMessages((messageFlux) -> messageFlux
+					.consume((messageFlux) -> messageFlux
 							.map((message) -> MessageResult.acknowledge(message.getMessageId(), message.getValue())))
 					.take(Duration.ofSeconds(2)).collectList().block();
 
@@ -61,7 +61,7 @@ public class ReactiveMessageConsumerE2ETest {
 
 			// should have acknowledged all messages
 			List<Message<String>> remainingMessages = messageConsumer
-					.consumeMessages((messageFlux) -> messageFlux.map(MessageResult::acknowledgeAndReturn))
+					.consume((messageFlux) -> messageFlux.map(MessageResult::acknowledgeAndReturn))
 					.take(Duration.ofSeconds(2)).collectList().block();
 			assertThat(remainingMessages).isEmpty();
 		}

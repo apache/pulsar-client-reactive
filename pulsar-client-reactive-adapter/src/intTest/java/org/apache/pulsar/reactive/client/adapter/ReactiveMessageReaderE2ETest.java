@@ -23,10 +23,10 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageReader;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.api.ReactorMessageReader;
+import org.apache.pulsar.reactive.client.api.ReactorMessageSender;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
@@ -44,13 +44,13 @@ public class ReactiveMessageReaderE2ETest {
 
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.cache(producerCache).topic(topicName).build();
+			ReactorMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+					.cache(producerCache).topic(topicName).buildReactor();
 			messageSender.send(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
-			ReactiveMessageReader<String> messageReader = reactivePulsarClient.messageReader(Schema.STRING)
-					.topic(topicName).build();
-			List<String> messages = messageReader.readMessages().map(Message::getValue).collectList().block();
+			ReactorMessageReader<String> messageReader = reactivePulsarClient.messageReader(Schema.STRING)
+					.topic(topicName).buildReactor();
+			List<String> messages = messageReader.read().map(Message::getValue).collectList().block();
 
 			assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
 		}

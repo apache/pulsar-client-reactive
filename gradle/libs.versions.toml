@@ -4,6 +4,7 @@ junit-jupiter = "5.8.2"
 log4j = "2.18.0"
 slf4j = "1.7.36"
 reactor = "3.4.22"
+rxjava = "3.1.5"
 assertj = "3.23.1"
 testcontainers = "1.17.3"
 jctools = "3.3.0"
@@ -18,6 +19,7 @@ pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref
 pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
 reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }

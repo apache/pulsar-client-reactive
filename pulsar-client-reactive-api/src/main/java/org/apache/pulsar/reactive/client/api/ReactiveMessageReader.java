@@ -17,13 +17,37 @@
 package org.apache.pulsar.reactive.client.api;
 
 import org.apache.pulsar.client.api.Message;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.reactivestreams.Publisher;
 
 public interface ReactiveMessageReader<T> {
 
-	Mono<Message<T>> readMessage();
+	Publisher<Message<T>> read();
 
-	Flux<Message<T>> readMessages();
+	default <R extends ReactiveMessageReader> R adapt(Class<R> adaptedReaderType) {
+		if (adaptedReaderType.equals(ReactorMessageReader.class)) {
+			return (R) toReactor();
+		}
+		if (adaptedReaderType.equals(RxJavaMessageReader.class)) {
+			return (R) toRxJava();
+		}
+		throw new IllegalArgumentException("Can only be adapted to ReactorMessageReader or RxJavaMessageReader");
+	}
+
+	/**
+	 * Convert to a reactor based message sender.
+	 * @return the reactor based message sender instance
+	 */
+	default ReactorMessageReader<T> toReactor() {
+		return new ReactorMessageReader<>(this);
+	}
+
+	/**
+	 * Convert to a RxJava 3 based message sender. Use only if you have RxJava 3 on the
+	 * class path (not pulled by pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message sender instance.
+	 */
+	default RxJavaMessageReader<T> toRxJava() {
+		return new RxJavaMessageReader<>(this);
+	}
 
 }

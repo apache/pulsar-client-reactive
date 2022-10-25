@@ -41,6 +41,23 @@ public interface ReactiveMessageReaderBuilder<T> {
 
 	ReactiveMessageReader<T> build();
 
+	/**
+	 * Build a Reactor based message reader.
+	 * @return the reactor based message reader instance
+	 */
+	default ReactorMessageReader<T> buildReactor() {
+		return build().toReactor();
+	}
+
+	/**
+	 * Build a RxJava 3 based message reader. Use only if you have RxJava 3 on the class
+	 * path (not pulled by this pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message reader instance
+	 */
+	default RxJavaMessageReader<T> buildRxJava() {
+		return build().toRxJava();
+	}
+
 	default ReactiveMessageReaderBuilder<T> topic(String topicName) {
 		getMutableSpec().getTopicNames().add(topicName);
 		return this;

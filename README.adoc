@@ -68,11 +68,11 @@ ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.c
 
 [source,java]
 ----
-ReactiveMessageSender<String> messageSender = reactivePulsarClient
+ReactorMessageSender<String> messageSender = reactivePulsarClient
         .messageSender(Schema.STRING)
         .topic(topicName)
         .maxInflight(100)
-        .build();
+        .buildReactor();
 Mono<MessageId> messageId = messageSender
         .send(MessageSpec.of("Hello world!"));
 // for demonstration
@@ -115,12 +115,12 @@ Usage example of cache
 
 [source,java]
 ----
-ReactiveMessageSender<String> messageSender = reactivePulsarClient
+ReactorMessageSender<String> messageSender = reactivePulsarClient
         .messageSender(Schema.STRING)
         .cache(AdaptedReactivePulsarClientFactory.createCache())
         .topic(topicName)
         .maxInflight(100)
-        .build();
+        .buildReactor();
 Mono<MessageId> messageId = messageSender
         .send(MessageSpec.of("Hello world!"));
 // for demonstration

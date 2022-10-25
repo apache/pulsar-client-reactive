@@ -185,4 +185,21 @@ public interface ReactiveMessageSenderBuilder<T> {
 
 	ReactiveMessageSender<T> build();
 
+	/**
+	 * Build a Reactor based message sender.
+	 * @return the reactor based message sender instance
+	 */
+	default ReactorMessageSender<T> buildReactor() {
+		return build().toReactor();
+	}
+
+	/**
+	 * Build a RxJava 3 based message sender. Use only if you have RxJava 3 on the class
+	 * path (not pulled by this pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message sender instance
+	 */
+	default RxJavaMessageSender<T> buildRxJava() {
+		return build().toRxJava();
+	}
+
 }

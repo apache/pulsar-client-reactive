@@ -178,11 +178,6 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 		}
 	}
 
-	@Override
-	public Mono<MessageId> send(MessageSpec<T> messageSpec) {
-		return createReactiveProducerAdapter().usingProducer((producer) -> createMessageMono(messageSpec, producer));
-	}
-
 	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
 		return PulsarFutureAdapter.adaptPulsarFuture(() -> {
 			TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();

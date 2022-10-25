@@ -56,15 +56,6 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 		return PulsarFutureAdapter.adaptPulsarFuture(consumer::receiveAsync);
 	}
 
-	@Override
-	public <R> Mono<R> consumeMessage(Function<Mono<Message<T>>, Mono<MessageResult<R>>> messageHandler) {
-		return createReactiveConsumerAdapter().usingConsumer((consumer) -> Mono.using(this::pinAcknowledgeScheduler,
-				(pinnedAcknowledgeScheduler) -> messageHandler.apply(readNextMessage(consumer)).delayUntil(
-						(messageResult) -> handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler))
-						.handle(this::handleMessageResult),
-				Scheduler::dispose));
-	}
-
 	private Scheduler pinAcknowledgeScheduler() {
 		return Schedulers.single((this.consumerSpec.getAcknowledgeScheduler() != null)
 				? this.consumerSpec.getAcknowledgeScheduler() : Schedulers.boundedElastic());
@@ -103,6 +94,7 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 	}
 
 	private void configureConsumerBuilder(ConsumerBuilder<T> consumerBuilder) {
+		consumerBuilder.isAckReceiptEnabled(true);
 		if (this.consumerSpec.getTopicNames() != null && !this.consumerSpec.getTopicNames().isEmpty()) {
 			consumerBuilder.topics(this.consumerSpec.getTopicNames());
 		}
@@ -206,7 +198,7 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 	}
 
 	@Override
-	public <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
+	public <R> Flux<R> consume(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
 		return createReactiveConsumerAdapter().usingConsumerMany((consumer) -> Flux.using(
 				this::pinAcknowledgeScheduler, (
 						pinnedAcknowledgeScheduler) -> Flux

@@ -8,6 +8,7 @@ dependencies {
 	api libs.reactor.core
 	api libs.pulsar.client.api
 	api libs.slf4j.api
+	compileOnly libs.rxjava
 	implementation libs.jctools.core
 }
 

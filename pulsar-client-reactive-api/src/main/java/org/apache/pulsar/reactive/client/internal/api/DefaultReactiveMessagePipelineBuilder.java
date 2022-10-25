@@ -153,7 +153,7 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	@Override
 	public ReactiveMessagePipeline build() {
-		return new DefaultReactiveMessagePipeline(this.messageConsumer, this.messageHandler, this.errorLogger,
+		return new DefaultReactiveMessagePipeline<>(this.messageConsumer, this.messageHandler, this.errorLogger,
 				this.pipelineRetrySpec, this.handlingTimeout, this.transformer, this.streamingMessageHandler,
 				this.groupingFunction, this.concurrency, this.maxInflight);
 	}

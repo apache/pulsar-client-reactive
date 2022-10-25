@@ -21,13 +21,10 @@ import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageConsumer<T> {
 
-	<R> Mono<R> consumeMessage(Function<Mono<Message<T>>, Mono<MessageResult<R>>> messageHandler);
-
-	<R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
+	<R> Publisher<R> consume(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
 
 	/**
 	 * Creates the Pulsar Consumer and immediately closes it. This is useful for creating
@@ -35,6 +32,33 @@ public interface ReactiveMessageConsumer<T> {
 	 * returned Mono is subscribed.
 	 * @return a Mono for consuming nothing
 	 */
-	Mono<Void> consumeNothing();
+	Publisher<Void> consumeNothing();
+
+	default <R extends ReactiveMessageConsumer> R adapt(Class<R> adaptedConsumerType) {
+		if (adaptedConsumerType.equals(ReactorMessageConsumer.class)) {
+			return (R) toReactor();
+		}
+		if (adaptedConsumerType.equals(RxJavaMessageConsumer.class)) {
+			return (R) toRxJava();
+		}
+		throw new IllegalArgumentException("Can only be adapted to ReactorMessageConsumer or RxJavaMessageConsumer");
+	}
+
+	/**
+	 * Convert to a reactor based message sender.
+	 * @return the reactor based message sender instance
+	 */
+	default ReactorMessageConsumer<T> toReactor() {
+		return new ReactorMessageConsumer<>(this);
+	}
+
+	/**
+	 * Convert to a RxJava 3 based message sender. Use only if you have RxJava 3 on the
+	 * class path (not pulled by pulsar-client-reactive-api).
+	 * @return the RxJava 3 based message sender instance.
+	 */
+	default RxJavaMessageConsumer<T> toRxJava() {
+		return new RxJavaMessageConsumer<>(this);
+	}
 
 }
