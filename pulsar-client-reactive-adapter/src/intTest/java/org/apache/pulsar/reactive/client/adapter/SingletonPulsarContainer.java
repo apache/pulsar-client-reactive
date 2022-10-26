@@ -29,7 +29,8 @@ public final class SingletonPulsarContainer {
 
 	/** The singleton instance for Pulsar container. */
 	public static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(
-			DockerImageName.parse("apachepulsar/pulsar").withTag("2.10.1"));
+			DockerImageName.parse("apachepulsar/pulsar").withTag("2.10.1"))
+					.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
 
 	static {
 		PULSAR_CONTAINER.start();
