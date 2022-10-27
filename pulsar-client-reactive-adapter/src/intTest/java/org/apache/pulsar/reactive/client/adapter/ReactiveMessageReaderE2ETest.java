@@ -50,7 +50,7 @@ public class ReactiveMessageReaderE2ETest {
 
 			ReactiveMessageReader<String> messageReader = reactivePulsarClient.messageReader(Schema.STRING)
 					.topic(topicName).build();
-			List<String> messages = messageReader.readMessages().map(Message::getValue).collectList().block();
+			List<String> messages = messageReader.readMany().map(Message::getValue).collectList().block();
 
 			assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
 		}

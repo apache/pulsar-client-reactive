@@ -127,13 +127,13 @@ class AdaptedReactiveMessageReader<T> implements ReactiveMessageReader<T> {
 	}
 
 	@Override
-	public Mono<Message<T>> readMessage() {
+	public Mono<Message<T>> readOne() {
 		return createReactiveReaderAdapter(this.startAtSpec)
 				.usingReader((reader) -> readNextMessage(reader, this.endOfStreamAction));
 	}
 
 	@Override
-	public Flux<Message<T>> readMessages() {
+	public Flux<Message<T>> readMany() {
 		return createReactiveReaderAdapter(this.startAtSpec).usingReaderMany((reader) -> {
 			Mono<Message<T>> messageMono = readNextMessage(reader, this.endOfStreamAction);
 			if (this.endOfStreamAction == EndOfStreamAction.COMPLETE) {
