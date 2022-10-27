@@ -74,7 +74,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .maxInflight(100)
         .build();
 Mono<MessageId> messageId = messageSender
-        .send(MessageSpec.of("Hello world!"));
+        .sendOne(MessageSpec.of("Hello world!"));
 // for demonstration
 messageId.subscribe(System.out::println);
 ----
@@ -122,7 +122,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .maxInflight(100)
         .build();
 Mono<MessageId> messageId = messageSender
-        .send(MessageSpec.of("Hello world!"));
+        .sendOne(MessageSpec.of("Hello world!"));
 // for demonstration
 messageId.subscribe(System.out::println);
 ----
@@ -142,7 +142,7 @@ Reading all messages for a topic:
             reactivePulsarClient.messageReader(Schema.STRING)
                     .topic(topicName)
                     .build();
-    messageReader.readMessages()
+    messageReader.readMany()
             .map(Message::getValue)
             // for demonstration
             .subscribe(System.out::println);
@@ -162,7 +162,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
                     .startAtSpec(StartAtSpec.LATEST)
                     .endOfStreamAction(EndOfStreamAction.POLL)
                     .build();
-    messageReader.readMessages()
+    messageReader.readMany()
             .take(Duration.ofSeconds(5))
             .take(5)
             // for demonstration
@@ -178,7 +178,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
         .topic(topicName)
         .subscriptionName("sub")
         .build();
-    messageConsumer.consumeMessages(messageFlux ->
+    messageConsumer.consumeMany(messageFlux ->
                     messageFlux.map(message ->
                             MessageResult.acknowledge(message.getMessageId(), message.getValue())))
         .take(Duration.ofSeconds(2))
