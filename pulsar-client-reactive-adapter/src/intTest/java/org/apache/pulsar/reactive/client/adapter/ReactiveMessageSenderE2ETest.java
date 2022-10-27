@@ -63,7 +63,7 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.topic(topicName).maxInflight(1).build();
-			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
+			MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 
 			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
@@ -86,7 +86,7 @@ public class ReactiveMessageSenderE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.cache(producerCache).maxInflight(1).topic(topicName).build();
-			MessageId messageId = messageSender.send(MessageSpec.of("Hello world!")).block();
+			MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
 			assertThat(messageId).isNotNull();
 
 			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);

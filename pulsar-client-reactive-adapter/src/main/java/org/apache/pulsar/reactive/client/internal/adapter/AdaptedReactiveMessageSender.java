@@ -179,7 +179,7 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 	}
 
 	@Override
-	public Mono<MessageId> send(MessageSpec<T> messageSpec) {
+	public Mono<MessageId> sendOne(MessageSpec<T> messageSpec) {
 		return createReactiveProducerAdapter().usingProducer((producer) -> createMessageMono(messageSpec, producer));
 	}
 
@@ -192,7 +192,7 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 	}
 
 	@Override
-	public Flux<MessageId> send(Publisher<MessageSpec<T>> messageSpecs) {
+	public Flux<MessageId> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
 		return createReactiveProducerAdapter().usingProducerMany((producer) ->
 		// TODO: ensure that inner publishers are subscribed in order so that message
 		// order is retained

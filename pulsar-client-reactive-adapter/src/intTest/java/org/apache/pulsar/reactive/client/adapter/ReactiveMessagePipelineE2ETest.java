@@ -68,7 +68,7 @@ public class ReactiveMessagePipelineE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.topic(topicName).build();
-			messageSender.send(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
+			messageSender.sendMany(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			List<String> messages = Collections.synchronizedList(new ArrayList<>());
 			CountDownLatch latch = new CountDownLatch(100);
@@ -102,7 +102,7 @@ public class ReactiveMessagePipelineE2ETest {
 			List<MessageSpec<Integer>> messageSpecs = generateRandomOrderedMessagesWhereSingleKeyIsOrdered(
 					messageOrderScenario);
 
-			messageSender.send(Flux.fromIterable(messageSpecs)).blockLast();
+			messageSender.sendMany(Flux.fromIterable(messageSpecs)).blockLast();
 
 			ConcurrentMap<Integer, List<Integer>> messages = new ConcurrentHashMap<>();
 			CountDownLatch latch = new CountDownLatch(messageSpecs.size());
