@@ -48,12 +48,12 @@ public class ReactiveMessageConsumerE2ETest {
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
 					.cache(producerCache).topic(topicName).build();
-			messageSender.send(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
+			messageSender.sendMany(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			ReactiveMessageConsumer<String> messageConsumer = reactivePulsarClient.messageConsumer(Schema.STRING)
 					.topic(topicName).subscriptionName("sub").build();
 			List<String> messages = messageConsumer
-					.consumeMessages((messageFlux) -> messageFlux
+					.consumeMany((messageFlux) -> messageFlux
 							.map((message) -> MessageResult.acknowledge(message.getMessageId(), message.getValue())))
 					.take(Duration.ofSeconds(2)).collectList().block();
 
@@ -61,7 +61,7 @@ public class ReactiveMessageConsumerE2ETest {
 
 			// should have acknowledged all messages
 			List<Message<String>> remainingMessages = messageConsumer
-					.consumeMessages((messageFlux) -> messageFlux.map(MessageResult::acknowledgeAndReturn))
+					.consumeMany((messageFlux) -> messageFlux.map(MessageResult::acknowledgeAndReturn))
 					.take(Duration.ofSeconds(2)).collectList().block();
 			assertThat(remainingMessages).isEmpty();
 		}

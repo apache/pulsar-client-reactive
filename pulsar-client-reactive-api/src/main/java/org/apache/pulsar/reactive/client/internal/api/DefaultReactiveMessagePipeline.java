@@ -76,7 +76,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		this.groupingFunction = groupingFunction;
 		this.concurrency = concurrency;
 		this.maxInflight = maxInflight;
-		this.pipeline = messageConsumer.consumeMessages(this::createMessageConsumer).then().transform(transformer)
+		this.pipeline = messageConsumer.consumeMany(this::createMessageConsumer).then().transform(transformer)
 				.transform(this::decoratePipeline);
 	}
 

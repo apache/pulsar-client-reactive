@@ -22,8 +22,8 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageReader<T> {
 
-	Mono<Message<T>> readMessage();
+	Mono<Message<T>> readOne();
 
-	Flux<Message<T>> readMessages();
+	Flux<Message<T>> readMany();
 
 }
