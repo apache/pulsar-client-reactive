@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageConsumer<T> {
 
-	<R> Mono<R> consumeOne(Function<Mono<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
+	<R> Mono<R> consumeOne(Function<Message<T>, Publisher<MessageResult<R>>> messageHandler);
 
 	<R> Flux<R> consumeMany(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
 

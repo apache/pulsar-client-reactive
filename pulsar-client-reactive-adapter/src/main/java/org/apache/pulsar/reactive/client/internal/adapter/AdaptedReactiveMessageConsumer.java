@@ -57,11 +57,14 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 	}
 
 	@Override
-	public <R> Mono<R> consumeOne(Function<Mono<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
-		return createReactiveConsumerAdapter().usingConsumer((consumer) -> Mono.using(this::pinAcknowledgeScheduler,
-				(pinnedAcknowledgeScheduler) -> Mono.from(messageHandler.apply(readNextMessage(consumer))).delayUntil(
-						(messageResult) -> handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler))
-						.handle(this::handleMessageResult),
+	public <R> Mono<R> consumeOne(Function<Message<T>, Publisher<MessageResult<R>>> messageHandler) {
+		return createReactiveConsumerAdapter().usingConsumer((consumer) -> Mono.using(
+				this::pinAcknowledgeScheduler, (
+						pinnedAcknowledgeScheduler) -> readNextMessage(consumer)
+								.flatMap((message) -> Mono.from(messageHandler.apply(message)))
+								.delayUntil((messageResult) -> handleAcknowledgement(consumer, messageResult,
+										pinnedAcknowledgeScheduler))
+								.handle(this::handleMessageResult),
 				Scheduler::dispose));
 	}
 
