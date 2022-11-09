@@ -17,14 +17,12 @@
 package org.apache.pulsar.reactive.client.api;
 
 import org.apache.pulsar.client.api.Schema;
-import org.apache.pulsar.reactive.client.internal.api.ApiImplementationFactory;
 
 /**
  * Apache Pulsar Reactive Client interface
  *
  * Contains methods to create builders for {@link ReactiveMessageSender},
- * {@link ReactiveMessageReader} {@link ReactiveMessageConsumer} and
- * {@link ReactiveMessagePipeline} instances.
+ * {@link ReactiveMessageReader} and {@link ReactiveMessageConsumer} instances.
  *
  * @author Lari Hotari
  */
@@ -53,16 +51,5 @@ public interface ReactivePulsarClient {
 	 * @return a builder for building a {@link ReactiveMessageConsumer}
 	 */
 	<T> ReactiveMessageConsumerBuilder<T> messageConsumer(Schema<T> schema);
-
-	/**
-	 * Creates a builder for building a {@link ReactiveMessagePipeline}.
-	 * @param messageConsumer the {@link ReactiveMessageConsumer} instance to run in the
-	 * pipeline
-	 * @param <T> the message payload type
-	 * @return a builder for building a {@link ReactiveMessagePipeline}
-	 */
-	default <T> ReactiveMessagePipelineBuilder<T> messagePipeline(ReactiveMessageConsumer<T> messageConsumer) {
-		return ApiImplementationFactory.createReactiveMessageHandlerPipelineBuilder(messageConsumer);
-	}
 
 }

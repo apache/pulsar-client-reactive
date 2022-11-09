@@ -190,13 +190,13 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
 
 [source,java]
 ----
-ReactiveMessageHandler reactiveMessagePipeline=
-	reactivePulsarClient
-        .messagePipeline(reactivePulsarClient
-           .messageConsumer(Schema.STRING)
-           .subscriptionName("sub")
-           .topic(topicName)
-           .build())
+ReactiveMessageHandler reactiveMessagePipeline =
+    reactivePulsarClient
+        .messageConsumer(Schema.STRING)
+        .subscriptionName("sub")
+        .topic(topicName)
+        .build()
+        .messagePipeline()
         .messageHandler(message -> Mono.fromRunnable(()->{
             System.out.println(message.getValue());
         }))

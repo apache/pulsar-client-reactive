@@ -19,6 +19,7 @@ package org.apache.pulsar.reactive.client.api;
 import java.util.function.Function;
 
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.reactive.client.internal.api.ApiImplementationFactory;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,6 +29,14 @@ public interface ReactiveMessageConsumer<T> {
 	<R> Mono<R> consumeOne(Function<Message<T>, Publisher<MessageResult<R>>> messageHandler);
 
 	<R> Flux<R> consumeMany(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
+
+	/**
+	 * Creates a builder for building a {@link ReactiveMessagePipeline}.
+	 * @return a builder for building a {@link ReactiveMessagePipeline}
+	 */
+	default ReactiveMessagePipelineBuilder<T> messagePipeline() {
+		return ApiImplementationFactory.createReactiveMessageHandlerPipelineBuilder(this);
+	}
 
 	/**
 	 * Creates the Pulsar Consumer and immediately closes it. This is useful for creating
