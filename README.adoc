@@ -191,7 +191,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
 [source,java]
 ----
 ReactiveMessageHandler reactiveMessagePipeline=
-	reactivePulsarClient
+	ReactivePulsarClient
         .messagePipeline(reactivePulsarClient
            .messageConsumer(Schema.STRING)
            .subscriptionName("sub")

@@ -61,7 +61,7 @@ public interface ReactivePulsarClient {
 	 * @param <T> the message payload type
 	 * @return a builder for building a {@link ReactiveMessagePipeline}
 	 */
-	default <T> ReactiveMessagePipelineBuilder<T> messagePipeline(ReactiveMessageConsumer<T> messageConsumer) {
+	static <T> ReactiveMessagePipelineBuilder<T> messagePipeline(ReactiveMessageConsumer<T> messageConsumer) {
 		return ApiImplementationFactory.createReactiveMessageHandlerPipelineBuilder(messageConsumer);
 	}
 

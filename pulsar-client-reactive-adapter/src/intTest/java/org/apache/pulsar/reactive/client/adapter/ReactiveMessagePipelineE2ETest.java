@@ -73,7 +73,7 @@ public class ReactiveMessagePipelineE2ETest {
 			List<String> messages = Collections.synchronizedList(new ArrayList<>());
 			CountDownLatch latch = new CountDownLatch(100);
 
-			try (ReactiveMessagePipeline reactiveMessagePipeline = reactivePulsarClient
+			try (ReactiveMessagePipeline reactiveMessagePipeline = ReactivePulsarClient
 					.messagePipeline(reactivePulsarClient.messageConsumer(Schema.STRING).subscriptionName("sub")
 							.topic(topicName).build())
 					.messageHandler((message) -> Mono.fromRunnable(() -> {
@@ -110,7 +110,7 @@ public class ReactiveMessagePipelineE2ETest {
 			List<Integer> orderedSequence = IntStream.rangeClosed(1, ITEMS_PER_KEY_COUNT).boxed()
 					.collect(Collectors.toList());
 
-			ReactiveMessagePipelineBuilder.OneByOneMessagePipelineBuilder<Integer> reactiveMessageHandlerBuilder = reactivePulsarClient
+			ReactiveMessagePipelineBuilder.OneByOneMessagePipelineBuilder<Integer> reactiveMessageHandlerBuilder = ReactivePulsarClient
 					.messagePipeline(reactivePulsarClient.messageConsumer(Schema.INT32).subscriptionName("sub")
 							.topic(topicName).build())
 					.messageHandler((message) -> {
