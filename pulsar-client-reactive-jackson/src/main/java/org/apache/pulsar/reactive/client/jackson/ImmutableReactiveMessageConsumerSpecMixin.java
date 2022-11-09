@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageConsumerSpec;
@@ -46,6 +47,7 @@ abstract class ImmutableReactiveMessageConsumerSpecMixin {
 			@JsonProperty("subscriptionName") String subscriptionName,
 			@JsonProperty("subscriptionMode") SubscriptionMode subscriptionMode,
 			@JsonProperty("subscriptionType") SubscriptionType subscriptionType,
+			@JsonProperty("subscriptionInitialPosition") SubscriptionInitialPosition subscriptionInitialPosition,
 			@JsonProperty("keySharedPolicy") KeySharedPolicy keySharedPolicy,
 			@JsonProperty("replicateSubscriptionState") Boolean replicateSubscriptionState,
 			@JsonProperty("subscriptionProperties") Map<String, String> subscriptionProperties,

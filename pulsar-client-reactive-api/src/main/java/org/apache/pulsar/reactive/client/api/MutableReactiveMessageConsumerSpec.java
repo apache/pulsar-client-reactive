@@ -28,6 +28,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import reactor.core.scheduler.Scheduler;
@@ -47,6 +48,8 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 	private SubscriptionMode subscriptionMode;
 
 	private SubscriptionType subscriptionType;
+
+	private SubscriptionInitialPosition subscriptionInitialPosition;
 
 	private KeySharedPolicy keySharedPolicy;
 
@@ -117,6 +120,8 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 		this.subscriptionMode = consumerSpec.getSubscriptionMode();
 
 		this.subscriptionType = consumerSpec.getSubscriptionType();
+
+		this.subscriptionInitialPosition = consumerSpec.getSubscriptionInitialPosition();
 
 		this.keySharedPolicy = consumerSpec.getKeySharedPolicy();
 
@@ -231,6 +236,15 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 
 	public void setSubscriptionType(SubscriptionType subscriptionType) {
 		this.subscriptionType = subscriptionType;
+	}
+
+	@Override
+	public SubscriptionInitialPosition getSubscriptionInitialPosition() {
+		return this.subscriptionInitialPosition;
+	}
+
+	public void setSubscriptionInitialPosition(SubscriptionInitialPosition subscriptionInitialPosition) {
+		this.subscriptionInitialPosition = subscriptionInitialPosition;
 	}
 
 	@Override
@@ -479,6 +493,9 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 		}
 		if (consumerSpec.getSubscriptionType() != null) {
 			setSubscriptionType(consumerSpec.getSubscriptionType());
+		}
+		if (consumerSpec.getSubscriptionInitialPosition() != null) {
+			setSubscriptionInitialPosition(consumerSpec.getSubscriptionInitialPosition());
 		}
 		if (consumerSpec.getKeySharedPolicy() != null) {
 			setKeySharedPolicy(consumerSpec.getKeySharedPolicy());

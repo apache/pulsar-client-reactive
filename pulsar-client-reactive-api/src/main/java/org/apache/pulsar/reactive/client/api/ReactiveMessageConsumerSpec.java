@@ -26,6 +26,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import reactor.core.scheduler.Scheduler;
@@ -45,6 +46,8 @@ public interface ReactiveMessageConsumerSpec {
 	SubscriptionMode getSubscriptionMode();
 
 	SubscriptionType getSubscriptionType();
+
+	SubscriptionInitialPosition getSubscriptionInitialPosition();
 
 	KeySharedPolicy getKeySharedPolicy();
 

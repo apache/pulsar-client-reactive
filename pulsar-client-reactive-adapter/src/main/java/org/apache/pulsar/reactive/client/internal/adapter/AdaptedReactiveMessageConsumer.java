@@ -129,6 +129,9 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 		if (this.consumerSpec.getSubscriptionType() != null) {
 			consumerBuilder.subscriptionType(this.consumerSpec.getSubscriptionType());
 		}
+		if (this.consumerSpec.getSubscriptionInitialPosition() != null) {
+			consumerBuilder.subscriptionInitialPosition(this.consumerSpec.getSubscriptionInitialPosition());
+		}
 		if (this.consumerSpec.getKeySharedPolicy() != null) {
 			consumerBuilder.keySharedPolicy(this.consumerSpec.getKeySharedPolicy());
 		}

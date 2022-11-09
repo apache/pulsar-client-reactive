@@ -33,6 +33,7 @@ import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.client.impl.KeyBasedBatcherBuilder;
@@ -72,6 +73,7 @@ class PulsarReactiveClientModuleTest {
 				+ "'subscriptionName': 'my-sub',"
 				+ "'subscriptionMode': 'Durable',"
 				+ "'subscriptionType': 'Exclusive',"
+				+ "'subscriptionInitialPosition': 'Latest',"
 				+ "'keySharedPolicy': 'STICKY',"
 				+ "'replicateSubscriptionState': true,"
 				+ "'subscriptionProperties': {'my-key': 'my-value'},"
@@ -117,6 +119,7 @@ class PulsarReactiveClientModuleTest {
 		assertThat(spec.getSubscriptionName()).isEqualTo("my-sub");
 		assertThat(spec.getSubscriptionMode()).isEqualTo(SubscriptionMode.Durable);
 		assertThat(spec.getSubscriptionType()).isEqualTo(SubscriptionType.Exclusive);
+		assertThat(spec.getSubscriptionInitialPosition()).isEqualTo(SubscriptionInitialPosition.Latest);
 		assertThat(spec.getKeySharedPolicy()).isInstanceOf(KeySharedPolicy.KeySharedPolicySticky.class);
 		assertThat(spec.getReplicateSubscriptionState()).isTrue();
 		assertThat(spec.getSubscriptionProperties()).containsOnlyKeys("my-key");
@@ -162,6 +165,7 @@ class PulsarReactiveClientModuleTest {
 				+ "  'subscriptionName' : 'my-sub',\n"
 				+ "  'subscriptionMode' : 'Durable',\n"
 				+ "  'subscriptionType' : 'Exclusive',\n"
+				+ "  'subscriptionInitialPosition' : 'Latest',\n"
 				+ "  'keySharedPolicy' : 'STICKY',\n"
 				+ "  'replicateSubscriptionState' : true,\n"
 				+ "  'subscriptionProperties' : {\n"
