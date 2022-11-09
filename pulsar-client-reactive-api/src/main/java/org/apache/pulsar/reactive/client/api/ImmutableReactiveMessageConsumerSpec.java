@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import reactor.core.scheduler.Scheduler;
@@ -48,6 +49,8 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 	private final SubscriptionMode subscriptionMode;
 
 	private final SubscriptionType subscriptionType;
+
+	private final SubscriptionInitialPosition subscriptionInitialPosition;
 
 	private final KeySharedPolicy keySharedPolicy;
 
@@ -115,6 +118,8 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 
 		this.subscriptionType = consumerSpec.getSubscriptionType();
 
+		this.subscriptionInitialPosition = consumerSpec.getSubscriptionInitialPosition();
+
 		this.keySharedPolicy = consumerSpec.getKeySharedPolicy();
 
 		this.replicateSubscriptionState = consumerSpec.getReplicateSubscriptionState();
@@ -171,12 +176,12 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 	public ImmutableReactiveMessageConsumerSpec(List<String> topicNames, Pattern topicsPattern,
 			RegexSubscriptionMode topicsPatternSubscriptionMode, Duration topicsPatternAutoDiscoveryPeriod,
 			String subscriptionName, SubscriptionMode subscriptionMode, SubscriptionType subscriptionType,
-			KeySharedPolicy keySharedPolicy, Boolean replicateSubscriptionState,
-			Map<String, String> subscriptionProperties, String consumerName, Map<String, String> properties,
-			Integer priorityLevel, Boolean readCompacted, Boolean batchIndexAckEnabled, Duration ackTimeout,
-			Duration ackTimeoutTickTime, Duration acknowledgementsGroupTime, Boolean acknowledgeAsynchronously,
-			Scheduler acknowledgeScheduler, Duration negativeAckRedeliveryDelay, DeadLetterPolicy deadLetterPolicy,
-			Boolean retryLetterTopicEnable, Integer receiverQueueSize,
+			SubscriptionInitialPosition subscriptionInitialPosition, KeySharedPolicy keySharedPolicy,
+			Boolean replicateSubscriptionState, Map<String, String> subscriptionProperties, String consumerName,
+			Map<String, String> properties, Integer priorityLevel, Boolean readCompacted, Boolean batchIndexAckEnabled,
+			Duration ackTimeout, Duration ackTimeoutTickTime, Duration acknowledgementsGroupTime,
+			Boolean acknowledgeAsynchronously, Scheduler acknowledgeScheduler, Duration negativeAckRedeliveryDelay,
+			DeadLetterPolicy deadLetterPolicy, Boolean retryLetterTopicEnable, Integer receiverQueueSize,
 			Integer maxTotalReceiverQueueSizeAcrossPartitions, Boolean autoUpdatePartitions,
 			Duration autoUpdatePartitionsInterval, CryptoKeyReader cryptoKeyReader,
 			ConsumerCryptoFailureAction cryptoFailureAction, Integer maxPendingChunkedMessage,
@@ -188,6 +193,7 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.subscriptionName = subscriptionName;
 		this.subscriptionMode = subscriptionMode;
 		this.subscriptionType = subscriptionType;
+		this.subscriptionInitialPosition = subscriptionInitialPosition;
 		this.keySharedPolicy = keySharedPolicy;
 		this.replicateSubscriptionState = replicateSubscriptionState;
 		this.subscriptionProperties = subscriptionProperties;
@@ -215,130 +221,167 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.expireTimeOfIncompleteChunkedMessage = expireTimeOfIncompleteChunkedMessage;
 	}
 
+	@Override
 	public List<String> getTopicNames() {
 		return this.topicNames;
 	}
 
+	@Override
 	public Pattern getTopicsPattern() {
 		return this.topicsPattern;
 	}
 
+	@Override
 	public RegexSubscriptionMode getTopicsPatternSubscriptionMode() {
 		return this.topicsPatternSubscriptionMode;
 	}
 
+	@Override
 	public Duration getTopicsPatternAutoDiscoveryPeriod() {
 		return this.topicsPatternAutoDiscoveryPeriod;
 	}
 
+	@Override
 	public String getSubscriptionName() {
 		return this.subscriptionName;
 	}
 
+	@Override
 	public SubscriptionMode getSubscriptionMode() {
 		return this.subscriptionMode;
 	}
 
+	@Override
 	public SubscriptionType getSubscriptionType() {
 		return this.subscriptionType;
 	}
 
+	@Override
+	public SubscriptionInitialPosition getSubscriptionInitialPosition() {
+		return this.subscriptionInitialPosition;
+	}
+
+	@Override
 	public KeySharedPolicy getKeySharedPolicy() {
 		return this.keySharedPolicy;
 	}
 
+	@Override
 	public Boolean getReplicateSubscriptionState() {
 		return this.replicateSubscriptionState;
 	}
 
+	@Override
 	public Map<String, String> getSubscriptionProperties() {
 		return this.subscriptionProperties;
 	}
 
+	@Override
 	public String getConsumerName() {
 		return this.consumerName;
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		return this.properties;
 	}
 
+	@Override
 	public Integer getPriorityLevel() {
 		return this.priorityLevel;
 	}
 
+	@Override
 	public Boolean getReadCompacted() {
 		return this.readCompacted;
 	}
 
+	@Override
 	public Boolean getBatchIndexAckEnabled() {
 		return this.batchIndexAckEnabled;
 	}
 
+	@Override
 	public Duration getAckTimeout() {
 		return this.ackTimeout;
 	}
 
+	@Override
 	public Duration getAckTimeoutTickTime() {
 		return this.ackTimeoutTickTime;
 	}
 
+	@Override
 	public Duration getAcknowledgementsGroupTime() {
 		return this.acknowledgementsGroupTime;
 	}
 
+	@Override
 	public Boolean getAcknowledgeAsynchronously() {
 		return this.acknowledgeAsynchronously;
 	}
 
+	@Override
 	public Scheduler getAcknowledgeScheduler() {
 		return this.acknowledgeScheduler;
 	}
 
+	@Override
 	public Duration getNegativeAckRedeliveryDelay() {
 		return this.negativeAckRedeliveryDelay;
 	}
 
+	@Override
 	public DeadLetterPolicy getDeadLetterPolicy() {
 		return this.deadLetterPolicy;
 	}
 
+	@Override
 	public Boolean getRetryLetterTopicEnable() {
 		return this.retryLetterTopicEnable;
 	}
 
+	@Override
 	public Integer getReceiverQueueSize() {
 		return this.receiverQueueSize;
 	}
 
+	@Override
 	public Integer getMaxTotalReceiverQueueSizeAcrossPartitions() {
 		return this.maxTotalReceiverQueueSizeAcrossPartitions;
 	}
 
+	@Override
 	public Boolean getAutoUpdatePartitions() {
 		return this.autoUpdatePartitions;
 	}
 
+	@Override
 	public Duration getAutoUpdatePartitionsInterval() {
 		return this.autoUpdatePartitionsInterval;
 	}
 
+	@Override
 	public CryptoKeyReader getCryptoKeyReader() {
 		return this.cryptoKeyReader;
 	}
 
+	@Override
 	public ConsumerCryptoFailureAction getCryptoFailureAction() {
 		return this.cryptoFailureAction;
 	}
 
+	@Override
 	public Integer getMaxPendingChunkedMessage() {
 		return this.maxPendingChunkedMessage;
 	}
 
+	@Override
 	public Boolean getAutoAckOldestChunkedMessageOnQueueFull() {
 		return this.autoAckOldestChunkedMessageOnQueueFull;
 	}
 
+	@Override
 	public Duration getExpireTimeOfIncompleteChunkedMessage() {
 		return this.expireTimeOfIncompleteChunkedMessage;
 	}
