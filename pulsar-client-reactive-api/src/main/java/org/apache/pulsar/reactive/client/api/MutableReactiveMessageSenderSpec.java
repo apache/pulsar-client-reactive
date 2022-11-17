@@ -86,8 +86,6 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 
 	private Map<String, String> properties;
 
-	private String initialSubscriptionName;
-
 	public MutableReactiveMessageSenderSpec() {
 
 	}
@@ -125,6 +123,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 				? Collections.unmodifiableMap(new LinkedHashMap<>(senderSpec.getProperties())) : null;
 	}
 
+	@Override
 	public String getTopicName() {
 		return this.topicName;
 	}
@@ -133,6 +132,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.topicName = topicName;
 	}
 
+	@Override
 	public String getProducerName() {
 		return this.producerName;
 	}
@@ -141,6 +141,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.producerName = producerName;
 	}
 
+	@Override
 	public Duration getSendTimeout() {
 		return this.sendTimeout;
 	}
@@ -149,6 +150,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.sendTimeout = sendTimeout;
 	}
 
+	@Override
 	public Integer getMaxPendingMessages() {
 		return this.maxPendingMessages;
 	}
@@ -157,6 +159,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.maxPendingMessages = maxPendingMessages;
 	}
 
+	@Override
 	public Integer getMaxPendingMessagesAcrossPartitions() {
 		return this.maxPendingMessagesAcrossPartitions;
 	}
@@ -165,6 +168,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.maxPendingMessagesAcrossPartitions = maxPendingMessagesAcrossPartitions;
 	}
 
+	@Override
 	public MessageRoutingMode getMessageRoutingMode() {
 		return this.messageRoutingMode;
 	}
@@ -173,6 +177,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.messageRoutingMode = messageRoutingMode;
 	}
 
+	@Override
 	public HashingScheme getHashingScheme() {
 		return this.hashingScheme;
 	}
@@ -181,6 +186,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.hashingScheme = hashingScheme;
 	}
 
+	@Override
 	public ProducerCryptoFailureAction getCryptoFailureAction() {
 		return this.cryptoFailureAction;
 	}
@@ -189,6 +195,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.cryptoFailureAction = cryptoFailureAction;
 	}
 
+	@Override
 	public MessageRouter getMessageRouter() {
 		return this.messageRouter;
 	}
@@ -197,6 +204,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.messageRouter = messageRouter;
 	}
 
+	@Override
 	public Duration getBatchingMaxPublishDelay() {
 		return this.batchingMaxPublishDelay;
 	}
@@ -205,6 +213,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.batchingMaxPublishDelay = batchingMaxPublishDelay;
 	}
 
+	@Override
 	public Integer getRoundRobinRouterBatchingPartitionSwitchFrequency() {
 		return this.roundRobinRouterBatchingPartitionSwitchFrequency;
 	}
@@ -214,6 +223,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.roundRobinRouterBatchingPartitionSwitchFrequency = roundRobinRouterBatchingPartitionSwitchFrequency;
 	}
 
+	@Override
 	public Integer getBatchingMaxMessages() {
 		return this.batchingMaxMessages;
 	}
@@ -222,6 +232,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.batchingMaxMessages = batchingMaxMessages;
 	}
 
+	@Override
 	public Integer getBatchingMaxBytes() {
 		return this.batchingMaxBytes;
 	}
@@ -230,6 +241,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.batchingMaxBytes = batchingMaxBytes;
 	}
 
+	@Override
 	public Boolean getBatchingEnabled() {
 		return this.batchingEnabled;
 	}
@@ -238,6 +250,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.batchingEnabled = batchingEnabled;
 	}
 
+	@Override
 	public BatcherBuilder getBatcherBuilder() {
 		return this.batcherBuilder;
 	}
@@ -246,6 +259,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.batcherBuilder = batcherBuilder;
 	}
 
+	@Override
 	public Boolean getChunkingEnabled() {
 		return this.chunkingEnabled;
 	}
@@ -254,6 +268,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.chunkingEnabled = chunkingEnabled;
 	}
 
+	@Override
 	public CryptoKeyReader getCryptoKeyReader() {
 		return this.cryptoKeyReader;
 	}
@@ -262,6 +277,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.cryptoKeyReader = cryptoKeyReader;
 	}
 
+	@Override
 	public Set<String> getEncryptionKeys() {
 		return this.encryptionKeys;
 	}
@@ -270,6 +286,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.encryptionKeys = encryptionKeys;
 	}
 
+	@Override
 	public CompressionType getCompressionType() {
 		return this.compressionType;
 	}
@@ -278,6 +295,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.compressionType = compressionType;
 	}
 
+	@Override
 	public Long getInitialSequenceId() {
 		return this.initialSequenceId;
 	}
@@ -286,6 +304,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.initialSequenceId = initialSequenceId;
 	}
 
+	@Override
 	public Boolean getAutoUpdatePartitions() {
 		return this.autoUpdatePartitions;
 	}
@@ -294,6 +313,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.autoUpdatePartitions = autoUpdatePartitions;
 	}
 
+	@Override
 	public Duration getAutoUpdatePartitionsInterval() {
 		return this.autoUpdatePartitionsInterval;
 	}
@@ -302,6 +322,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.autoUpdatePartitionsInterval = autoUpdatePartitionsInterval;
 	}
 
+	@Override
 	public Boolean getMultiSchema() {
 		return this.multiSchema;
 	}
@@ -310,6 +331,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.multiSchema = multiSchema;
 	}
 
+	@Override
 	public ProducerAccessMode getAccessMode() {
 		return this.accessMode;
 	}
@@ -318,6 +340,7 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.accessMode = accessMode;
 	}
 
+	@Override
 	public Boolean getLazyStartPartitionedProducers() {
 		return this.lazyStartPartitionedProducers;
 	}
@@ -326,20 +349,13 @@ public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSp
 		this.lazyStartPartitionedProducers = lazyStartPartitionedProducers;
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		return this.properties;
 	}
 
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
-	}
-
-	public String getInitialSubscriptionName() {
-		return this.initialSubscriptionName;
-	}
-
-	public void setInitialSubscriptionName(String initialSubscriptionName) {
-		this.initialSubscriptionName = initialSubscriptionName;
 	}
 
 	public void applySpec(ReactiveMessageSenderSpec senderSpec) {
