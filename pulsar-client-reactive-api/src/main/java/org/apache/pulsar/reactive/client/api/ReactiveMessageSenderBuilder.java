@@ -178,11 +178,6 @@ public interface ReactiveMessageSenderBuilder<T> {
 		return this;
 	}
 
-	default ReactiveMessageSenderBuilder<T> initialSubscriptionName(String initialSubscriptionName) {
-		getMutableSpec().setInitialSubscriptionName(initialSubscriptionName);
-		return this;
-	}
-
 	ReactiveMessageSender<T> build();
 
 }
