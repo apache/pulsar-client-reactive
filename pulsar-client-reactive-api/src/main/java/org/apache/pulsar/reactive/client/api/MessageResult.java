@@ -39,7 +39,7 @@ public interface MessageResult<T> {
 	}
 
 	static <V> MessageResult<Void> acknowledge(Message<V> message) {
-		return ApiImplementationFactory.acknowledge(message.getMessageId());
+		return acknowledge(message.getMessageId());
 	}
 
 	static <V> MessageResult<Void> negativeAcknowledge(Message<V> message) {
