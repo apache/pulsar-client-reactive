@@ -24,10 +24,33 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Reactive message consumer interface.
+ *
+ * @param <T> the message payload type.
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface ReactiveMessageConsumer<T> {
 
+	/**
+	 * Consumes one message.
+	 * @param messageHandler a {@link Function} to apply to the consumed message that
+	 * returns a {@link MessageResult}
+	 * @return the value contained by the {@link MessageResult} returned by the message
+	 * handler
+	 * @param <R> the type of MessageResult returned by the message handler
+	 */
 	<R> Mono<R> consumeOne(Function<Message<T>, Publisher<MessageResult<R>>> messageHandler);
 
+	/**
+	 * Consumes messages continuously.
+	 * @param messageHandler a {@link Function} to apply to the consumed messages that
+	 * returns {@link MessageResult}s
+	 * @return the values contained by the {@link MessageResult}s returned by the message
+	 * handler
+	 * @param <R> the type of MessageResult returned by the message handler
+	 */
 	<R> Flux<R> consumeMany(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
 
 	/**
