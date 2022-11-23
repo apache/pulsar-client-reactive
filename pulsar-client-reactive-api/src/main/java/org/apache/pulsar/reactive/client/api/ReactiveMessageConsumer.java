@@ -36,7 +36,9 @@ public interface ReactiveMessageConsumer<T> {
 	/**
 	 * Consumes one message.
 	 * @param messageHandler a {@link Function} to apply to the consumed message that
-	 * returns a {@link MessageResult}
+	 * returns a {@link MessageResult} which contains the acknowledgement or negative
+	 * acknowledgement referencing the message id of the input message together with an
+	 * optional return value object
 	 * @return the value contained by the {@link MessageResult} returned by the message
 	 * handler
 	 * @param <R> the type of MessageResult returned by the message handler
@@ -46,7 +48,9 @@ public interface ReactiveMessageConsumer<T> {
 	/**
 	 * Consumes messages continuously.
 	 * @param messageHandler a {@link Function} to apply to the consumed messages that
-	 * returns {@link MessageResult}s
+	 * returns {@link MessageResult}s, each containing the acknowledgement or negative
+	 * acknowledgement referencing the message id of the corresponding input messages
+	 * together with an optional return value object
 	 * @return the values contained by the {@link MessageResult}s returned by the message
 	 * handler
 	 * @param <R> the type of MessageResult returned by the message handler
