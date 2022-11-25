@@ -16,12 +16,38 @@
 
 package org.apache.pulsar.reactive.client.api;
 
+/**
+ * Reactive message pipeline interface.
+ *
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface ReactiveMessagePipeline extends AutoCloseable {
 
+	/**
+	 * Starts the reactive pipeline.
+	 * @return the pipeline
+	 */
 	ReactiveMessagePipeline start();
 
+	/**
+	 * Stops the reactive pipeline.
+	 * @return the reactive pipeline
+	 */
 	ReactiveMessagePipeline stop();
 
+	/**
+	 * Gets whether the reactive pipeline is running.
+	 * @return true if the reactive pipeline is running
+	 */
 	boolean isRunning();
+
+	/**
+	 * Closes the reactive pipeline.
+	 * @throws Exception if an error occurs
+	 */
+	default void close() throws Exception {
+		stop();
+	}
 
 }

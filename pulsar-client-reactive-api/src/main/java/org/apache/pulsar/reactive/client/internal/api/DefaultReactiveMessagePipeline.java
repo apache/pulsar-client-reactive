@@ -191,9 +191,4 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		return this.killSwitch.get() != null;
 	}
 
-	@Override
-	public void close() throws Exception {
-		stop();
-	}
-
 }
