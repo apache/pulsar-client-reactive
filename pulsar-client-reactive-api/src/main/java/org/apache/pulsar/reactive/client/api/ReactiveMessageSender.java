@@ -21,6 +21,13 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Reactive message sender interface.
+ *
+ * @param <T> the message payload type.
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface ReactiveMessageSender<T> {
 
 	/**
@@ -32,7 +39,7 @@ public interface ReactiveMessageSender<T> {
 
 	/**
 	 * Send multiple messages and get the associated message ids in the same order as the
-	 * sent messages.
+	 * messages sent.
 	 * @param messageSpecs the specs of the messages to send
 	 * @return a publisher that will emit a message id per message successfully sent in
 	 * the order that they have been sent
