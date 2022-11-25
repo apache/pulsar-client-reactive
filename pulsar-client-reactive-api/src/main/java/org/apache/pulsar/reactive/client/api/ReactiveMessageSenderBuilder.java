@@ -37,6 +37,12 @@ public interface ReactiveMessageSenderBuilder<T> {
 
 	ReactiveMessageSenderBuilder<T> maxConcurrentSenderSubscriptions(int maxConcurrentSenderSubscriptions);
 
+	/**
+	 * Creates and returns a copy of this reactive sender builder.
+	 * @return the cloned reactive reader builder
+	 */
+	ReactiveMessageSenderBuilder<T> clone();
+
 	default ReactiveMessageSenderBuilder<T> applySpec(ReactiveMessageSenderSpec senderSpec) {
 		getMutableSpec().applySpec(senderSpec);
 		return this;

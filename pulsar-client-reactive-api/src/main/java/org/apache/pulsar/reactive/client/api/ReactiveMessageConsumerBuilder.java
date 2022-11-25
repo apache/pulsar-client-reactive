@@ -43,6 +43,12 @@ public interface ReactiveMessageConsumerBuilder<T> {
 
 	MutableReactiveMessageConsumerSpec getMutableSpec();
 
+	/**
+	 * Creates and returns a copy of this reactive consumer builder.
+	 * @return the cloned reactive reader builder
+	 */
+	ReactiveMessageConsumerBuilder<T> clone();
+
 	default ReactiveMessageConsumerBuilder<T> topic(String topicName) {
 		getMutableSpec().getTopicNames().add(topicName);
 		return this;

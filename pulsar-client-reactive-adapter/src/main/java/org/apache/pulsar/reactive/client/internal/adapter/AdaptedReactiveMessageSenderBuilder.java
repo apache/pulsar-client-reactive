@@ -39,7 +39,7 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
 	private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
 
-	private final MutableReactiveMessageSenderSpec senderSpec = new MutableReactiveMessageSenderSpec();
+	private final MutableReactiveMessageSenderSpec senderSpec;
 
 	private ReactiveMessageSenderCache producerCache;
 
@@ -51,8 +51,15 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
 	AdaptedReactiveMessageSenderBuilder(Schema<T> schema,
 			ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
+		this(schema, reactiveProducerAdapterFactory, new MutableReactiveMessageSenderSpec());
+	}
+
+	private AdaptedReactiveMessageSenderBuilder(Schema<T> schema,
+			ReactiveProducerAdapterFactory reactiveProducerAdapterFactory,
+			MutableReactiveMessageSenderSpec senderSpec) {
 		this.schema = schema;
 		this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
+		this.senderSpec = senderSpec;
 	}
 
 	@Override
@@ -81,6 +88,17 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 	public ReactiveMessageSenderBuilder<T> maxConcurrentSenderSubscriptions(int maxConcurrentSenderSubscriptions) {
 		this.maxConcurrentSenderSubscriptions = maxConcurrentSenderSubscriptions;
 		return this;
+	}
+
+	@Override
+	public ReactiveMessageSenderBuilder<T> clone() {
+		AdaptedReactiveMessageSenderBuilder<T> cloned = new AdaptedReactiveMessageSenderBuilder<>(this.schema,
+				this.reactiveProducerAdapterFactory, new MutableReactiveMessageSenderSpec(this.senderSpec));
+		cloned.producerCache = this.producerCache;
+		cloned.maxInflight = this.maxInflight;
+		cloned.maxConcurrentSenderSubscriptions = this.maxConcurrentSenderSubscriptions;
+		cloned.producerActionTransformer = this.producerActionTransformer;
+		return cloned;
 	}
 
 	@Override
