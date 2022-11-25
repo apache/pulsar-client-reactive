@@ -33,7 +33,9 @@ public interface ReactiveMessageReaderBuilder<T> {
 		return this;
 	}
 
-	ReactiveMessageReaderSpec toImmutableSpec();
+	default ReactiveMessageReaderSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageReaderSpec(getMutableSpec());
+	}
 
 	MutableReactiveMessageReaderSpec getMutableSpec();
 

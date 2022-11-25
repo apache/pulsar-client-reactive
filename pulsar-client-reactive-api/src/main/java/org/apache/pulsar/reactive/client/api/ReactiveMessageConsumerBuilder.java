@@ -39,7 +39,9 @@ public interface ReactiveMessageConsumerBuilder<T> {
 		return this;
 	}
 
-	ReactiveMessageConsumerSpec toImmutableSpec();
+	default ReactiveMessageConsumerSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageConsumerSpec(getMutableSpec());
+	}
 
 	MutableReactiveMessageConsumerSpec getMutableSpec();
 

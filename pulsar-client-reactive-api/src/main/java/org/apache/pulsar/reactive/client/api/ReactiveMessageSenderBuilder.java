@@ -42,7 +42,9 @@ public interface ReactiveMessageSenderBuilder<T> {
 		return this;
 	}
 
-	ReactiveMessageSenderSpec toImmutableSpec();
+	default ReactiveMessageSenderSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageSenderSpec(getMutableSpec());
+	}
 
 	MutableReactiveMessageSenderSpec getMutableSpec();
 
