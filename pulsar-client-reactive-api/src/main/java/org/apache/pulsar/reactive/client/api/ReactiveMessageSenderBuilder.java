@@ -17,6 +17,7 @@
 package org.apache.pulsar.reactive.client.api;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -170,6 +171,14 @@ public interface ReactiveMessageSenderBuilder<T> {
 
 	default ReactiveMessageSenderBuilder<T> lazyStartPartitionedProducers(boolean lazyStartPartitionedProducers) {
 		getMutableSpec().setLazyStartPartitionedProducers(lazyStartPartitionedProducers);
+		return this;
+	}
+
+	default ReactiveMessageSenderBuilder<T> property(String key, String value) {
+		if (getMutableSpec().getProperties() == null) {
+			getMutableSpec().setProperties(new LinkedHashMap<>());
+		}
+		getMutableSpec().getProperties().put(key, value);
 		return this;
 	}
 

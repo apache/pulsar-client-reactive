@@ -43,19 +43,14 @@ public interface ReactiveMessageConsumerBuilder<T> {
 
 	MutableReactiveMessageConsumerSpec getMutableSpec();
 
-	default ReactiveMessageConsumerBuilder<T> topic(String topicName) {
-		getMutableSpec().getTopicNames().add(topicName);
-		return this;
-	}
-
-	default ReactiveMessageConsumerBuilder<T> topic(String... topicNames) {
+	default ReactiveMessageConsumerBuilder<T> addTopics(String... topicNames) {
 		for (String topicName : topicNames) {
 			getMutableSpec().getTopicNames().add(topicName);
 		}
 		return this;
 	}
 
-	default ReactiveMessageConsumerBuilder<T> topicNames(List<String> topicNames) {
+	default ReactiveMessageConsumerBuilder<T> topics(List<String> topicNames) {
 		getMutableSpec().setTopicNames(topicNames);
 		return this;
 	}

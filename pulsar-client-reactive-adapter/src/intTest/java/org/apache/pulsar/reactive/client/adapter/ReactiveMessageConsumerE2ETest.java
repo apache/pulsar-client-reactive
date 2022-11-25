@@ -51,7 +51,7 @@ public class ReactiveMessageConsumerE2ETest {
 			messageSender.sendMany(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			ReactiveMessageConsumer<String> messageConsumer = reactivePulsarClient.messageConsumer(Schema.STRING)
-					.topic(topicName).subscriptionName("sub").build();
+					.addTopics(topicName).subscriptionName("sub").build();
 			List<String> messages = messageConsumer
 					.consumeMany((messageFlux) -> messageFlux
 							.map((message) -> MessageResult.acknowledge(message.getMessageId(), message.getValue())))

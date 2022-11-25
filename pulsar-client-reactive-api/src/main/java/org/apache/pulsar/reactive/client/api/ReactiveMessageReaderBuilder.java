@@ -41,19 +41,14 @@ public interface ReactiveMessageReaderBuilder<T> {
 
 	ReactiveMessageReader<T> build();
 
-	default ReactiveMessageReaderBuilder<T> topic(String topicName) {
-		getMutableSpec().getTopicNames().add(topicName);
-		return this;
-	}
-
-	default ReactiveMessageReaderBuilder<T> topic(String... topicNames) {
+	default ReactiveMessageReaderBuilder<T> addTopics(String... topicNames) {
 		for (String topicName : topicNames) {
 			getMutableSpec().getTopicNames().add(topicName);
 		}
 		return this;
 	}
 
-	default ReactiveMessageReaderBuilder<T> topicNames(List<String> topicNames) {
+	default ReactiveMessageReaderBuilder<T> topics(List<String> topicNames) {
 		getMutableSpec().setTopicNames(topicNames);
 		return this;
 	}

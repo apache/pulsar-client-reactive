@@ -49,7 +49,7 @@ public class ReactiveMessageReaderE2ETest {
 			messageSender.sendMany(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			ReactiveMessageReader<String> messageReader = reactivePulsarClient.messageReader(Schema.STRING)
-					.topic(topicName).build();
+					.addTopics(topicName).build();
 			List<String> messages = messageReader.readMany().map(Message::getValue).collectList().block();
 
 			assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
