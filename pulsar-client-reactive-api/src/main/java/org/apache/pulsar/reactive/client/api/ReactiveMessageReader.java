@@ -20,10 +20,25 @@ import org.apache.pulsar.client.api.Message;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Reactive message reader interface.
+ *
+ * @param <T> the message payload type.
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface ReactiveMessageReader<T> {
 
+	/**
+	 * Read one message.
+	 * @return the message read
+	 */
 	Mono<Message<T>> readOne();
 
+	/**
+	 * Read messages continuously.
+	 * @return the messages read
+	 */
 	Flux<Message<T>> readMany();
 
 }
