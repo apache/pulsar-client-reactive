@@ -19,6 +19,12 @@ package org.apache.pulsar.reactive.client.internal.api;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 
+/**
+ * Message result holding only the id of the message to acknowledge or negatively
+ * acknowledge.
+ *
+ * @author Lari Hotari
+ */
 class EmptyMessageResult implements MessageResult<Void> {
 
 	private final MessageId messageId;

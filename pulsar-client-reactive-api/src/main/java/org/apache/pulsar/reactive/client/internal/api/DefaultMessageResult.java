@@ -19,6 +19,13 @@ package org.apache.pulsar.reactive.client.internal.api;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 
+/**
+ * The default message result holding the value of the message processing and the id of
+ * the message to acknowledge or negatively acknowledge.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ */
 class DefaultMessageResult<T> implements MessageResult<T> {
 
 	private final MessageId messageId;
