@@ -123,7 +123,7 @@ public interface ReactiveMessageReaderBuilder<T> {
 	 * @return the reader builder instance
 	 * @see ReaderBuilder#topics(List)
 	 */
-	default ReactiveMessageReaderBuilder<T> topicNames(List<String> topicNames) {
+	default ReactiveMessageReaderBuilder<T> topics(List<String> topicNames) {
 		getMutableSpec().setTopicNames(topicNames);
 		return this;
 	}
