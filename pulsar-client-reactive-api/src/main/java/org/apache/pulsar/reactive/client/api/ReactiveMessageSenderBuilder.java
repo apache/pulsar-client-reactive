@@ -17,6 +17,7 @@
 package org.apache.pulsar.reactive.client.api;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
+import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.reactivestreams.Publisher;
 
@@ -562,6 +564,27 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 */
 	default ReactiveMessageSenderBuilder<T> lazyStartPartitionedProducers(boolean lazyStartPartitionedProducers) {
 		getMutableSpec().setLazyStartPartitionedProducers(lazyStartPartitionedProducers);
+		return this;
+	}
+
+	/**
+	 * Adds a property to the producer. This setting applies to each producer created
+	 * under this sender.
+	 *
+	 * <p>
+	 * Properties are application defined metadata that can be attached to the sender.
+	 * When getting the topic stats, this metadata will be associated to the sender stats
+	 * for easier identification.
+	 * @param key the key of the property to add
+	 * @param value the value of the property to add
+	 * @return the producer builder instance
+	 * @see ProducerBuilder#property(String, String)
+	 */
+	default ReactiveMessageSenderBuilder<T> property(String key, String value) {
+		if (getMutableSpec().getProperties() == null) {
+			getMutableSpec().setProperties(new LinkedHashMap<>());
+		}
+		getMutableSpec().getProperties().put(key, value);
 		return this;
 	}
 
