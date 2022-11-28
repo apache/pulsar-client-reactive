@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -106,6 +107,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * This argument is required when constructing the sender.
 	 * @param topicName the name of the topic
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#topic(String)
 	 */
 	default ReactiveMessageSenderBuilder<T> topic(String topicName) {
 		getMutableSpec().setTopicName(topicName);
@@ -124,6 +126,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * enforce that only a single producer given name can be publishing on a topic.
 	 * @param producerName the name to use for the producer
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#producerName(String)
 	 */
 	default ReactiveMessageSenderBuilder<T> producerName(String producerName) {
 		getMutableSpec().setProducerName(producerName);
@@ -144,6 +147,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * message. No errors will be propagated back to the application.
 	 * @param sendTimeout the send timeout to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#sendTimeout(int, TimeUnit)
 	 */
 	default ReactiveMessageSenderBuilder<T> sendTimeout(Duration sendTimeout) {
 		getMutableSpec().setSendTimeout(sendTimeout);
@@ -166,6 +170,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @param maxPendingMessages the maximum size of the pending messages queue for the
 	 * sender to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#maxPendingMessages(int)
 	 */
 	default ReactiveMessageSenderBuilder<T> maxPendingMessages(int maxPendingMessages) {
 		getMutableSpec().setMaxPendingMessages(maxPendingMessages);
@@ -193,6 +198,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @param maxPendingMessagesAcrossPartitions the maximum number of pending messages
 	 * across all the partitions to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#maxPendingMessagesAcrossPartitions(int)
 	 */
 	default ReactiveMessageSenderBuilder<T> maxPendingMessagesAcrossPartitions(int maxPendingMessagesAcrossPartitions) {
 		getMutableSpec().setMaxPendingMessagesAcrossPartitions(maxPendingMessagesAcrossPartitions);
@@ -212,6 +218,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * hash of the key will be used to select a partition for the message.
 	 * @param messageRoutingMode the message routing mode to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#messageRoutingMode(MessageRoutingMode)
 	 */
 	default ReactiveMessageSenderBuilder<T> messageRoutingMode(MessageRoutingMode messageRoutingMode) {
 		getMutableSpec().setMessageRoutingMode(messageRoutingMode);
@@ -231,6 +238,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * </ul>
 	 * @param hashingScheme the hashing scheme to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#hashingScheme(HashingScheme)
 	 */
 	default ReactiveMessageSenderBuilder<T> hashingScheme(HashingScheme hashingScheme) {
 		getMutableSpec().setHashingScheme(hashingScheme);
@@ -242,6 +250,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @param cryptoFailureAction the action the sender will take in case of encryption
 	 * failures to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#cryptoFailureAction(ProducerCryptoFailureAction)
 	 */
 	default ReactiveMessageSenderBuilder<T> cryptoFailureAction(ProducerCryptoFailureAction cryptoFailureAction) {
 		getMutableSpec().setCryptoFailureAction(cryptoFailureAction);
@@ -253,6 +262,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * {@link MessageRouter}.
 	 * @param messageRouter the message router to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#messageRouter(MessageRouter)
 	 */
 	default ReactiveMessageSenderBuilder<T> messageRouter(MessageRouter messageRouter) {
 		getMutableSpec().setMessageRouter(messageRouter);
@@ -278,6 +288,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 * @see #batchingMaxMessages(int)
 	 * @see #batchingMaxBytes(int)
+	 * @see ProducerBuilder#batchingMaxPublishDelay(long, TimeUnit)
 	 */
 	default ReactiveMessageSenderBuilder<T> batchingMaxPublishDelay(Duration batchingMaxPublishDelay) {
 		getMutableSpec().setBatchingMaxPublishDelay(batchingMaxPublishDelay);
@@ -298,6 +309,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 * @see #messageRoutingMode(MessageRoutingMode)
 	 * @see #batchingMaxPublishDelay(Duration)
+	 * @see ProducerBuilder#roundRobinRouterBatchingPartitionSwitchFrequency(int)
 	 */
 	default ReactiveMessageSenderBuilder<T> roundRobinRouterBatchingPartitionSwitchFrequency(
 			int roundRobinRouterBatchingPartitionSwitchFrequency) {
@@ -319,6 +331,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 * @see #batchingMaxPublishDelay(Duration)
 	 * @see #batchingMaxBytes(int)
+	 * @see ProducerBuilder#batchingMaxMessages(int)
 	 */
 	default ReactiveMessageSenderBuilder<T> batchingMaxMessages(int batchingMaxMessages) {
 		getMutableSpec().setBatchingMaxMessages(batchingMaxMessages);
@@ -338,6 +351,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 * @see #batchingMaxPublishDelay(Duration)
 	 * @see #batchingMaxMessages(int)
+	 * @see ProducerBuilder#batchingMaxBytes(int)
 	 */
 	default ReactiveMessageSenderBuilder<T> batchingMaxBytes(int batchingMaxBytes) {
 		getMutableSpec().setBatchingMaxBytes(batchingMaxBytes);
@@ -366,6 +380,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 * @see #batchingMaxPublishDelay(Duration)
 	 * @see #batchingMaxMessages(int)
+	 * @see ProducerBuilder#enableBatching(boolean)
 	 */
 	default ReactiveMessageSenderBuilder<T> batchingEnabled(boolean batchingEnabled) {
 		getMutableSpec().setBatchingEnabled(batchingEnabled);
@@ -377,6 +392,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * build a batch message container.This is only used when batching is enabled.
 	 * @param batcherBuilder the batcher builder to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#batcherBuilder(BatcherBuilder)
 	 */
 	default ReactiveMessageSenderBuilder<T> batcherBuilder(BatcherBuilder batcherBuilder) {
 		getMutableSpec().setBatcherBuilder(batcherBuilder);
@@ -408,6 +424,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * </pre>
 	 * @param chunkingEnabled whether to enable chunking
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#enableChunking(boolean)
 	 */
 	default ReactiveMessageSenderBuilder<T> chunkingEnabled(boolean chunkingEnabled) {
 		getMutableSpec().setChunkingEnabled(chunkingEnabled);
@@ -418,6 +435,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * Sets the key reader to be used to encrypt the message payloads.
 	 * @param cryptoKeyReader the key reader to be used to encrypt the message payloads.
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#cryptoKeyReader(CryptoKeyReader)
 	 */
 	default ReactiveMessageSenderBuilder<T> cryptoKeyReader(CryptoKeyReader cryptoKeyReader) {
 		getMutableSpec().setCryptoKeyReader(cryptoKeyReader);
@@ -437,6 +455,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * compression. If batch messaging is enabled, the batched message is encrypted.
 	 * @param encryptionKeys the names of the encryption keys in the key store
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#addEncryptionKey(String)
 	 */
 	default ReactiveMessageSenderBuilder<T> encryptionKeys(Set<String> encryptionKeys) {
 		getMutableSpec().setEncryptionKeys(encryptionKeys);
@@ -461,6 +480,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * </ul>
 	 * @param compressionType the compression type to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#compressionType(CompressionType)
 	 */
 	default ReactiveMessageSenderBuilder<T> compressionType(CompressionType compressionType) {
 		getMutableSpec().setCompressionType(compressionType);
@@ -477,6 +497,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * specified.
 	 * @param initialSequenceId the initial sequence id for the producer to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#initialSequenceId(long)
 	 */
 	default ReactiveMessageSenderBuilder<T> initialSequenceId(long initialSequenceId) {
 		getMutableSpec().setInitialSequenceId(initialSequenceId);
@@ -492,6 +513,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @param autoUpdatePartitions whether to auto discover the partition configuration
 	 * changes
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#autoUpdatePartitions(boolean)
 	 */
 	default ReactiveMessageSenderBuilder<T> autoUpdatePartitions(boolean autoUpdatePartitions) {
 		getMutableSpec().setAutoUpdatePartitions(autoUpdatePartitions);
@@ -503,6 +525,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * if {@link #autoUpdatePartitions} is enabled.
 	 * @param autoUpdatePartitionsInterval the interval of partitions updates
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#autoUpdatePartitionsInterval(int, TimeUnit)
 	 */
 	default ReactiveMessageSenderBuilder<T> autoUpdatePartitionsInterval(Duration autoUpdatePartitionsInterval) {
 		getMutableSpec().setAutoUpdatePartitionsInterval(autoUpdatePartitionsInterval);
@@ -518,6 +541,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * Enabled by default.
 	 * @param multiSchema whether to enable or disable multiple schema mode
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#enableMultiSchema(boolean)
 	 */
 	default ReactiveMessageSenderBuilder<T> multiSchema(boolean multiSchema) {
 		getMutableSpec().setMultiSchema(multiSchema);
@@ -540,6 +564,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * </ul>
 	 * @param accessMode the access mode to set
 	 * @return the producer builder instance
+	 * @see ProducerBuilder#accessMode(ProducerAccessMode)
 	 */
 	default ReactiveMessageSenderBuilder<T> accessMode(ProducerAccessMode accessMode) {
 		getMutableSpec().setAccessMode(accessMode);
@@ -561,6 +586,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * messages of a given partition.
 	 * @param lazyStartPartitionedProducers whether to start partition producers lazily
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#enableLazyStartPartitionedProducers(boolean)
 	 */
 	default ReactiveMessageSenderBuilder<T> lazyStartPartitionedProducers(boolean lazyStartPartitionedProducers) {
 		getMutableSpec().setLazyStartPartitionedProducers(lazyStartPartitionedProducers);
@@ -598,6 +624,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * for easier identification.
 	 * @param properties the properties to set
 	 * @return the sender builder instance
+	 * @see ProducerBuilder#properties(Map)
 	 */
 	default ReactiveMessageSenderBuilder<T> properties(Map<String, String> properties) {
 		getMutableSpec().setProperties(properties);
