@@ -19,6 +19,11 @@ package org.apache.pulsar.reactive.client.api;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * Spec for a {@link ReactiveMessageReader} to start reading from a given instant in time.
+ *
+ * @author Lari Hotari
+ */
 public final class InstantStartAtSpec extends StartAtSpec {
 
 	private final Instant instant;
