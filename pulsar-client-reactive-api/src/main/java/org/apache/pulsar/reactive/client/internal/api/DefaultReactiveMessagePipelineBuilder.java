@@ -102,11 +102,6 @@ class DefaultReactiveMessagePipelineBuilder<T>
 	}
 
 	@Override
-	public ConcurrentOneByOneMessagePipelineBuilder<T> concurrent() {
-		return this;
-	}
-
-	@Override
 	public ConcurrentOneByOneMessagePipelineBuilder<T> useKeyOrderedProcessing() {
 		Objects.requireNonNull(KEY_ORDERED_GROUPING_FUNCTION,
 				"MessageGroupingFunction to use for key ordered processing wasn't found by service loader.");

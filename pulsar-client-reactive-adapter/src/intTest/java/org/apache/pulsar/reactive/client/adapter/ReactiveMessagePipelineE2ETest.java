@@ -131,7 +131,7 @@ public class ReactiveMessagePipelineE2ETest {
 						return messageHandler;
 					});
 			if (messageOrderScenario != MessageOrderScenario.NO_PARALLEL) {
-				reactiveMessageHandlerBuilder.concurrent().concurrency(KEYS_COUNT).useKeyOrderedProcessing();
+				reactiveMessageHandlerBuilder.concurrency(KEYS_COUNT).useKeyOrderedProcessing();
 			}
 			try (ReactiveMessagePipeline reactiveMessagePipeline = reactiveMessageHandlerBuilder.build().start()) {
 				boolean latchCompleted = latch.await(5, TimeUnit.SECONDS);

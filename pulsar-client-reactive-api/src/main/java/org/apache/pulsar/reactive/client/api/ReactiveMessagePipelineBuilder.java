@@ -45,7 +45,7 @@ public interface ReactiveMessagePipelineBuilder<T> {
 
 		OneByOneMessagePipelineBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
 
-		ConcurrentOneByOneMessagePipelineBuilder<T> concurrent();
+		ConcurrentOneByOneMessagePipelineBuilder<T> concurrency(int concurrency);
 
 	}
 
@@ -54,8 +54,6 @@ public interface ReactiveMessagePipelineBuilder<T> {
 		ConcurrentOneByOneMessagePipelineBuilder<T> useKeyOrderedProcessing();
 
 		ConcurrentOneByOneMessagePipelineBuilder<T> groupOrderedProcessing(MessageGroupingFunction groupingFunction);
-
-		ConcurrentOneByOneMessagePipelineBuilder<T> concurrency(int concurrency);
 
 		ConcurrentOneByOneMessagePipelineBuilder<T> maxInflight(int maxInflight);
 
