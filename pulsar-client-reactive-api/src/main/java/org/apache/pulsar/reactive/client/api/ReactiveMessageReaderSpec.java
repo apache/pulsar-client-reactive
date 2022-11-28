@@ -21,25 +21,78 @@ import java.util.List;
 import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.Range;
+import org.apache.pulsar.client.api.ReaderBuilder;
 
+/**
+ * Spec for a {@link ReactiveMessageReader}.
+ *
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface ReactiveMessageReaderSpec {
 
+	/**
+	 * Gets the topics to read from.
+	 * @return the topic names
+	 * @see ReaderBuilder#topics(List)
+	 */
 	List<String> getTopicNames();
 
+	/**
+	 * Gets the reader name.
+	 * @return the reader name
+	 * @see ReaderBuilder#readerName(String)
+	 */
 	String getReaderName();
 
+	/**
+	 * Gets the subscription name.
+	 * @return the name of the subscription
+	 * @see ReaderBuilder#subscriptionName(String)
+	 */
 	String getSubscriptionName();
 
+	/**
+	 * Gets the generated subscription name prefix. The default prefix is "reader".
+	 * @return the generated subscription name prefix
+	 * @see ReaderBuilder#subscriptionRolePrefix(String)
+	 */
 	String getGeneratedSubscriptionNamePrefix();
 
+	/**
+	 * Gets the size of the reader receive queue.
+	 * @return the size of the reader receive queue
+	 * @see ReaderBuilder#receiverQueueSize(int)
+	 */
 	Integer getReceiverQueueSize();
 
+	/**
+	 * Gets whether to read messages from the compacted topic rather than reading the full
+	 * message backlog of the topic.
+	 * @return true if messages are read from the compacted topic
+	 * @see ReaderBuilder#readCompacted
+	 */
 	Boolean getReadCompacted();
 
+	/**
+	 * Gets the key hash ranges of the reader.
+	 * @return the key hash ranges
+	 * @see ReaderBuilder#keyHashRange(Range...)
+	 */
 	List<Range> getKeyHashRanges();
 
+	/**
+	 * Gets the key reader to be used to decrypt the message payloads.
+	 * @return the key reader to be used to decrypt the message payloads
+	 * @see ReaderBuilder#cryptoKeyReader
+	 */
 	CryptoKeyReader getCryptoKeyReader();
 
+	/**
+	 * Gets the action the reader will take in case of decryption failures.
+	 * @return the action the reader will take in case of decryption failures
+	 * @see ReaderBuilder#cryptoFailureAction
+	 */
 	ConsumerCryptoFailureAction getCryptoFailureAction();
 
 }
