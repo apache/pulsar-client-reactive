@@ -58,7 +58,9 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * Converts this builder to an immutable reactive consumer spec.
 	 * @return the reactive consumer spec.
 	 */
-	ReactiveMessageConsumerSpec toImmutableSpec();
+	default ReactiveMessageConsumerSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageConsumerSpec(getMutableSpec());
+	}
 
 	/**
 	 * Converts this builder to a mutable reactive consumer spec.

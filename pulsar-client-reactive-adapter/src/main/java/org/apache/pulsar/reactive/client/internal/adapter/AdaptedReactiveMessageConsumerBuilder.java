@@ -17,11 +17,9 @@
 package org.apache.pulsar.reactive.client.internal.adapter;
 
 import org.apache.pulsar.client.api.Schema;
-import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageConsumerSpec;
 import org.apache.pulsar.reactive.client.api.MutableReactiveMessageConsumerSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumerBuilder;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumerSpec;
 
 class AdaptedReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsumerBuilder<T> {
 
@@ -35,11 +33,6 @@ class AdaptedReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsume
 			ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
 		this.schema = schema;
 		this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
-	}
-
-	@Override
-	public ReactiveMessageConsumerSpec toImmutableSpec() {
-		return new ImmutableReactiveMessageConsumerSpec(this.consumerSpec);
 	}
 
 	@Override

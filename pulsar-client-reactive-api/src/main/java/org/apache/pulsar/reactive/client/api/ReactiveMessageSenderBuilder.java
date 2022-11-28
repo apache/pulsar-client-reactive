@@ -81,7 +81,9 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * Converts this builder to an immutable reactive sender spec with the same settings.
 	 * @return the reactive sender spec.
 	 */
-	ReactiveMessageSenderSpec toImmutableSpec();
+	default ReactiveMessageSenderSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageSenderSpec(getMutableSpec());
+	}
 
 	/**
 	 * Converts this builder to a mutable reactive sender spec with the same settings.

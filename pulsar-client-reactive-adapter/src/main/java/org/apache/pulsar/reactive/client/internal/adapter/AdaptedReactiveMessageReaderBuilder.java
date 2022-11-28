@@ -18,11 +18,9 @@ package org.apache.pulsar.reactive.client.internal.adapter;
 
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.EndOfStreamAction;
-import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageReaderSpec;
 import org.apache.pulsar.reactive.client.api.MutableReactiveMessageReaderSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageReader;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageReaderBuilder;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageReaderSpec;
 import org.apache.pulsar.reactive.client.api.StartAtSpec;
 
 class AdaptedReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBuilder<T> {
@@ -52,11 +50,6 @@ class AdaptedReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
 	public ReactiveMessageReaderBuilder<T> endOfStreamAction(EndOfStreamAction endOfStreamAction) {
 		this.endOfStreamAction = endOfStreamAction;
 		return this;
-	}
-
-	@Override
-	public ReactiveMessageReaderSpec toImmutableSpec() {
-		return new ImmutableReactiveMessageReaderSpec(this.readerSpec);
 	}
 
 	@Override

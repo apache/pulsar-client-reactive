@@ -71,7 +71,9 @@ public interface ReactiveMessageReaderBuilder<T> {
 	 * Gets an immutable spec from the underlying spec of this builder.
 	 * @return the immutable reactive reader spec.
 	 */
-	ReactiveMessageReaderSpec toImmutableSpec();
+	default ReactiveMessageReaderSpec toImmutableSpec() {
+		return new ImmutableReactiveMessageReaderSpec(getMutableSpec());
+	}
 
 	/**
 	 * Gets the mutable spec of this builder.

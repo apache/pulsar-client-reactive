@@ -19,12 +19,10 @@ package org.apache.pulsar.reactive.client.internal.adapter;
 import java.util.function.Supplier;
 
 import org.apache.pulsar.client.api.Schema;
-import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageSenderSpec;
 import org.apache.pulsar.reactive.client.api.MutableReactiveMessageSenderSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderSpec;
 import org.apache.pulsar.reactive.client.internal.api.InflightLimiter;
 import org.apache.pulsar.reactive.client.internal.api.PublisherTransformer;
 import reactor.core.scheduler.Schedulers;
@@ -59,11 +57,6 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 	public ReactiveMessageSenderBuilder<T> cache(ReactiveMessageSenderCache producerCache) {
 		this.producerCache = producerCache;
 		return this;
-	}
-
-	@Override
-	public ReactiveMessageSenderSpec toImmutableSpec() {
-		return new ImmutableReactiveMessageSenderSpec(this.senderSpec);
 	}
 
 	@Override
