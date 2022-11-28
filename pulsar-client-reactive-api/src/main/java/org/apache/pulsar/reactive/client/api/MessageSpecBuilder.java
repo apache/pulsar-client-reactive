@@ -23,6 +23,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.SubscriptionType;
 
+/**
+ * Builder interface for {@link MessageSpec}.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ */
 public interface MessageSpecBuilder<T> {
 
 	/**

@@ -22,6 +22,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 
+/**
+ * Default spec for a message. Can configure all the properties of a
+ * {@link TypedMessageBuilder}.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ * @see DefaultMessageSpecBuilder
+ * @see TypedMessageBuilder
+ */
 class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 
 	private final String key;
