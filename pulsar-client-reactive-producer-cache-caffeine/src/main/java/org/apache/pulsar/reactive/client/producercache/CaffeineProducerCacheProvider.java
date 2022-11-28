@@ -28,19 +28,37 @@ import com.github.benmanes.caffeine.cache.Scheduler;
 import org.apache.pulsar.reactive.client.adapter.ProducerCacheProvider;
 import reactor.core.scheduler.Schedulers;
 
+/**
+ * Producer cache provider that uses a Caffeine {@link AsyncCache} to cache entries.
+ *
+ * @author Lari Hotari
+ */
 public class CaffeineProducerCacheProvider implements ProducerCacheProvider {
 
 	final AsyncCache<Object, Object> cache;
 
+	/**
+	 * Constructor for CaffeineProducerCacheProvider with default values.
+	 */
 	public CaffeineProducerCacheProvider() {
 		this(Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).expireAfterWrite(Duration.ofMinutes(10))
 				.maximumSize(1000));
 	}
 
+	/**
+	 * Constructor for CaffeineProducerCacheProvider building the cache from a
+	 * {@link CaffeineSpec}.
+	 * @param caffeineSpec the Caffeine spec
+	 */
 	public CaffeineProducerCacheProvider(CaffeineSpec caffeineSpec) {
 		this(Caffeine.from(caffeineSpec));
 	}
 
+	/**
+	 * Constructor for CaffeineProducerCacheProvider building the cache from a Caffeine
+	 * cache builder.
+	 * @param caffeineBuilder the Caffeine cache builder
+	 */
 	public CaffeineProducerCacheProvider(Caffeine<Object, Object> caffeineBuilder) {
 		this.cache = caffeineBuilder.scheduler(Scheduler.systemScheduler())
 				.executor(Schedulers.boundedElastic()::schedule).removalListener(this::onRemoval).buildAsync();

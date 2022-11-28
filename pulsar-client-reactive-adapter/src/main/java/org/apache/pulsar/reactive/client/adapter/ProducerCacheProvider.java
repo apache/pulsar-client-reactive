@@ -19,8 +19,26 @@ package org.apache.pulsar.reactive.client.adapter;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
+
+/**
+ * Cache provider interface used by the {@link ReactiveMessageSender} to cache the
+ * underlying {@link Producer}s it uses.
+ *
+ * @author Lari Hotari
+ */
 public interface ProducerCacheProvider extends AutoCloseable {
 
+	/**
+	 * Gets or create an entry in the cache.
+	 * @param key the cache key
+	 * @param <K> the type of the cache key
+	 * @param createEntryFunction a function called to create the entry in the cache if
+	 * it's not present.
+	 * @param <V> the type of the cache entry value
+	 * @return the cache entry value
+	 */
 	<K, V> CompletableFuture<V> getOrCreateCachedEntry(K key, Function<K, CompletableFuture<V>> createEntryFunction);
 
 }

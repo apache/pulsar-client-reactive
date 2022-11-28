@@ -22,10 +22,18 @@ import java.util.function.Function;
 
 import org.apache.pulsar.reactive.client.adapter.ProducerCacheProvider;
 
+/**
+ * Producer cache provider that uses a {@link ConcurrentHashMap} to cache entries.
+ *
+ * @author Lari Hotari
+ */
 public class ConcurrentHashMapProducerCacheProvider implements ProducerCacheProvider {
 
 	private final ConcurrentHashMap<Object, CompletableFuture<Object>> cache;
 
+	/**
+	 * ConcurrentHashMapProducerCacheProvider's constructor.
+	 */
 	public ConcurrentHashMapProducerCacheProvider() {
 		this.cache = new ConcurrentHashMap<>();
 	}
