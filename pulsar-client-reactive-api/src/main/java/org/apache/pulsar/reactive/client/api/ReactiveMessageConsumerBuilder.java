@@ -102,6 +102,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * Sets the topics this consumer will subscribe on.
 	 * @param topicNames a set of topic that the consumer will subscribe on
 	 * @return the consumer builder instance
+	 * @see ConsumerBuilder#topics(List)
 	 */
 	default ReactiveMessageConsumerBuilder<T> topicNames(List<String> topicNames) {
 		getMutableSpec().setTopicNames(topicNames);
