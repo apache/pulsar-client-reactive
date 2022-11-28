@@ -25,6 +25,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.MessageSpecBuilder;
 
+/**
+ * Default class to build a message spec.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ * @see ApiImplementationFactory#createMessageSpecBuilder(Object)
+ * @see DefaultMessageSpec
+ */
 class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
 
 	private String key;

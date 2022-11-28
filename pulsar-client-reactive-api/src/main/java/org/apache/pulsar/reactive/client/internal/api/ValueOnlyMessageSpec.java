@@ -18,6 +18,12 @@ package org.apache.pulsar.reactive.client.internal.api;
 
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 
+/**
+ * Spec for a message that configures only the value of the message.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ */
 class ValueOnlyMessageSpec<T> implements InternalMessageSpec<T> {
 
 	private final T value;

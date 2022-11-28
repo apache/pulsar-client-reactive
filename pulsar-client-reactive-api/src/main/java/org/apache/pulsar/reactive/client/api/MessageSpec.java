@@ -18,12 +18,31 @@ package org.apache.pulsar.reactive.client.api;
 
 import org.apache.pulsar.reactive.client.internal.api.ApiImplementationFactory;
 
+/**
+ * Interface for the spec of a message to be sent.
+ *
+ * @param <T> the message payload type
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public interface MessageSpec<T> {
 
+	/**
+	 * Creates a message spec builder from a value.
+	 * @param <T> the message payload type
+	 * @param value the value to create the message spec builder from
+	 * @return the message spec builder
+	 */
 	static <T> MessageSpecBuilder<T> builder(T value) {
 		return ApiImplementationFactory.createMessageSpecBuilder(value);
 	}
 
+	/**
+	 * Creates a message spec from a value.
+	 * @param <T> the message payload type
+	 * @param value the value to create the message spec from
+	 * @return the message spec
+	 */
 	static <T> MessageSpec<T> of(T value) {
 		return ApiImplementationFactory.createValueOnlyMessageSpec(value);
 	}
