@@ -321,7 +321,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	}
 
 	/**
-	 * Add a property to the consumer.
+	 * Adds a property to the consumer.
 	 *
 	 * <p>
 	 * Properties are application defined metadata that can be attached to the consumer.
