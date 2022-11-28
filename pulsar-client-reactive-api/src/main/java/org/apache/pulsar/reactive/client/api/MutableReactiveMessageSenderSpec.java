@@ -32,6 +32,11 @@ import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 
+/**
+ * Mutable spec for a {@link ReactiveMessageSender}.
+ *
+ * @author Lari Hotari
+ */
 public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSpec {
 
 	private String topicName;

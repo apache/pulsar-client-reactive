@@ -24,6 +24,11 @@ import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.Range;
 
+/**
+ * Immutable spec for a {@link ReactiveMessageReader}.
+ *
+ * @author Lari Hotari
+ */
 public class ImmutableReactiveMessageReaderSpec implements ReactiveMessageReaderSpec {
 
 	private final List<String> topicNames;

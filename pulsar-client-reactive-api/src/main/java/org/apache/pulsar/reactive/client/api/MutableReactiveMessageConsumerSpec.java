@@ -33,6 +33,11 @@ import org.apache.pulsar.client.api.SubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import reactor.core.scheduler.Scheduler;
 
+/**
+ * Mutable spec for a {@link ReactiveMessageConsumer}.
+ *
+ * @author Lari Hotari
+ */
 public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsumerSpec {
 
 	private List<String> topicNames = new ArrayList<>();
