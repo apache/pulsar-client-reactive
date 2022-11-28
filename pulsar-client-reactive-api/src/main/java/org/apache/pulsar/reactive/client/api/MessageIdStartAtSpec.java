@@ -20,6 +20,11 @@ import java.util.Objects;
 
 import org.apache.pulsar.client.api.MessageId;
 
+/**
+ * Spec for a {@link ReactiveMessageReader} to start reading from a given message id.
+ *
+ * @author Lari Hotari
+ */
 public final class MessageIdStartAtSpec extends StartAtSpec {
 
 	private final MessageId messageId;
