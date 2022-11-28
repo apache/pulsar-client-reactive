@@ -27,17 +27,30 @@ class AdaptedReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsume
 
 	private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
 
-	private final MutableReactiveMessageConsumerSpec consumerSpec = new MutableReactiveMessageConsumerSpec();
+	private final MutableReactiveMessageConsumerSpec consumerSpec;
 
 	AdaptedReactiveMessageConsumerBuilder(Schema<T> schema,
 			ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
+		this(schema, reactiveConsumerAdapterFactory, new MutableReactiveMessageConsumerSpec());
+	}
+
+	private AdaptedReactiveMessageConsumerBuilder(Schema<T> schema,
+			ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory,
+			MutableReactiveMessageConsumerSpec consumerSpec) {
 		this.schema = schema;
 		this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
+		this.consumerSpec = consumerSpec;
 	}
 
 	@Override
 	public MutableReactiveMessageConsumerSpec getMutableSpec() {
 		return this.consumerSpec;
+	}
+
+	@Override
+	public ReactiveMessageConsumerBuilder<T> clone() {
+		return new AdaptedReactiveMessageConsumerBuilder<>(this.schema, this.reactiveConsumerAdapterFactory,
+				new MutableReactiveMessageConsumerSpec(this.consumerSpec));
 	}
 
 	@Override

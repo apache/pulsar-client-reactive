@@ -29,15 +29,21 @@ class AdaptedReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
 
 	private final Schema<T> schema;
 
-	private MutableReactiveMessageReaderSpec readerSpec = new MutableReactiveMessageReaderSpec();
+	private final MutableReactiveMessageReaderSpec readerSpec;
 
 	private StartAtSpec startAtSpec = StartAtSpec.ofEarliest();
 
 	private EndOfStreamAction endOfStreamAction = EndOfStreamAction.COMPLETE;
 
 	AdaptedReactiveMessageReaderBuilder(Schema<T> schema, ReactiveReaderAdapterFactory reactiveReaderAdapterFactory) {
+		this(schema, reactiveReaderAdapterFactory, new MutableReactiveMessageReaderSpec());
+	}
+
+	private AdaptedReactiveMessageReaderBuilder(Schema<T> schema,
+			ReactiveReaderAdapterFactory reactiveReaderAdapterFactory, MutableReactiveMessageReaderSpec readerSpec) {
 		this.reactiveReaderAdapterFactory = reactiveReaderAdapterFactory;
 		this.schema = schema;
+		this.readerSpec = readerSpec;
 	}
 
 	@Override
@@ -60,8 +66,7 @@ class AdaptedReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
 	@Override
 	public ReactiveMessageReaderBuilder<T> clone() {
 		AdaptedReactiveMessageReaderBuilder<T> cloned = new AdaptedReactiveMessageReaderBuilder<>(this.schema,
-				this.reactiveReaderAdapterFactory);
-		cloned.readerSpec = new MutableReactiveMessageReaderSpec(this.readerSpec);
+				this.reactiveReaderAdapterFactory, new MutableReactiveMessageReaderSpec(this.readerSpec));
 		cloned.startAtSpec = this.startAtSpec;
 		cloned.endOfStreamAction = this.endOfStreamAction;
 		return this;

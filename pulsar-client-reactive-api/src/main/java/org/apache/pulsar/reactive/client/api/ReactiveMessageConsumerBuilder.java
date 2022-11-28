@@ -69,6 +69,12 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	MutableReactiveMessageConsumerSpec getMutableSpec();
 
 	/**
+	 * Creates and returns a copy of this reactive consumer builder.
+	 * @return the cloned reactive reader builder
+	 */
+	ReactiveMessageConsumerBuilder<T> clone();
+
+	/**
 	 * Adds a topic this consumer will subscribe on.
 	 * @param topicName a topic that the consumer will subscribe on
 	 * @return the consumer builder instance
