@@ -79,7 +79,7 @@ public class InflightLimiter implements PublisherTransformer {
 		}
 	}
 
-	public <I> Flux<I> createOperator(Flux<I> source) {
+	<I> Flux<I> createOperator(Flux<I> source) {
 		return new FluxOperator<I, I>(source) {
 			@Override
 			public void subscribe(CoreSubscriber<? super I> actual) {
@@ -88,7 +88,7 @@ public class InflightLimiter implements PublisherTransformer {
 		};
 	}
 
-	public <I> Mono<I> createOperator(Mono<I> source) {
+	<I> Mono<I> createOperator(Mono<I> source) {
 		return new MonoOperator<I, I>(source) {
 			@Override
 			public void subscribe(CoreSubscriber<? super I> actual) {
