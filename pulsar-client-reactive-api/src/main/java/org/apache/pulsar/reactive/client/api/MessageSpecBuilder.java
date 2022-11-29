@@ -153,6 +153,10 @@ public interface MessageSpecBuilder<T> {
 	 */
 	MessageSpecBuilder<T> deliverAfter(long delay, TimeUnit unit);
 
+	/**
+	 * Builds the {@link MessageSpec}.
+	 * @return the built message spec
+	 */
 	MessageSpec<T> build();
 
 }
