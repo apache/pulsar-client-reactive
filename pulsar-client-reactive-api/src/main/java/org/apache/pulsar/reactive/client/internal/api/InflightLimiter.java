@@ -23,8 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jctools.queues.MpmcArrayQueue;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -35,12 +33,16 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
+/**
+ * Transformer class that limits the number of reactive streams subscription requests to
+ * keep the number of pending messages under a defined limit.
+ *
+ * @author Lari Hotari
+ */
 public class InflightLimiter implements PublisherTransformer {
 
 	/** Default limit for pending Reactive Stream subscriptions. */
 	public static final int DEFAULT_MAX_PENDING_SUBSCRIPTIONS = 1024;
-
-	private static final Logger LOG = LoggerFactory.getLogger(InflightLimiter.class);
 
 	private final MpmcArrayQueue<InflightLimiterSubscriber<?>> pendingSubscriptions;
 
@@ -54,10 +56,22 @@ public class InflightLimiter implements PublisherTransformer {
 
 	private final Scheduler.Worker triggerNextWorker;
 
+	/**
+	 * Constructs an InflightLimiter with a maximum number of in-flight messages.
+	 * @param maxInflight the maximum number of in-flight messages
+	 */
 	public InflightLimiter(int maxInflight) {
 		this(maxInflight, maxInflight, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
 	}
 
+	/**
+	 * Constructs an InflightLimiter.
+	 * @param maxInflight the maximum number of in-flight messages
+	 * @param expectedSubscriptionsInflight the expected number of in-flight subscriptions
+	 * @param triggerNextScheduler the scheduler on which it will be checked if the
+	 * subscriber can request more
+	 * @param maxPendingSubscriptions the maximum number of pending subscriptions
+	 */
 	public InflightLimiter(int maxInflight, int expectedSubscriptionsInflight, Scheduler triggerNextScheduler,
 			int maxPendingSubscriptions) {
 		this.maxInflight = maxInflight;
@@ -72,13 +86,19 @@ public class InflightLimiter implements PublisherTransformer {
 	@Override
 	public <T> Publisher<T> transform(Publisher<T> publisher) {
 		if (publisher instanceof Mono<?>) {
-			return createOperator((Mono) publisher);
+			return createOperator((Mono<T>) publisher);
 		}
 		else {
 			return createOperator(Flux.from(publisher));
 		}
 	}
 
+	/**
+	 * Limits in-flight messages for a {@link Flux}.
+	 * @param source the Flux to limit
+	 * @param <I> the type of the FLux
+	 * @return the limited Flux
+	 */
 	public <I> Flux<I> createOperator(Flux<I> source) {
 		return new FluxOperator<I, I>(source) {
 			@Override
@@ -88,6 +108,12 @@ public class InflightLimiter implements PublisherTransformer {
 		};
 	}
 
+	/**
+	 * Limits in-flight messages for a {@link Mono}.
+	 * @param source the Mono to limit
+	 * @param <I> the type of the Mono
+	 * @return the limited Mono
+	 */
 	public <I> Mono<I> createOperator(Mono<I> source) {
 		return new MonoOperator<I, I>(source) {
 			@Override
@@ -99,7 +125,7 @@ public class InflightLimiter implements PublisherTransformer {
 
 	<I> void handleSubscribe(Publisher<I> source, CoreSubscriber<? super I> actual) {
 		this.activeSubscriptions.incrementAndGet();
-		InflightLimiterSubscriber<I> subscriber = new InflightLimiterSubscriber<I>(actual, source);
+		InflightLimiterSubscriber<I> subscriber = new InflightLimiterSubscriber<>(actual, source);
 		actual.onSubscribe(subscriber.getSubscription());
 	}
 
