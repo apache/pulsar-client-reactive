@@ -9,6 +9,13 @@ dependencies {
 	api libs.pulsar.client.api
 	api libs.slf4j.api
 	implementation libs.jctools.core
+
+	testImplementation libs.pulsar.client.shaded
+	testImplementation libs.junit.jupiter
+	testImplementation libs.junit.jupiter.params
+	testImplementation libs.reactor.test
+	testImplementation libs.assertj.core
+	testImplementation libs.bundles.log4j
 }
 
 description = "Reactive Java client for Apache Pulsar"
