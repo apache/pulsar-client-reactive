@@ -28,6 +28,12 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
 import reactor.core.publisher.Mono;
 
+/**
+ * Adapter implementation for {@link ReactivePulsarClient} based on {@link PulsarClient}.
+ *
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public final class AdapterImplementationFactory {
 
 	private AdapterImplementationFactory() {
@@ -47,18 +53,47 @@ public final class AdapterImplementationFactory {
 		}
 	}
 
+	/**
+	 * Creates a ReactivePulsarClient which will lazily call the provided supplier to get
+	 * an instance of a Pulsar Client when needed.
+	 * @param pulsarClientSupplier the supplier to use for getting a Pulsar Client
+	 * instance
+	 * @return a ReactivePulsarClient instance
+	 */
 	public static ReactivePulsarClient createReactivePulsarClient(Supplier<PulsarClient> pulsarClientSupplier) {
 		return new ReactivePulsarResourceAdapterPulsarClient(new ReactivePulsarResourceAdapter(pulsarClientSupplier));
 	}
 
+	/**
+	 * Adapts a {@link CompletableFuture} returned by the {@link PulsarClient} operations
+	 * to a {@link Mono}.
+	 * @param futureSupplier supplier of the {@link CompletableFuture}
+	 * @param <T> the internal type
+	 * @return the adapted {@link Mono}
+	 */
 	public static <T> Mono<T> adaptPulsarFuture(Supplier<? extends CompletableFuture<T>> futureSupplier) {
 		return PulsarFutureAdapter.adaptPulsarFuture(futureSupplier);
 	}
 
+	/**
+	 * Creates a {@link ReactiveMessageSenderCache} adapting the provided
+	 * {@link ProducerCacheProvider}.
+	 * @param producerCacheProvider a ProducerCacheProvider instance
+	 * @return a ReactiveMessageSenderCache instance
+	 */
 	public static ReactiveMessageSenderCache createCache(ProducerCacheProvider producerCacheProvider) {
 		return new ProducerCache(producerCacheProvider);
 	}
 
+	/**
+	 * Creates a {@link ReactiveMessageSenderCache}. If a
+	 * {@link ProducerCacheProviderFactory} can be loaded by the {@link ServiceLoader}, it
+	 * is used to supply a {@link ProducerCacheProvider} from which the
+	 * {@link ReactiveMessageSenderCache} is adapted. Otherwise, the
+	 * {@link ReactiveMessageSenderCache} is adapted from a new
+	 * {@link ConcurrentHashMapProducerCacheProvider} instance.
+	 * @return a ReactiveMessageSenderCache instance
+	 */
 	public static ReactiveMessageSenderCache createCache() {
 		return new ProducerCache((PRODUCER_CACHE_PROVIDER_FACTORY != null) ? PRODUCER_CACHE_PROVIDER_FACTORY.get()
 				: new ConcurrentHashMapProducerCacheProvider());
