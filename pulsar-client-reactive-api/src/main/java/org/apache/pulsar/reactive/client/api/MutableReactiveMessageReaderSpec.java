@@ -27,6 +27,7 @@ import org.apache.pulsar.client.api.Range;
  * Mutable spec for a {@link ReactiveMessageReader}.
  *
  * @author Lari Hotari
+ * @author Christophe Bornet
  */
 public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSpec {
 
@@ -48,10 +49,18 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 
 	private ConsumerCryptoFailureAction cryptoFailureAction;
 
+	/**
+	 * Constructs a default MutableReactiveMessageReaderSpec.
+	 */
 	public MutableReactiveMessageReaderSpec() {
 
 	}
 
+	/**
+	 * Constructs a MutableReactiveMessageReaderSpec from another
+	 * {@link ReactiveMessageReaderSpec}.
+	 * @param readerSpec the spec to construct from
+	 */
 	public MutableReactiveMessageReaderSpec(ReactiveMessageReaderSpec readerSpec) {
 		this.topicNames = (readerSpec.getTopicNames() != null && !readerSpec.getTopicNames().isEmpty())
 				? new ArrayList<>(readerSpec.getTopicNames()) : new ArrayList<>();
@@ -70,6 +79,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.topicNames;
 	}
 
+	/**
+	 * Sets the topics to read from.
+	 * @param topicNames the topic names
+	 */
 	public void setTopicNames(List<String> topicNames) {
 		this.topicNames = topicNames;
 	}
@@ -79,6 +92,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.readerName;
 	}
 
+	/**
+	 * Sets the reader name.
+	 * @param readerName the reader name
+	 */
 	public void setReaderName(String readerName) {
 		this.readerName = readerName;
 	}
@@ -88,6 +105,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.subscriptionName;
 	}
 
+	/**
+	 * Sets the subscription name.
+	 * @param subscriptionName the name of the subscription
+	 */
 	public void setSubscriptionName(String subscriptionName) {
 		this.subscriptionName = subscriptionName;
 	}
@@ -97,6 +118,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.generatedSubscriptionNamePrefix;
 	}
 
+	/**
+	 * Sets the generated subscription name prefix.
+	 * @param generatedSubscriptionNamePrefix the generated subscription name prefix
+	 */
 	public void setGeneratedSubscriptionNamePrefix(String generatedSubscriptionNamePrefix) {
 		this.generatedSubscriptionNamePrefix = generatedSubscriptionNamePrefix;
 	}
@@ -106,6 +131,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.receiverQueueSize;
 	}
 
+	/**
+	 * Sets the size of the reader receive queue.
+	 * @param receiverQueueSize the size of the reader receive queue
+	 */
 	public void setReceiverQueueSize(Integer receiverQueueSize) {
 		this.receiverQueueSize = receiverQueueSize;
 	}
@@ -115,6 +144,11 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.readCompacted;
 	}
 
+	/**
+	 * Sets whether to read messages from the compacted topic rather than reading the full
+	 * message backlog of the topic.
+	 * @param readCompacted true to read messages from the compacted topic
+	 */
 	public void setReadCompacted(Boolean readCompacted) {
 		this.readCompacted = readCompacted;
 	}
@@ -124,6 +158,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.keyHashRanges;
 	}
 
+	/**
+	 * Sets the key hash ranges of the reader.
+	 * @param keyHashRanges the key hash ranges
+	 */
 	public void setKeyHashRanges(List<Range> keyHashRanges) {
 		this.keyHashRanges = keyHashRanges;
 	}
@@ -133,6 +171,10 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.cryptoKeyReader;
 	}
 
+	/**
+	 * Sets the key reader to be used to decrypt the message payloads.
+	 * @param cryptoKeyReader the key reader to be used to decrypt the message payloads
+	 */
 	public void setCryptoKeyReader(CryptoKeyReader cryptoKeyReader) {
 		this.cryptoKeyReader = cryptoKeyReader;
 	}
@@ -142,10 +184,19 @@ public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSp
 		return this.cryptoFailureAction;
 	}
 
+	/**
+	 * Sets the action the reader will take in case of decryption failures.
+	 * @param cryptoFailureAction the action the reader will take in case of decryption
+	 * failures
+	 */
 	public void setCryptoFailureAction(ConsumerCryptoFailureAction cryptoFailureAction) {
 		this.cryptoFailureAction = cryptoFailureAction;
 	}
 
+	/**
+	 * Updates this spec from the defined values of another spec.
+	 * @param readerSpec the spec from which to update
+	 */
 	public void applySpec(ReactiveMessageReaderSpec readerSpec) {
 		if (readerSpec.getTopicNames() != null && !readerSpec.getTopicNames().isEmpty()) {
 			setTopicNames(new ArrayList<>(readerSpec.getTopicNames()));
