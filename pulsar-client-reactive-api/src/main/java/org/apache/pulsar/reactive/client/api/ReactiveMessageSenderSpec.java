@@ -97,8 +97,8 @@ public interface ReactiveMessageSenderSpec {
 	ProducerCryptoFailureAction getCryptoFailureAction();
 
 	/**
-	 * Gets the action the producer will take in case of encryption failures.
-	 * @return the action the producer will take in case of encryption failures
+	 * Gets the custom message router.
+	 * @return the message router
 	 * @see ProducerBuilder#messageRouter
 	 */
 	MessageRouter getMessageRouter();
@@ -127,7 +127,7 @@ public interface ReactiveMessageSenderSpec {
 
 	/**
 	 * Gets the maximum number of bytes permitted in a batch.
-	 * @return the maximum number of messages in a batch
+	 * @return the maximum bytes of messages in a batch
 	 * @see ProducerBuilder#batchingMaxBytes
 	 */
 	Integer getBatchingMaxBytes();
