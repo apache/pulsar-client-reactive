@@ -220,8 +220,8 @@ public interface ReactiveMessageConsumerSpec {
 	Integer getReceiverQueueSize();
 
 	/**
-	 * Gets the max total receiver queue size across partitons.
-	 * @return the max total receiver queue size across partitons
+	 * Gets the max total receiver queue size across partitions.
+	 * @return the max total receiver queue size across partitions
 	 * @see ConsumerBuilder#maxTotalReceiverQueueSizeAcrossPartitions
 	 */
 	Integer getMaxTotalReceiverQueueSizeAcrossPartitions();
@@ -236,7 +236,7 @@ public interface ReactiveMessageConsumerSpec {
 
 	/**
 	 * Gets the interval of updating partitions when autoUpdatePartitions is enabled.
-	 * @return true if the consumer subscribes automatically to new partitions
+	 * @return the interval between partitions updates
 	 * @see ConsumerBuilder#autoUpdatePartitionsInterval
 	 * @see ConsumerBuilder#autoUpdatePartitions
 	 */
