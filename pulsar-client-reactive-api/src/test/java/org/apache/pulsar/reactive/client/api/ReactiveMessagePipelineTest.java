@@ -38,7 +38,8 @@ import reactor.core.publisher.SynchronousSink;
 import reactor.util.retry.Retry;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 class ReactiveMessagePipelineTest {
 
@@ -96,7 +97,7 @@ class ReactiveMessagePipelineTest {
 				.messageHandler((message) -> Mono.delay(Duration.ofSeconds(1)).then()).transformPipeline(transformer)
 				.build()) {
 			pipeline.start();
-			assertThatExceptionOfType(IllegalStateException.class).isThrownBy(pipeline::start);
+			assertThatIllegalStateException().isThrownBy(pipeline::start);
 			assertThat(pipeline.isRunning()).isTrue();
 			assertThat(subscriptions.get()).isEqualTo(1);
 			assertThat(cancellations.get()).isEqualTo(0);
@@ -166,6 +167,18 @@ class ReactiveMessagePipelineTest {
 			assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 		}
 
+	}
+
+	@Test
+	void missingHandler() {
+		assertThatNullPointerException().isThrownBy(() -> new TestConsumer(0).messagePipeline().build());
+	}
+
+	@Test
+	void bothMessageHandlerAndStreamingHandler() {
+		assertThatIllegalStateException()
+				.isThrownBy(() -> new TestConsumer(0).messagePipeline().messageHandler((m) -> Mono.empty())
+						.streamingMessageHandler((messageFlux) -> messageFlux.map(MessageResult::acknowledge)).build());
 	}
 
 	@Test
