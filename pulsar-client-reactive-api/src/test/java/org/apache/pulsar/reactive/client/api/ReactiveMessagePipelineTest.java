@@ -23,6 +23,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -37,8 +38,101 @@ import reactor.core.publisher.SynchronousSink;
 import reactor.util.retry.Retry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class ReactiveMessagePipelineTest {
+
+	@Test
+	void startStopPipeline() throws Exception {
+		AtomicInteger subscriptions = new AtomicInteger();
+		AtomicInteger cancellations = new AtomicInteger();
+		Function<Mono<Void>, Publisher<Void>> transformer = (mono) -> mono
+				.doOnSubscribe((s) -> subscriptions.incrementAndGet()).doOnCancel(cancellations::incrementAndGet);
+		try (ReactiveMessagePipeline pipeline = new TestConsumer(Integer.MAX_VALUE).messagePipeline()
+				.messageHandler((message) -> Mono.delay(Duration.ofSeconds(1)).then()).transformPipeline(transformer)
+				.build()) {
+			assertThat(pipeline.isRunning()).isFalse();
+
+			// Stopping not started
+			pipeline.stop();
+			assertThat(pipeline.isRunning()).isFalse();
+			assertThat(subscriptions.get()).isEqualTo(0);
+			assertThat(cancellations.get()).isEqualTo(0);
+
+			// Starting
+			pipeline.start();
+			assertThat(pipeline.isRunning()).isTrue();
+			assertThat(subscriptions.get()).isEqualTo(1);
+			assertThat(cancellations.get()).isEqualTo(0);
+
+			// Stopping
+			pipeline.stop();
+			assertThat(pipeline.isRunning()).isFalse();
+			assertThat(subscriptions.get()).isEqualTo(1);
+			assertThat(cancellations.get()).isEqualTo(1);
+
+			// Stopping again
+			pipeline.stop();
+			assertThat(pipeline.isRunning()).isFalse();
+			assertThat(subscriptions.get()).isEqualTo(1);
+			assertThat(cancellations.get()).isEqualTo(1);
+
+			// Starting again
+			pipeline.start();
+			assertThat(pipeline.isRunning()).isTrue();
+			assertThat(subscriptions.get()).isEqualTo(2);
+			assertThat(cancellations.get()).isEqualTo(1);
+		}
+
+	}
+
+	@Test
+	void startTwiceFails() throws Exception {
+		AtomicInteger subscriptions = new AtomicInteger();
+		AtomicInteger cancellations = new AtomicInteger();
+		Function<Mono<Void>, Publisher<Void>> transformer = (mono) -> mono
+				.doOnSubscribe((s) -> subscriptions.incrementAndGet()).doOnCancel(cancellations::incrementAndGet);
+		try (ReactiveMessagePipeline pipeline = new TestConsumer(Integer.MAX_VALUE).messagePipeline()
+				.messageHandler((message) -> Mono.delay(Duration.ofSeconds(1)).then()).transformPipeline(transformer)
+				.build()) {
+			pipeline.start();
+			assertThatExceptionOfType(IllegalStateException.class).isThrownBy(pipeline::start);
+			assertThat(pipeline.isRunning()).isTrue();
+			assertThat(subscriptions.get()).isEqualTo(1);
+			assertThat(cancellations.get()).isEqualTo(0);
+		}
+	}
+
+	@Test
+	void closePipeline() throws Exception {
+		AtomicInteger subscriptions = new AtomicInteger();
+		AtomicInteger cancellations = new AtomicInteger();
+		Function<Mono<Void>, Publisher<Void>> transformer = (mono) -> mono
+				.doOnSubscribe((s) -> subscriptions.incrementAndGet()).doOnCancel(cancellations::incrementAndGet);
+		ReactiveMessagePipeline pipeline = new TestConsumer(Integer.MAX_VALUE).messagePipeline()
+				.messageHandler((message) -> Mono.delay(Duration.ofSeconds(1)).then()).transformPipeline(transformer)
+				.build();
+
+		pipeline.close();
+		assertThat(pipeline.isRunning()).isFalse();
+		assertThat(subscriptions.get()).isEqualTo(0);
+		assertThat(cancellations.get()).isEqualTo(0);
+
+		pipeline.start();
+		assertThat(pipeline.isRunning()).isTrue();
+		assertThat(subscriptions.get()).isEqualTo(1);
+		assertThat(cancellations.get()).isEqualTo(0);
+
+		pipeline.close();
+		assertThat(pipeline.isRunning()).isFalse();
+		assertThat(subscriptions.get()).isEqualTo(1);
+		assertThat(cancellations.get()).isEqualTo(1);
+
+		pipeline.close();
+		assertThat(pipeline.isRunning()).isFalse();
+		assertThat(subscriptions.get()).isEqualTo(1);
+		assertThat(cancellations.get()).isEqualTo(1);
+	}
 
 	@Test
 	void messageHandler() throws Exception {
@@ -205,11 +299,13 @@ class ReactiveMessagePipelineTest {
 				.messageHandler(messageHandler).concurrency(10).build()) {
 			pipeline.start();
 			assertThat(queue.poll(5, TimeUnit.SECONDS)).isNotEqualTo("0");
-		}
 
-		// Drain the queue
-		for (int i = 0; i < 9; i++) {
-			assertThat(queue.poll(5, TimeUnit.SECONDS)).isNotNull();
+			// Drain the queue
+			for (int i = 0; i < 9; i++) {
+				String poll = queue.poll(5, TimeUnit.SECONDS);
+				System.out.println(poll);
+				assertThat(poll).isNotNull();
+			}
 		}
 
 		// Make all messages go to the same handler and verify that messages are processed
