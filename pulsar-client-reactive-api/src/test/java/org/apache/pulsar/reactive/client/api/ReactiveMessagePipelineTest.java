@@ -243,50 +243,23 @@ class ReactiveMessagePipelineTest {
 		CountDownLatch latch1 = new CountDownLatch(numMessages);
 		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> {
 			latch1.countDown();
-			return Mono.delay(Duration.ofMillis(10)).then();
+			return Mono.delay(Duration.ofMillis(100)).then();
 		};
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
 			pipeline.start();
-			assertThat(latch1.await(100, TimeUnit.MILLISECONDS)).isFalse();
+			assertThat(latch1.await(150, TimeUnit.MILLISECONDS)).isFalse();
 		}
 
 		// Test that concurrent succeeds to process all messages in time
 		CountDownLatch latch2 = new CountDownLatch(numMessages);
 		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> {
 			latch2.countDown();
-			return Mono.delay(Duration.ofMillis(10)).then();
+			return Mono.delay(Duration.ofMillis(100)).then();
 		};
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
 				.concurrency(1000).build()) {
 			pipeline.start();
-			assertThat(latch2.await(100, TimeUnit.MILLISECONDS)).isTrue();
-		}
-
-	}
-
-	@Test
-	void defaultPipelineRetry() throws Exception {
-		CountDownLatch latch = new CountDownLatch(2);
-		ManyConsumer testConsumer = new ManyConsumer() {
-			@Override
-			public <R> Flux<R> consumeMany(
-					Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
-
-				return Flux.range(0, 10).map((value) -> {
-					if (value == 0) {
-						// We check that the flux is restarted and the message received is
-						// "0"
-						latch.countDown();
-					}
-					throw new RuntimeException("error");
-				});
-			}
-		};
-
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().build()) {
-			pipeline.start();
-			// The default pipeline first retry is 5 seconds
-			assertThat(latch.await(8, TimeUnit.SECONDS)).isTrue();
+			assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
 		}
 
 	}
@@ -329,6 +302,50 @@ class ReactiveMessagePipelineTest {
 			pipeline.start();
 			assertThat(queue.poll(5, TimeUnit.SECONDS)).isEqualTo("0");
 		}
+	}
+
+	@Test
+	void maxInflight() throws Exception {
+		int numMessages = 1000;
+		TestConsumer testConsumer = new TestConsumer(numMessages);
+
+		CountDownLatch latch = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
+				.doOnNext(it -> latch.countDown()).then();
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
+				.concurrency(1000).maxInflight(1).build()) {
+			pipeline.start();
+			assertThat(latch.await(150, TimeUnit.MILLISECONDS)).isFalse();
+			assertThat(latch.getCount()).isEqualTo(998L);
+		}
+
+	}
+
+	@Test
+	void defaultPipelineRetry() throws Exception {
+		CountDownLatch latch = new CountDownLatch(2);
+		ManyConsumer testConsumer = new ManyConsumer() {
+			@Override
+			public <R> Flux<R> consumeMany(
+					Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
+
+				return Flux.range(0, 10).map((value) -> {
+					if (value == 0) {
+						// We check that the flux is restarted and the message received is
+						// "0"
+						latch.countDown();
+					}
+					throw new RuntimeException("error");
+				});
+			}
+		};
+
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().build()) {
+			pipeline.start();
+			// The default pipeline first retry is 5 seconds
+			assertThat(latch.await(8, TimeUnit.SECONDS)).isTrue();
+		}
+
 	}
 
 	@Test
