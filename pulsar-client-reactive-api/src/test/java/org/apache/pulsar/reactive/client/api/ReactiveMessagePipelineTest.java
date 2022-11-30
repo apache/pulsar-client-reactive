@@ -19,7 +19,9 @@ package org.apache.pulsar.reactive.client.api;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -180,6 +182,44 @@ class ReactiveMessagePipelineTest {
 			assertThat(latch.await(8, TimeUnit.SECONDS)).isTrue();
 		}
 
+	}
+
+	@Test
+	void messageGroupingFunction() throws Exception {
+		int numMessages = 10;
+		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> {
+			String value = message.getValue();
+			if (value.equals("0")) {
+				// Delay the first message. If the messages are not grouped, then "0"
+				// won't be the first message added to the queue.
+				return Mono.delay(Duration.ofMillis(10)).doOnNext((it) -> queue.add(value)).then();
+			}
+			queue.add(value);
+			return Mono.empty();
+		};
+
+		// Verify that without a grouping function, the messages are not processed in
+		// order.
+		try (ReactiveMessagePipeline pipeline = new TestConsumer(numMessages).messagePipeline()
+				.messageHandler(messageHandler).concurrency(10).build()) {
+			pipeline.start();
+			assertThat(queue.poll(5, TimeUnit.SECONDS)).isNotEqualTo("0");
+		}
+
+		// Drain the queue
+		for (int i = 0; i < 9; i++) {
+			assertThat(queue.poll(5, TimeUnit.SECONDS)).isNotNull();
+		}
+
+		// Make all messages go to the same handler and verify that messages are processed
+		// in order.
+		MessageGroupingFunction groupingFunction = (message, numberOfGroups) -> 0;
+		try (ReactiveMessagePipeline pipeline = new TestConsumer(numMessages).messagePipeline()
+				.messageHandler(messageHandler).concurrency(10).groupOrderedProcessing(groupingFunction).build()) {
+			pipeline.start();
+			assertThat(queue.poll(5, TimeUnit.SECONDS)).isEqualTo("0");
+		}
 	}
 
 	@Test
