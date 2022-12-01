@@ -421,9 +421,11 @@ class ReactiveMessagePipelineTest {
 
 		@Override
 		public <R> Flux<R> consumeMany(Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
-			Flux<Message<String>> messages = Flux.range(0, this.numMessages).map(Object::toString)
-					.map(TestMessage::new);
-			return Flux.from(messageHandler.apply(messages)).mapNotNull(MessageResult::getValue);
+			return Flux.defer(() -> {
+				Flux<Message<String>> messages = Flux.range(0, this.numMessages).map(Object::toString)
+						.map(TestMessage::new);
+				return Flux.from(messageHandler.apply(messages)).mapNotNull(MessageResult::getValue);
+			});
 		}
 
 	}
