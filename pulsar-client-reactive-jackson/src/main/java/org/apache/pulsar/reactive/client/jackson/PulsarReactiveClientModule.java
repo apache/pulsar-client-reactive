@@ -45,8 +45,16 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageReaderSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderSpec;
 import reactor.core.scheduler.Scheduler;
 
+/**
+ * Jackson module to handle the reactive client spec classes.
+ *
+ * @author Christophe Bornet
+ */
 public class PulsarReactiveClientModule extends SimpleModule {
 
+	/**
+	 * Constructs a {@link PulsarReactiveClientModule}.
+	 */
 	public PulsarReactiveClientModule() {
 		super();
 		addDeserializer(KeySharedPolicy.class, new KeySharedPolicyDeserializer());
@@ -73,6 +81,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 		setMixInAnnotation(MutableReactiveMessageSenderSpec.class, MutableReactiveMessageSenderSpecMixin.class);
 	}
 
+	/**
+	 * Jackson deserializer for {@link KeySharedPolicy}.
+	 */
 	public static class KeySharedPolicyDeserializer extends JsonDeserializer<KeySharedPolicy> {
 
 		@Override
@@ -82,6 +93,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson serializer for {@link KeySharedPolicy}.
+	 */
 	public static class KeySharedPolicySerializer extends JsonSerializer<KeySharedPolicy> {
 
 		@Override
@@ -100,6 +114,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson deserializer for {@link Scheduler}.
+	 */
 	public static class SchedulerDeserializer extends JsonDeserializer<Scheduler> {
 
 		@Override
@@ -109,6 +126,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson serializer for {@link Scheduler}.
+	 */
 	public static class SchedulerSerializer extends JsonSerializer<Scheduler> {
 
 		@Override
@@ -138,6 +158,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson deserializer for {@link DeadLetterPolicy}.
+	 */
 	public static class DeadLetterPolicyDeserializer extends JsonDeserializer<DeadLetterPolicy> {
 
 		@Override
@@ -148,6 +171,9 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson serializer for {@link Range}.
+	 */
 	public static class RangeDeserializer extends JsonDeserializer<Range> {
 
 		@Override
@@ -158,6 +184,11 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson serializer for {@link Class}.
+	 *
+	 * @param <T> the type of class
+	 */
 	public static class ClassSerializer<T> extends JsonSerializer<T> {
 
 		@Override
@@ -169,6 +200,11 @@ public class PulsarReactiveClientModule extends SimpleModule {
 
 	}
 
+	/**
+	 * Jackson deserializer for {@link Class}.
+	 *
+	 * @param <T> the type of class
+	 */
 	public static class ClassDeserializer<T> extends JsonDeserializer<T> {
 
 		@Override

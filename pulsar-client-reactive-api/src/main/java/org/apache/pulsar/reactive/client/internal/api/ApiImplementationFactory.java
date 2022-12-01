@@ -21,38 +21,89 @@ import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.MessageSpecBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
+import org.apache.pulsar.reactive.client.api.ReactiveMessagePipeline;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipelineBuilder;
 
+/**
+ * Internal API implementation.
+ *
+ * @author Lari Hotari
+ * @author Christophe Bornet
+ */
 public final class ApiImplementationFactory {
 
 	private ApiImplementationFactory() {
 
 	}
 
+	/**
+	 * Returns the processed value and signals that the message must be acknowledged.
+	 * @param <T> the type of the processed value
+	 * @param messageId the id of the message to acknowledge
+	 * @param value the processed value
+	 * @return the result of the message processing
+	 */
 	public static <T> MessageResult<T> acknowledge(MessageId messageId, T value) {
 		return new DefaultMessageResult<>(messageId, true, value);
 	}
 
+	/**
+	 * Returns the processed value and signals that the message must be negatively
+	 * acknowledged.
+	 * @param <T> the type of the processed value
+	 * @param messageId the id of the message to negatively acknowledge
+	 * @param value the processed value
+	 * @return the result of the message processing
+	 */
 	public static <T> MessageResult<T> negativeAcknowledge(MessageId messageId, T value) {
 		return new DefaultMessageResult<T>(messageId, false, value);
 	}
 
+	/**
+	 * Returns an empty value and signals that the message must be acknowledged.
+	 * @param messageId the id of the message to acknowledge
+	 * @return the result of the message processing
+	 */
 	public static MessageResult<Void> acknowledge(MessageId messageId) {
 		return new EmptyMessageResult(messageId, true);
 	}
 
+	/**
+	 * Returns an empty value and signals that the message must be negatively
+	 * acknowledged.
+	 * @param messageId the id of the message to negatively acknowledge
+	 * @return the result of the message processing
+	 */
 	public static MessageResult<Void> negativeAcknowledge(MessageId messageId) {
 		return new EmptyMessageResult(messageId, false);
 	}
 
+	/**
+	 * Creates a message spec builder from a value.
+	 * @param <T> the message payload type
+	 * @param value the value to create the message spec builder from
+	 * @return the message spec builder
+	 */
 	public static <T> MessageSpecBuilder<T> createMessageSpecBuilder(T value) {
 		return new DefaultMessageSpecBuilder<T>().value(value);
 	}
 
+	/**
+	 * Creates a message spec from a value.
+	 * @param <T> the message payload type
+	 * @param value the value to create the message spec from
+	 * @return the message spec
+	 */
 	public static <T> MessageSpec<T> createValueOnlyMessageSpec(T value) {
 		return new ValueOnlyMessageSpec<>(value);
 	}
 
+	/**
+	 * Creates a builder for building a {@link ReactiveMessagePipeline}.
+	 * @param <T> the message payload type
+	 * @param messageConsumer reactive consumer used by the pipeline
+	 * @return a builder for building a {@link ReactiveMessagePipeline}
+	 */
 	public static <T> ReactiveMessagePipelineBuilder<T> createReactiveMessageHandlerPipelineBuilder(
 			ReactiveMessageConsumer<T> messageConsumer) {
 		return new DefaultReactiveMessagePipelineBuilder<>(messageConsumer);

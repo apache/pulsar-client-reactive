@@ -19,8 +19,18 @@ package org.apache.pulsar.reactive.client.internal.api;
 import org.reactivestreams.Publisher;
 import reactor.core.Disposable;
 
+/**
+ * Class to transform a {@link Publisher} to another {@link Publisher}.
+ *
+ * @author Lari Hotari
+ */
 public interface PublisherTransformer extends Disposable {
 
+	/**
+	 * Gets a {@link PublisherTransformer} that returns the input {@link Publisher}
+	 * without modification.
+	 * @return the input {@link Publisher} not modified
+	 */
 	static PublisherTransformer identity() {
 		return new PublisherTransformer() {
 			@Override
@@ -34,6 +44,12 @@ public interface PublisherTransformer extends Disposable {
 		};
 	}
 
+	/**
+	 * Transforms a {@link Publisher} to another {@link Publisher}.
+	 * @param publisher the publisher to transform
+	 * @param <T> the type of the publisher
+	 * @return the transformed publisher
+	 */
 	<T> Publisher<T> transform(Publisher<T> publisher);
 
 }
