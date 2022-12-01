@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.pulsar.reactive.client.internal.adapter;
+package org.apache.pulsar.reactive.client.internal.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.pulsar.reactive.client.internal.api.InflightLimiter;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
