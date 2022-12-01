@@ -64,6 +64,11 @@ public class ImmutableReactiveMessageReaderSpec implements ReactiveMessageReader
 		this.cryptoFailureAction = cryptoFailureAction;
 	}
 
+	/**
+	 * Constructs a ImmutableReactiveMessageConsumerSpec from another
+	 * {@link ReactiveMessageConsumerSpec}.
+	 * @param readerSpec the spec to construct from
+	 */
 	public ImmutableReactiveMessageReaderSpec(ReactiveMessageReaderSpec readerSpec) {
 		this.topicNames = (readerSpec.getTopicNames() != null && !readerSpec.getTopicNames().isEmpty())
 				? Collections.unmodifiableList(new ArrayList<>(readerSpec.getTopicNames())) : null;

@@ -28,10 +28,18 @@ public final class InstantStartAtSpec extends StartAtSpec {
 
 	private final Instant instant;
 
+	/**
+	 * Constructs a {@link InstantStartAtSpec}.
+	 * @param instant the instant in time from when to start reading from
+	 */
 	public InstantStartAtSpec(final Instant instant) {
 		this.instant = instant;
 	}
 
+	/**
+	 * Gets the instant from when to start reading from.
+	 * @return the instant in time from when to start reading from
+	 */
 	public Instant getInstant() {
 		return this.instant;
 	}
