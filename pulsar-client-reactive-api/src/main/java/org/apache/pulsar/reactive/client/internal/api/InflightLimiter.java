@@ -93,13 +93,7 @@ public class InflightLimiter implements PublisherTransformer {
 		}
 	}
 
-	/**
-	 * Limits in-flight messages for a {@link Flux}.
-	 * @param source the Flux to limit
-	 * @param <I> the type of the FLux
-	 * @return the limited Flux
-	 */
-	public <I> Flux<I> createOperator(Flux<I> source) {
+	<I> Flux<I> createOperator(Flux<I> source) {
 		return new FluxOperator<I, I>(source) {
 			@Override
 			public void subscribe(CoreSubscriber<? super I> actual) {
@@ -108,13 +102,7 @@ public class InflightLimiter implements PublisherTransformer {
 		};
 	}
 
-	/**
-	 * Limits in-flight messages for a {@link Mono}.
-	 * @param source the Mono to limit
-	 * @param <I> the type of the Mono
-	 * @return the limited Mono
-	 */
-	public <I> Mono<I> createOperator(Mono<I> source) {
+	<I> Mono<I> createOperator(Mono<I> source) {
 		return new MonoOperator<I, I>(source) {
 			@Override
 			public void subscribe(CoreSubscriber<? super I> actual) {
