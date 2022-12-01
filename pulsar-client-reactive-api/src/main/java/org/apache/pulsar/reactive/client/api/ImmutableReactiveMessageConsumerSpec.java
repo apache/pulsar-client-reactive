@@ -107,6 +107,11 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 
 	private final Duration expireTimeOfIncompleteChunkedMessage;
 
+	/**
+	 * Constructs a ImmutableReactiveMessageConsumerSpec from another
+	 * {@link ReactiveMessageConsumerSpec}.
+	 * @param consumerSpec the spec to construct from
+	 */
 	public ImmutableReactiveMessageConsumerSpec(ReactiveMessageConsumerSpec consumerSpec) {
 		this.topicNames = (consumerSpec.getTopicNames() != null && !consumerSpec.getTopicNames().isEmpty())
 				? Collections.unmodifiableList(new ArrayList<>(consumerSpec.getTopicNames())) : null;

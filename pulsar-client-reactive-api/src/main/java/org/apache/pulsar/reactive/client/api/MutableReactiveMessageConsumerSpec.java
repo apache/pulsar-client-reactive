@@ -696,6 +696,12 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 		if (consumerSpec.getAcknowledgementsGroupTime() != null) {
 			setAcknowledgementsGroupTime(consumerSpec.getAcknowledgementsGroupTime());
 		}
+		if (consumerSpec.getAcknowledgeAsynchronously() != null) {
+			setAcknowledgeAsynchronously(consumerSpec.getAcknowledgeAsynchronously());
+		}
+		if (consumerSpec.getAcknowledgeScheduler() != null) {
+			setAcknowledgeScheduler(consumerSpec.getAcknowledgeScheduler());
+		}
 		if (consumerSpec.getNegativeAckRedeliveryDelay() != null) {
 			setNegativeAckRedeliveryDelay(consumerSpec.getNegativeAckRedeliveryDelay());
 		}
