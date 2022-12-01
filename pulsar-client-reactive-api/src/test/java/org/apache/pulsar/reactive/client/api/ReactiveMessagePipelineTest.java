@@ -256,7 +256,7 @@ class ReactiveMessagePipelineTest {
 			pipeline.start();
 			assertThat(latch2.await(1, TimeUnit.SECONDS)).isTrue();
 		}
-		assertThat(inflightCounterConcurrency.getMax()).isGreaterThan(100);
+		assertThat(inflightCounterConcurrency.getMax()).isEqualTo(1000);
 	}
 
 	@Test
@@ -590,10 +590,8 @@ class ReactiveMessagePipelineTest {
 		AtomicInteger current = new AtomicInteger();
 
 		private void begin() {
-			this.max.updateAndGet((currentMax) -> {
-				int incremented = this.current.incrementAndGet();
-				return (incremented > currentMax) ? incremented : currentMax;
-			});
+			int incremented = this.current.incrementAndGet();
+			this.max.updateAndGet((currentMax) -> (incremented > currentMax) ? incremented : currentMax);
 		}
 
 		private void end() {
