@@ -240,29 +240,34 @@ class ReactiveMessagePipelineTest {
 		int numMessages = 1000;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 
-		// Test that non-concurrent fails to process all messages in time
-		CountDownLatch latch1 = new CountDownLatch(numMessages);
-		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> {
-			latch1.countDown();
-			return Mono.delay(Duration.ofMillis(100)).then();
-		};
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
-			pipeline.start();
-			assertThat(latch1.await(150, TimeUnit.MILLISECONDS)).isFalse();
+		{
+			// Test that non-concurrent fails to process all messages in time
+			InflightCounter inflightCounterNoConcurrency = new InflightCounter();
+			CountDownLatch latch1 = new CountDownLatch(numMessages);
+			Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.delay(Duration.ofMillis(100))
+					.transform(inflightCounterNoConcurrency::transform).then().doFinally((__) -> latch1.countDown());
+			;
+			try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler)
+					.build()) {
+				pipeline.start();
+				assertThat(latch1.await(150, TimeUnit.MILLISECONDS)).isFalse();
+			}
+			assertThat(inflightCounterNoConcurrency.getMax()).isEqualTo(1);
 		}
 
-		// Test that concurrent succeeds to process all messages in time
-		CountDownLatch latch2 = new CountDownLatch(numMessages);
-		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> {
-			latch2.countDown();
-			return Mono.delay(Duration.ofMillis(100)).then();
-		};
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
-				.concurrency(1000).build()) {
-			pipeline.start();
-			assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
+		{
+			// Test that concurrent succeeds to process all messages in time
+			InflightCounter inflightCounterConcurrency = new InflightCounter();
+			CountDownLatch latch2 = new CountDownLatch(numMessages);
+			Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
+					.transform(inflightCounterConcurrency::transform).then().doFinally((__) -> latch2.countDown());
+			try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
+					.concurrency(1000).build()) {
+				pipeline.start();
+				assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
+			}
+			assertThat(inflightCounterConcurrency.getMax()).isGreaterThan(100);
 		}
-
 	}
 
 	@Test
@@ -312,8 +317,10 @@ class ReactiveMessagePipelineTest {
 		AtomicInteger current = new AtomicInteger();
 
 		private void begin() {
-			int incremented = current.incrementAndGet();
-			max.updateAndGet(currentMax -> incremented > currentMax ? incremented : currentMax);
+			max.updateAndGet(currentMax -> {
+				int incremented = current.incrementAndGet();
+				return incremented > currentMax ? incremented : currentMax;
+			});
 		}
 
 		private void end() {
@@ -351,7 +358,7 @@ class ReactiveMessagePipelineTest {
 
 		CountDownLatch latch = new CountDownLatch(numMessages);
 		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(2))
-				.doOnNext((it) -> latch.countDown()).then().as(inflightCounter::transform);
+				.doOnNext((it) -> latch.countDown()).then().transform(inflightCounter::transform);
 
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
 				.concurrency(1000).maxInflight(maxInFlight).build()) {
