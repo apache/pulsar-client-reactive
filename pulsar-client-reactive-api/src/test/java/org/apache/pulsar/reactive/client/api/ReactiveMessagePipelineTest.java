@@ -214,7 +214,7 @@ class ReactiveMessagePipelineTest {
 	}
 
 	@Test
-	void errorHandler() throws Exception {
+	void errorLogger() throws Exception {
 		int numMessages = 10;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 		CountDownLatch latch = new CountDownLatch(numMessages);
