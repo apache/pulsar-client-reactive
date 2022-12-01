@@ -148,6 +148,13 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	@Override
 	public ReactiveMessagePipeline build() {
+		if (this.messageHandler != null && this.streamingMessageHandler != null) {
+			throw new IllegalStateException(
+					"messageHandler and streamingMessageHandler cannot be set at the same time.");
+		}
+		if (this.messageHandler == null && this.streamingMessageHandler == null) {
+			throw new NullPointerException("messageHandler or streamingMessageHandler must be set.");
+		}
 		return new DefaultReactiveMessagePipeline(this.messageConsumer, this.messageHandler, this.errorLogger,
 				this.pipelineRetrySpec, this.handlingTimeout, this.transformer, this.streamingMessageHandler,
 				this.groupingFunction, this.concurrency, this.maxInflight);
