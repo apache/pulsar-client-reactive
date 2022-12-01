@@ -141,10 +141,8 @@ class ReactiveMessagePipelineTest {
 		int numMessages = 10;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 		CountDownLatch latch = new CountDownLatch(numMessages);
-		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> {
-			latch.countDown();
-			return Mono.empty();
-		};
+		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.empty().then()
+				.doFinally((__) -> latch.countDown());
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
 			pipeline.start();
 			assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
@@ -158,10 +156,7 @@ class ReactiveMessagePipelineTest {
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 		CountDownLatch latch = new CountDownLatch(numMessages);
 		Function<Flux<Message<String>>, Publisher<MessageResult<Void>>> messageHandler = (messageFlux) -> messageFlux
-				.map((message) -> {
-					latch.countDown();
-					return MessageResult.acknowledge(message);
-				});
+				.map(MessageResult::acknowledge).doOnNext((__) -> latch.countDown());
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().streamingMessageHandler(messageHandler)
 				.build()) {
 			pipeline.start();
@@ -240,34 +235,28 @@ class ReactiveMessagePipelineTest {
 		int numMessages = 1000;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 
-		{
-			// Test that non-concurrent fails to process all messages in time
-			InflightCounter inflightCounterNoConcurrency = new InflightCounter();
-			CountDownLatch latch1 = new CountDownLatch(numMessages);
-			Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.delay(Duration.ofMillis(100))
-					.transform(inflightCounterNoConcurrency::transform).then().doFinally((__) -> latch1.countDown());
-			;
-			try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler)
-					.build()) {
-				pipeline.start();
-				assertThat(latch1.await(150, TimeUnit.MILLISECONDS)).isFalse();
-			}
-			assertThat(inflightCounterNoConcurrency.getMax()).isEqualTo(1);
+		// Test that non-concurrent fails to process all messages in time
+		InflightCounter inflightCounterNoConcurrency = new InflightCounter();
+		CountDownLatch latch1 = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.delay(Duration.ofMillis(100))
+				.transform(inflightCounterNoConcurrency::transform).then().doFinally((__) -> latch1.countDown());
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
+			pipeline.start();
+			assertThat(latch1.await(150, TimeUnit.MILLISECONDS)).isFalse();
 		}
+		assertThat(inflightCounterNoConcurrency.getMax()).isEqualTo(1);
 
-		{
-			// Test that concurrent succeeds to process all messages in time
-			InflightCounter inflightCounterConcurrency = new InflightCounter();
-			CountDownLatch latch2 = new CountDownLatch(numMessages);
-			Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
-					.transform(inflightCounterConcurrency::transform).then().doFinally((__) -> latch2.countDown());
-			try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
-					.concurrency(1000).build()) {
-				pipeline.start();
-				assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
-			}
-			assertThat(inflightCounterConcurrency.getMax()).isGreaterThan(100);
+		// Test that concurrent succeeds to process all messages in time
+		InflightCounter inflightCounterConcurrency = new InflightCounter();
+		CountDownLatch latch2 = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
+				.transform(inflightCounterConcurrency::transform).then().doFinally((__) -> latch2.countDown());
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
+				.concurrency(1000).build()) {
+			pipeline.start();
+			assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
 		}
+		assertThat(inflightCounterConcurrency.getMax()).isGreaterThan(100);
 	}
 
 	@Test
@@ -308,44 +297,6 @@ class ReactiveMessagePipelineTest {
 			pipeline.start();
 			assertThat(queue.poll(5, TimeUnit.SECONDS)).isEqualTo("0");
 		}
-	}
-
-	static class InflightCounter {
-
-		AtomicInteger max = new AtomicInteger();
-
-		AtomicInteger current = new AtomicInteger();
-
-		private void begin() {
-			max.updateAndGet(currentMax -> {
-				int incremented = current.incrementAndGet();
-				return incremented > currentMax ? incremented : currentMax;
-			});
-		}
-
-		private void end() {
-			current.decrementAndGet();
-		}
-
-		int getMax() {
-			return max.get();
-		}
-
-		<T> Publisher<T> transform(Publisher<T> publisher) {
-			if (publisher instanceof Mono<?>) {
-				return Mono.using(() -> {
-					this.begin();
-					return this;
-				}, __ -> Mono.from(publisher), __ -> end());
-			}
-			else {
-				return Flux.using(() -> {
-					this.begin();
-					return this;
-				}, __ -> Flux.from(publisher), __ -> end());
-			}
-		}
-
 	}
 
 	@ParameterizedTest
@@ -623,6 +574,44 @@ class ReactiveMessagePipelineTest {
 		@Override
 		public Optional<Long> getIndex() {
 			return Optional.empty();
+		}
+
+	}
+
+	static class InflightCounter {
+
+		AtomicInteger max = new AtomicInteger();
+
+		AtomicInteger current = new AtomicInteger();
+
+		private void begin() {
+			this.max.updateAndGet((currentMax) -> {
+				int incremented = this.current.incrementAndGet();
+				return (incremented > currentMax) ? incremented : currentMax;
+			});
+		}
+
+		private void end() {
+			this.current.decrementAndGet();
+		}
+
+		int getMax() {
+			return this.max.get();
+		}
+
+		<T> Publisher<T> transform(Publisher<T> publisher) {
+			if (publisher instanceof Mono<?>) {
+				return Mono.using(() -> {
+					this.begin();
+					return this;
+				}, (__) -> Mono.from(publisher), (__) -> end());
+			}
+			else {
+				return Flux.using(() -> {
+					this.begin();
+					return this;
+				}, (__) -> Flux.from(publisher), (__) -> end());
+			}
 		}
 
 	}
