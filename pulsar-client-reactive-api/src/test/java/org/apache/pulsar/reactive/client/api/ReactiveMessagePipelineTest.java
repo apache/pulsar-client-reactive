@@ -311,7 +311,7 @@ class ReactiveMessagePipelineTest {
 
 		CountDownLatch latch = new CountDownLatch(numMessages);
 		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
-				.doOnNext(it -> latch.countDown()).then();
+				.doOnNext((it) -> latch.countDown()).then();
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
 				.concurrency(1000).maxInflight(1).build()) {
 			pipeline.start();
