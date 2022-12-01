@@ -31,15 +31,28 @@ public final class MessageIdStartAtSpec extends StartAtSpec {
 
 	private final boolean inclusive;
 
+	/**
+	 * Contructs a {@link MessageIdStartAtSpec}.
+	 * @param messageId the message id from which to start reading from
+	 * @param inclusive true to include the message with the message id
+	 */
 	public MessageIdStartAtSpec(final MessageId messageId, final boolean inclusive) {
 		this.messageId = messageId;
 		this.inclusive = inclusive;
 	}
 
+	/**
+	 * Gets the message id from which to start reading from.
+	 * @return the message id from which to start reading from
+	 */
 	public MessageId getMessageId() {
 		return this.messageId;
 	}
 
+	/**
+	 * Gets whether the message with the message id must be included.
+	 * @return true if the message with the message id must be included
+	 */
 	public boolean isInclusive() {
 		return this.inclusive;
 	}
