@@ -31,10 +31,11 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.common.api.EncryptionContext;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 import reactor.util.retry.Retry;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -304,21 +305,60 @@ class ReactiveMessagePipelineTest {
 		}
 	}
 
-	@Test
-	void maxInflight() throws Exception {
+	static class InflightCounter {
+
+		AtomicInteger max = new AtomicInteger();
+
+		AtomicInteger current = new AtomicInteger();
+
+		private void begin() {
+			int incremented = current.incrementAndGet();
+			max.updateAndGet(currentMax -> incremented > currentMax ? incremented : currentMax);
+		}
+
+		private void end() {
+			current.decrementAndGet();
+		}
+
+		int getMax() {
+			return max.get();
+		}
+
+		<T> Publisher<T> transform(Publisher<T> publisher) {
+			if (publisher instanceof Mono<?>) {
+				return Mono.using(() -> {
+					this.begin();
+					return this;
+				}, __ -> Mono.from(publisher), __ -> end());
+			}
+			else {
+				return Flux.using(() -> {
+					this.begin();
+					return this;
+				}, __ -> Flux.from(publisher), __ -> end());
+			}
+		}
+
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = { 1, 2, 13, 29 })
+	void maxInflight(int maxInFlight) throws Exception {
 		int numMessages = 1000;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 
-		CountDownLatch latch = new CountDownLatch(numMessages);
-		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(100))
-				.doOnNext((it) -> latch.countDown()).then();
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
-				.concurrency(1000).maxInflight(1).build()) {
-			pipeline.start();
-			assertThat(latch.await(150, TimeUnit.MILLISECONDS)).isFalse();
-			assertThat(latch.getCount()).isEqualTo(998L);
-		}
+		InflightCounter inflightCounter = new InflightCounter();
 
+		CountDownLatch latch = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler2 = (message) -> Mono.delay(Duration.ofMillis(2))
+				.doOnNext((it) -> latch.countDown()).then().as(inflightCounter::transform);
+
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
+				.concurrency(1000).maxInflight(maxInFlight).build()) {
+			pipeline.start();
+			assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
+			assertThat(inflightCounter.getMax()).isEqualTo(maxInFlight);
+		}
 	}
 
 	@Test
@@ -425,14 +465,7 @@ class ReactiveMessagePipelineTest {
 		public <R> Flux<R> consumeMany(Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
 			Flux<Message<String>> messages = Flux.range(0, this.numMessages).map(Object::toString)
 					.map(TestMessage::new);
-			return Flux.from(messageHandler.apply(messages)).handle(this::handleMessageResult);
-		}
-
-		private <R> void handleMessageResult(MessageResult<R> messageResult, SynchronousSink<R> sink) {
-			R value = messageResult.getValue();
-			if (value != null) {
-				sink.next(value);
-			}
+			return Flux.from(messageHandler.apply(messages)).mapNotNull(MessageResult::getValue);
 		}
 
 	}
