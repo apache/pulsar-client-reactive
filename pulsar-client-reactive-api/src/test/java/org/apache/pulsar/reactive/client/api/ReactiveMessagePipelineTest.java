@@ -254,7 +254,7 @@ class ReactiveMessagePipelineTest {
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler2)
 				.concurrency(1000).build()) {
 			pipeline.start();
-			assertThat(latch2.await(150, TimeUnit.MILLISECONDS)).isTrue();
+			assertThat(latch2.await(1, TimeUnit.SECONDS)).isTrue();
 		}
 		assertThat(inflightCounterConcurrency.getMax()).isGreaterThan(100);
 	}
