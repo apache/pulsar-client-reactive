@@ -338,7 +338,8 @@ class ReactiveMessagePipelineTest {
 			}
 		};
 
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().build()) {
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler((__) -> Mono.empty())
+				.build()) {
 			pipeline.start();
 			// The default pipeline first retry is 5 seconds
 			assertThat(latch.await(8, TimeUnit.SECONDS)).isTrue();
@@ -366,7 +367,8 @@ class ReactiveMessagePipelineTest {
 		};
 
 		Retry retrySpec = Retry.fixedDelay(1, Duration.ofMillis(1));
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().pipelineRetrySpec(retrySpec).build()) {
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler((__) -> Mono.empty())
+				.pipelineRetrySpec(retrySpec).build()) {
 			pipeline.start();
 			// Wait less than the default retry backoff.
 			assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
@@ -389,7 +391,8 @@ class ReactiveMessagePipelineTest {
 				latch.countDown();
 			}
 		});
-		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().transformPipeline(transformer).build()) {
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler((__) -> Mono.empty())
+				.transformPipeline(transformer).build()) {
 			pipeline.start();
 			assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 		}
