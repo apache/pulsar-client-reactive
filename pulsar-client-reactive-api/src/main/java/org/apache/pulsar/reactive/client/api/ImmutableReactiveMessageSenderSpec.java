@@ -129,6 +129,11 @@ public class ImmutableReactiveMessageSenderSpec implements ReactiveMessageSender
 		this.properties = properties;
 	}
 
+	/**
+	 * Constructs a ImmutableReactiveMessageConsumerSpec from another
+	 * {@link ReactiveMessageConsumerSpec}.
+	 * @param senderSpec the spec to construct from
+	 */
 	public ImmutableReactiveMessageSenderSpec(ReactiveMessageSenderSpec senderSpec) {
 		this.topicName = senderSpec.getTopicName();
 		this.producerName = senderSpec.getProducerName();

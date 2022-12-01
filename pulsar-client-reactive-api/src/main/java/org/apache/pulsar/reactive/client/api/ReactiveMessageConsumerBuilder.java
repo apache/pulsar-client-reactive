@@ -358,7 +358,6 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * priorityLevel 1 then the broker will dispatch messages only to consumer-A until it
 	 * runs out of permits, then the broker will start dispatching messages to consumer-B.
 	 *
-	 * <p>
 	 * <pre>
 	 * Consumer PriorityLevel Permits
 	 * C1       0             2
