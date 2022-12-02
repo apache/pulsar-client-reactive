@@ -37,10 +37,6 @@ final class ProducerCacheKey {
 		this.schema = schema;
 	}
 
-	String getTopicName() {
-		return (this.producerConfigurationData != null) ? this.producerConfigurationData.getTopicName() : null;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {

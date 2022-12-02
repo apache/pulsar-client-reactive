@@ -80,7 +80,7 @@ class ReactiveProducerAdapter<T> {
 
 	private <R> Mono<R> usingUncachedProducer(Function<Producer<T>, Mono<R>> usingProducerAction) {
 		return Mono.usingWhen(createProducerMono(),
-				(producer) -> Mono.using(() -> this.producerActionTransformer.get(),
+				(producer) -> Mono.using(this.producerActionTransformer::get,
 						(transformer) -> usingProducerAction.apply(producer)
 								.as((mono) -> Mono.from(transformer.transform(mono))),
 						Disposable::dispose),
@@ -106,7 +106,7 @@ class ReactiveProducerAdapter<T> {
 	}
 
 	private <R> Flux<R> usingUncachedProducerMany(Function<Producer<T>, Flux<R>> usingProducerAction) {
-		return Flux.usingWhen(createProducerMono(), (producer) -> Flux.using(() -> this.producerActionTransformer.get(),
+		return Flux.usingWhen(createProducerMono(), (producer) -> Flux.using(this.producerActionTransformer::get,
 				(transformer) -> usingProducerAction.apply(producer).as(transformer::transform), Disposable::dispose),
 				this::closeProducer);
 	}

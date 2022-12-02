@@ -19,8 +19,8 @@ package org.apache.pulsar.reactive.client.api;
 import org.apache.pulsar.client.api.Schema;
 
 /**
- * Apache Pulsar Reactive Client interface
- *
+ * Apache Pulsar Reactive Client interface.
+ * <p>
  * Contains methods to create builders for {@link ReactiveMessageSender},
  * {@link ReactiveMessageReader} and {@link ReactiveMessageConsumer} instances.
  */

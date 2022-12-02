@@ -73,13 +73,13 @@ class ReactiveMessagePipelineE2ETest {
 			List<String> messages = Collections.synchronizedList(new ArrayList<>());
 			CountDownLatch latch = new CountDownLatch(100);
 
-			try (ReactiveMessagePipeline reactiveMessagePipeline = reactivePulsarClient.messageConsumer(Schema.STRING)
+			try (ReactiveMessagePipeline ignored = reactivePulsarClient.messageConsumer(Schema.STRING)
 					.subscriptionName("sub").topic(topicName).build().messagePipeline()
 					.messageHandler((message) -> Mono.fromRunnable(() -> {
 						messages.add(message.getValue());
 						latch.countDown();
 					})).build().start()) {
-				latch.await(5, TimeUnit.SECONDS);
+				assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 				assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
 			}
 		}
@@ -133,7 +133,7 @@ class ReactiveMessagePipelineE2ETest {
 			if (messageOrderScenario != MessageOrderScenario.NO_PARALLEL) {
 				reactiveMessageHandlerBuilder.concurrency(KEYS_COUNT).useKeyOrderedProcessing();
 			}
-			try (ReactiveMessagePipeline reactiveMessagePipeline = reactiveMessageHandlerBuilder.build().start()) {
+			try (ReactiveMessagePipeline ignored = reactiveMessageHandlerBuilder.build().start()) {
 				boolean latchCompleted = latch.await(5, TimeUnit.SECONDS);
 				assertThat(latchCompleted).as("processing of all messages should have completed").isTrue();
 				for (int i = 1; i <= KEYS_COUNT; i++) {

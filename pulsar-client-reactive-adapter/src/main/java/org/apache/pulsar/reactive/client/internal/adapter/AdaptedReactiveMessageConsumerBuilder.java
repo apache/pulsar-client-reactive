@@ -55,7 +55,7 @@ class AdaptedReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsume
 
 	@Override
 	public ReactiveMessageConsumer<T> build() {
-		return new AdaptedReactiveMessageConsumer<T>(this.reactiveConsumerAdapterFactory, this.schema,
+		return new AdaptedReactiveMessageConsumer<>(this.reactiveConsumerAdapterFactory, this.schema,
 				toImmutableSpec());
 	}
 
