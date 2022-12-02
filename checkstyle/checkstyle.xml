@@ -9,7 +9,9 @@
 		<property name="excludes" value="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck" />
 	</module>
 	<module name="TreeWalker">
-		<module name="MissingJavadocType">
+		<module name="MissingJavadocType" />
+		<module name="TodoComment">
+            <property name="format" value="(FIXME)|(XXX)|(@author)" />
         </module>
 	</module>
 </module>
