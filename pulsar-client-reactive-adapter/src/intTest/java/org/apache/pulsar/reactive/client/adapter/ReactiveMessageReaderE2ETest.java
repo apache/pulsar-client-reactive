@@ -32,7 +32,7 @@ import reactor.core.publisher.Flux;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReactiveMessageReaderE2ETest {
+class ReactiveMessageReaderE2ETest {
 
 	@Test
 	void shouldReadMessages() throws Exception {
