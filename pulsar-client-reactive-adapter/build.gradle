@@ -10,6 +10,12 @@ dependencies {
 	api libs.reactor.core
 	api libs.slf4j.api
 
+	testImplementation libs.junit.jupiter
+	testImplementation libs.reactor.test
+	testImplementation libs.assertj.core
+	testImplementation libs.bundles.log4j
+	testImplementation libs.mockito.core
+
 	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
 	intTestImplementation libs.junit.jupiter
 	intTestImplementation libs.testcontainers.pulsar
