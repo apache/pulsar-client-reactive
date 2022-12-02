@@ -292,7 +292,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * Sets the consumer name.
 	 *
 	 * <p>
-	 * Consumer name is informative and it can be used to indentify a particular consumer
+	 * Consumer name is informative and it can be used to identify a particular consumer
 	 * instance from the topic stats.
 	 * @param consumerName the consumer name
 	 * @return the consumer builder instance
@@ -341,7 +341,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 
 	/**
 	 * Sets the priority level for the consumer.
-	 *
+	 * <p>
 	 * <b>Shared subscription</b> Sets the priority level for the shared subscription
 	 * consumers to which the broker gives more priority while dispatching messages. Here,
 	 * the broker follows descending priorities. (eg: 0=max-priority, 1, 2,..)
@@ -430,13 +430,13 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * The timeout needs to be greater than 1 second.
 	 *
 	 * <p>
-	 * By default, the acknowledge timeout is disabled and that means that messages
+	 * By default, the acknowledgement timeout is disabled and that means that messages
 	 * delivered to a consumer will not be re-delivered unless the consumer crashes.
 	 *
 	 * <p>
-	 * When enabling the acknowledge timeout, if a message is not acknowledged within the
-	 * specified timeout it will be re-delivered to the consumer (possibly to a different
-	 * consumer in case of a shared subscription).
+	 * When enabling the acknowledgement timeout, if a message is not acknowledged within
+	 * the specified timeout it will be re-delivered to the consumer (possibly to a
+	 * different consumer in case of a shared subscription).
 	 * @param ackTimeout the timeout for unacknowledged messages.
 	 * @return the consumer builder instance
 	 * @see ConsumerBuilder#ackTimeout(long, TimeUnit)
@@ -450,10 +450,10 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * Sets the granularity of the ack-timeout redelivery.
 	 *
 	 * <p>
-	 * By default, the tick time is set to 1 second. Using an higher tick time will reduce
+	 * By default, the tick time is set to 1 second. Using a higher tick time will reduce
 	 * the memory overhead to track messages when the ack-timeout is set to bigger values
 	 * (eg: 1hour).
-	 * @param ackTimeoutTickTime the minimum precision for the acknowledge timeout
+	 * @param ackTimeoutTickTime the minimum precision for the acknowledgement timeout
 	 * messages tracker
 	 * @return the consumer builder instance
 	 * @see ConsumerBuilder#ackTimeoutTickTime(long, TimeUnit)
@@ -528,7 +528,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * Sets a dead letter policy for the consumer.
 	 *
 	 * <p>
-	 * By default messages are redelivered indefinitely if they are not acknowledged. By
+	 * By default, messages are redelivered indefinitely if they are not acknowledged. By
 	 * using a dead letter mechanism, messages that have reached the max redelivery count
 	 * will be acknowledged automatically and send to the configured dead letter topic.
 	 *
@@ -539,7 +539,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 *          .deadLetterPolicy(DeadLetterPolicy.builder().maxRedeliverCount(10).build())
 	 *          .build();
 	 * </pre> Default the dead letter topic name is {TopicName}-{Subscription}-DLQ. You
-	 * can set o set a custom dead letter topic name like this: <pre>
+	 * can set a custom dead letter topic name like this: <pre>
 	 * client.messageConsumer(Schema.BYTES)
 	 *          .deadLetterPolicy(DeadLetterPolicy
 	 *              .builder()
@@ -604,7 +604,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	}
 
 	/**
-	 * Sets the maximum total receiver queue size across partitons.
+	 * Sets the maximum total receiver queue size across partitions.
 	 *
 	 * <p>
 	 * This setting is used to reduce the receiver queue size for individual partitions
@@ -685,8 +685,8 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * </pre> Buffering large number of outstanding uncompleted chunked messages can
 	 * create memory pressure. It can be guarded by providing a
 	 * {@code maxPendingChunkedMessage} threshold. Once the consumer reaches this
-	 * threshold, it drops the outstanding unchunked-messages by silently acknowledging or
-	 * asking the broker to redeliver later by marking it unacknowledged. This behavior
+	 * threshold, it drops the outstanding non-chunked messages by silently acknowledging
+	 * or asking the broker to redeliver later by marking it unacknowledged. This behavior
 	 * can be controlled by setting {@link #autoAckOldestChunkedMessageOnQueueFull} The
 	 * default value is 10.
 	 * @param maxPendingChunkedMessage the maximum pending chunked messages.

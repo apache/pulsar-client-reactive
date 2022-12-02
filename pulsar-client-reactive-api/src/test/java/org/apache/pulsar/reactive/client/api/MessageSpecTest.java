@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.pulsar.client.api.MessageId;
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.apache.pulsar.reactive.client.internal.api.InternalMessageSpec;
 import org.junit.jupiter.api.Test;
@@ -101,7 +100,7 @@ class MessageSpecTest {
 		private Duration deliverAfter;
 
 		@Override
-		public MessageId send() throws PulsarClientException {
+		public MessageId send() {
 			throw new IllegalStateException("not implemented");
 		}
 

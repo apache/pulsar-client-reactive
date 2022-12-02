@@ -31,7 +31,7 @@ class ReactiveReaderAdapterFactory {
 	}
 
 	<T> ReactiveReaderAdapter<T> create(Function<PulsarClient, ReaderBuilder<T>> readerBuilderFactory) {
-		return new ReactiveReaderAdapter<T>(this.pulsarClientSupplier, readerBuilderFactory);
+		return new ReactiveReaderAdapter<>(this.pulsarClientSupplier, readerBuilderFactory);
 	}
 
 }

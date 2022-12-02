@@ -24,14 +24,10 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.reactive.client.adapter.ProducerCacheProvider;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.internal.api.PublisherTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class ProducerCache implements ReactiveMessageSenderCache {
-
-	private static final Logger log = LoggerFactory.getLogger(ProducerCache.class);
 
 	private final ProducerCacheProvider cacheProvider;
 
@@ -58,7 +54,7 @@ class ProducerCache implements ReactiveMessageSenderCache {
 		return Mono.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
 				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer())
 						.as(producerCacheEntry::decorateProducerAction),
-				(producerCacheEntry) -> this.returnCacheEntry(producerCacheEntry));
+				this::returnCacheEntry);
 	}
 
 	private Mono<Object> returnCacheEntry(ProducerCacheEntry producerCacheEntry) {
@@ -77,12 +73,12 @@ class ProducerCache implements ReactiveMessageSenderCache {
 		return Flux.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
 				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer())
 						.as(producerCacheEntry::decorateProducerAction),
-				(producerCacheEntry) -> this.returnCacheEntry(producerCacheEntry));
+				this::returnCacheEntry);
 	}
 
 	@Override
 	public void close() throws Exception {
-		if (this.cacheProvider instanceof AutoCloseable) {
+		if (this.cacheProvider != null) {
 			this.cacheProvider.close();
 		}
 	}

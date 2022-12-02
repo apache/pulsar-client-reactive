@@ -53,7 +53,7 @@ public final class ApiImplementationFactory {
 	 * @return the result of the message processing
 	 */
 	public static <T> MessageResult<T> negativeAcknowledge(MessageId messageId, T value) {
-		return new DefaultMessageResult<T>(messageId, false, value);
+		return new DefaultMessageResult<>(messageId, false, value);
 	}
 
 	/**

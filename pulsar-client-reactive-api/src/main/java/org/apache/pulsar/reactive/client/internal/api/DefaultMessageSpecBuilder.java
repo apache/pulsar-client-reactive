@@ -139,7 +139,7 @@ class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
 
 	@Override
 	public MessageSpec<T> build() {
-		return new DefaultMessageSpec<T>(this.key, this.orderingKey, this.keyBytes, this.value, this.properties,
+		return new DefaultMessageSpec<>(this.key, this.orderingKey, this.keyBytes, this.value, this.properties,
 				this.eventTime, this.sequenceId, this.replicationClusters, this.disableReplication, this.deliverAt,
 				this.deliverAfterDelay, this.deliverAfterUnit);
 	}

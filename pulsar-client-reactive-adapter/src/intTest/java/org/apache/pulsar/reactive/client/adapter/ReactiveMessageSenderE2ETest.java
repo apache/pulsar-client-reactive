@@ -56,19 +56,20 @@ class ReactiveMessageSenderE2ETest {
 	void shouldSendMessageToTopic() throws PulsarClientException {
 		try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient()) {
 			String topicName = "test" + UUID.randomUUID();
-			Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName).subscriptionName("sub")
-					.subscribe();
+			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName)
+					.subscriptionName("sub").subscribe()) {
 
-			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
+				ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.topic(topicName).maxInflight(1).build();
-			MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
-			assertThat(messageId).isNotNull();
+				ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+						.topic(topicName).maxInflight(1).build();
+				MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
+				assertThat(messageId).isNotNull();
 
-			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
-			assertThat(message).isNotNull();
-			assertThat(message.getValue()).isEqualTo("Hello world!");
+				Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
+				assertThat(message).isNotNull();
+				assertThat(message.getValue()).isEqualTo("Hello world!");
+			}
 		}
 	}
 
@@ -79,19 +80,20 @@ class ReactiveMessageSenderE2ETest {
 		try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient();
 				ReactiveMessageSenderCache producerCache = cacheInstance) {
 			String topicName = "test" + UUID.randomUUID();
-			Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName).subscriptionName("sub")
-					.subscribe();
+			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName)
+					.subscriptionName("sub").subscribe()) {
 
-			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
+				ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
-			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.cache(producerCache).maxInflight(1).topic(topicName).build();
-			MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
-			assertThat(messageId).isNotNull();
+				ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
+						.cache(producerCache).maxInflight(1).topic(topicName).build();
+				MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
+				assertThat(messageId).isNotNull();
 
-			Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
-			assertThat(message).isNotNull();
-			assertThat(message.getValue()).isEqualTo("Hello world!");
+				Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
+				assertThat(message).isNotNull();
+				assertThat(message.getValue()).isEqualTo("Hello world!");
+			}
 		}
 	}
 

@@ -31,7 +31,7 @@ class ReactiveConsumerAdapterFactory {
 	}
 
 	<T> ReactiveConsumerAdapter<T> create(Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory) {
-		return new ReactiveConsumerAdapter<T>(this.pulsarClientSupplier, consumerBuilderFactory);
+		return new ReactiveConsumerAdapter<>(this.pulsarClientSupplier, consumerBuilderFactory);
 	}
 
 }

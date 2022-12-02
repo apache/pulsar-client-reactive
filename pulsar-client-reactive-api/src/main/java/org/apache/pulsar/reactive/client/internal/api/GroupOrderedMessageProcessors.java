@@ -29,7 +29,7 @@ import reactor.util.concurrent.Queues;
 /**
  * Functions for implementing In-order parallel processing for Pulsar messages using
  * Project Reactor.
- *
+ * <p>
  * A processing group is resolved for each message based on the message's key. The message
  * flux is split into group fluxes based on the processing group. Each group flux is
  * processes messages in order (one-by-one). Multiple group fluxes are processed in

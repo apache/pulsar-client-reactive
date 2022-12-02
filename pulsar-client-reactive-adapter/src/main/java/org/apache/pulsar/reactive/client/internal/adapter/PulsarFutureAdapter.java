@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
  * Stateful adapter from CompletableFuture to Mono which keeps a reference to the original
  * future so that it can be cancelled. Cancellation is necessary for some cases to release
  * resources.
- *
+ * <p>
  * There's additional logic to ignore Pulsar client's
  * {@link org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException} when
  * the Mono has been cancelled. This is to reduce unnecessary exceptions in logs.

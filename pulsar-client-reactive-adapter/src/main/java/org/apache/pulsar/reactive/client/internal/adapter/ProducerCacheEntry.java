@@ -33,9 +33,9 @@ class ProducerCacheEntry implements AutoCloseable {
 
 	private static final Logger log = LoggerFactory.getLogger(ProducerCacheEntry.class);
 
-	private final AtomicReference<Producer<?>> producer = new AtomicReference();
+	private final AtomicReference<Producer<?>> producer = new AtomicReference<>();
 
-	private final AtomicReference<Mono<? extends Producer<?>>> producerCreator = new AtomicReference();
+	private final AtomicReference<Mono<? extends Producer<?>>> producerCreator = new AtomicReference<>();
 
 	private final AtomicInteger activeLeases = new AtomicInteger(0);
 
@@ -69,10 +69,6 @@ class ProducerCacheEntry implements AutoCloseable {
 		}
 	}
 
-	int getActiveLeases() {
-		return this.activeLeases.get();
-	}
-
 	<T> Producer<T> getProducer() {
 		return (Producer<T>) this.producer.get();
 	}
@@ -92,7 +88,7 @@ class ProducerCacheEntry implements AutoCloseable {
 					}
 				}
 			}
-			return Mono.defer(() -> this.producerCreator.get()).filter(Producer::isConnected)
+			return Mono.defer(this.producerCreator::get).filter(Producer::isConnected)
 					.repeatWhenEmpty(5, (flux) -> flux.delayElements(Duration.ofSeconds(1))).thenReturn(this);
 		});
 	}

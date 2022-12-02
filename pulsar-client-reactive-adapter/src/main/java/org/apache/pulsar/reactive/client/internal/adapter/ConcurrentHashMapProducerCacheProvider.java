@@ -44,10 +44,10 @@ public class ConcurrentHashMapProducerCacheProvider implements ProducerCacheProv
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		for (CompletableFuture<Object> future : this.cache.values()) {
 			future.thenAccept((value) -> {
-				if (value != null && value instanceof AutoCloseable) {
+				if (value instanceof AutoCloseable) {
 					try {
 						((AutoCloseable) value).close();
 					}

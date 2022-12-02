@@ -127,7 +127,7 @@ public interface MessageSpecBuilder<T> {
 	 *
 	 * <p>
 	 * The timestamp is milliseconds and based on UTC (eg:
-	 * {@link System#currentTimeMillis()}.
+	 * {@link System#currentTimeMillis()}).
 	 *
 	 * <p>
 	 * <b>Note</b>: messages are only delivered with delay when a consumer is consuming

@@ -42,14 +42,6 @@ class ReactivePulsarResourceAdapter {
 		};
 	}
 
-	static ReactivePulsarResourceAdapter create(Supplier<PulsarClient> pulsarClientSupplier) {
-		return new ReactivePulsarResourceAdapter(pulsarClientSupplier);
-	}
-
-	static ReactivePulsarResourceAdapter create(PulsarClient pulsarClient) {
-		return create(() -> pulsarClient);
-	}
-
 	ReactiveProducerAdapterFactory producer() {
 		return new ReactiveProducerAdapterFactory(this.pulsarClientSupplier);
 	}
