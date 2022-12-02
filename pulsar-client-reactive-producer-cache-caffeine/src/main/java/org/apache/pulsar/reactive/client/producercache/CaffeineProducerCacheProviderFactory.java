@@ -22,8 +22,6 @@ import org.apache.pulsar.reactive.client.adapter.ProducerCacheProviderFactory;
 /**
  * {@link ProducerCacheProviderFactory} that creates instances of
  * {@link CaffeineProducerCacheProvider}.
- *
- * @author Lari Hotari
  */
 public class CaffeineProducerCacheProviderFactory implements ProducerCacheProviderFactory {
 

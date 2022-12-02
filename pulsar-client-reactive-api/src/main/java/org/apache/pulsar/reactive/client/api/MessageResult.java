@@ -24,8 +24,6 @@ import org.apache.pulsar.reactive.client.internal.api.ApiImplementationFactory;
  * Result of a message processing.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface MessageResult<T> {
 

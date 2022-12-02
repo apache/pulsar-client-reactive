@@ -30,8 +30,6 @@ import reactor.core.scheduler.Schedulers;
 
 /**
  * Producer cache provider that uses a Caffeine {@link AsyncCache} to cache entries.
- *
- * @author Lari Hotari
  */
 public class CaffeineProducerCacheProvider implements ProducerCacheProvider {
 

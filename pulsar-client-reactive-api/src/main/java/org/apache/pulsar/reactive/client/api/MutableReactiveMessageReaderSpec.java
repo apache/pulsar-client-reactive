@@ -25,9 +25,6 @@ import org.apache.pulsar.client.api.Range;
 
 /**
  * Mutable spec for a {@link ReactiveMessageReader}.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public class MutableReactiveMessageReaderSpec implements ReactiveMessageReaderSpec {
 

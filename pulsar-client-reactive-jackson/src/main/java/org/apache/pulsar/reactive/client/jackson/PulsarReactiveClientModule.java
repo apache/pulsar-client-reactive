@@ -47,8 +47,6 @@ import reactor.core.scheduler.Scheduler;
 
 /**
  * Jackson module to handle the reactive client spec classes.
- *
- * @author Christophe Bornet
  */
 public class PulsarReactiveClientModule extends SimpleModule {
 

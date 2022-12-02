@@ -34,9 +34,6 @@ import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 
 /**
  * Mutable spec for a {@link ReactiveMessageSender}.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public class MutableReactiveMessageSenderSpec implements ReactiveMessageSenderSpec {
 

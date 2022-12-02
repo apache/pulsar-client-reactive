@@ -33,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link MessageSpec}.
- *
- * @author Christophe Bornet
  */
 class MessageSpecTest {
 

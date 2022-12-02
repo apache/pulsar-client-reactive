@@ -39,8 +39,6 @@ import reactor.core.scheduler.Scheduler;
  * Builder interface for {@link ReactiveMessageConsumer}.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageConsumerBuilder<T> {
 

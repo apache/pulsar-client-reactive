@@ -26,9 +26,6 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessagePipelineBuilder;
 
 /**
  * Internal API implementation.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public final class ApiImplementationFactory {
 

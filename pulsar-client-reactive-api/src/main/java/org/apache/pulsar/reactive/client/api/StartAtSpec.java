@@ -25,8 +25,6 @@ import org.apache.pulsar.client.api.ReaderBuilder;
 /**
  * Spec to specify to a {@link ReactiveMessageReader} from where to start reading.
  *
- * @author Lari Hotari
- * @author Christophe Bornet
  * @see ReaderBuilder#startMessageId(MessageId)
  * @see ReaderBuilder#startMessageFromRollbackDuration(long, TimeUnit)
  */

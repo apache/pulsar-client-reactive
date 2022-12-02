@@ -24,8 +24,6 @@ import reactor.core.publisher.Mono;
  * Reactive message reader interface.
  *
  * @param <T> the message payload type.
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageReader<T> {
 

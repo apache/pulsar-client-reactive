@@ -22,8 +22,6 @@ import org.apache.pulsar.reactive.client.internal.api.ApiImplementationFactory;
  * Interface for the spec of a message to be sent.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface MessageSpec<T> {
 

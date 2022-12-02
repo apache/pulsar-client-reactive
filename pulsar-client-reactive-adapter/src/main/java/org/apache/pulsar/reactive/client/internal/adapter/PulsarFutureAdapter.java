@@ -31,8 +31,6 @@ import reactor.core.publisher.Mono;
  * There's additional logic to ignore Pulsar client's
  * {@link org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException} when
  * the Mono has been cancelled. This is to reduce unnecessary exceptions in logs.
- *
- * @author Lari Hotari
  */
 final class PulsarFutureAdapter {
 

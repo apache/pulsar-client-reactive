@@ -21,8 +21,6 @@ import org.apache.pulsar.client.api.Message;
 /**
  * Function to group messages that will be processed by the same instance of concurrent
  * message handler.
- *
- * @author Lari Hotari
  */
 public interface MessageGroupingFunction {
 

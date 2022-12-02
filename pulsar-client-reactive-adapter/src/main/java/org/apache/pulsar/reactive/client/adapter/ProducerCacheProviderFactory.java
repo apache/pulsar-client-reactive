@@ -20,8 +20,6 @@ import java.util.function.Supplier;
 
 /**
  * Interface to supply instances of {@link ProducerCacheProvider}.
- *
- * @author Lari Hotari
  */
 public interface ProducerCacheProviderFactory extends Supplier<ProducerCacheProvider> {
 
