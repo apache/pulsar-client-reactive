@@ -23,8 +23,6 @@ import org.apache.pulsar.client.api.Schema;
  *
  * Contains methods to create builders for {@link ReactiveMessageSender},
  * {@link ReactiveMessageReader} and {@link ReactiveMessageConsumer} instances.
- *
- * @author Lari Hotari
  */
 public interface ReactivePulsarClient {
 

@@ -25,8 +25,6 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 /**
  * Cache provider interface used by the {@link ReactiveMessageSender} to cache the
  * underlying {@link Producer}s it uses.
- *
- * @author Lari Hotari
  */
 public interface ProducerCacheProvider extends AutoCloseable {
 

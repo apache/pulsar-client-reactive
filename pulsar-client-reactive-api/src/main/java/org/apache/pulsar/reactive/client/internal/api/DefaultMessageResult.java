@@ -24,7 +24,6 @@ import org.apache.pulsar.reactive.client.api.MessageResult;
  * the message to acknowledge or negatively acknowledge.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
  */
 class DefaultMessageResult<T> implements MessageResult<T> {
 

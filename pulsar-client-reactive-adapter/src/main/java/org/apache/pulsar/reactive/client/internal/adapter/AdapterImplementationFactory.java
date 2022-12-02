@@ -30,9 +30,6 @@ import reactor.core.publisher.Mono;
 
 /**
  * Adapter implementation for {@link ReactivePulsarClient} based on {@link PulsarClient}.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public final class AdapterImplementationFactory {
 

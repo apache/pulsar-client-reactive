@@ -31,8 +31,6 @@ import org.apache.pulsar.client.api.ReaderBuilder;
  * Builder interface for {@link ReactiveMessageReader}.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageReaderBuilder<T> {
 

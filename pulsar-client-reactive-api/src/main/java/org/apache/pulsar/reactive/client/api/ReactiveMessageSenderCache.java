@@ -19,8 +19,6 @@ package org.apache.pulsar.reactive.client.api;
 /**
  * Marker interface for a cache that combines multiple sent messages to share the same
  * Pulsar producer in the Pulsar client implementation level.
- *
- * @author Lari Hotari
  */
 public interface ReactiveMessageSenderCache extends AutoCloseable {
 

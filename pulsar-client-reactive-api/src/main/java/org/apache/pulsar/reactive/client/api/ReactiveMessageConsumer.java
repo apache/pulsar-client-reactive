@@ -28,8 +28,6 @@ import reactor.core.publisher.Mono;
  * Reactive message consumer interface.
  *
  * @param <T> the message payload type.
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageConsumer<T> {
 

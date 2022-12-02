@@ -23,8 +23,6 @@ import org.apache.pulsar.reactive.client.api.MessageSpec;
  * Internal interface for the spec of a message to be sent.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface InternalMessageSpec<T> extends MessageSpec<T> {
 

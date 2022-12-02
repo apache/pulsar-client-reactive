@@ -37,8 +37,6 @@ import org.reactivestreams.Publisher;
  * Builder interface for {@link ReactiveMessageSender}.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageSenderBuilder<T> {
 

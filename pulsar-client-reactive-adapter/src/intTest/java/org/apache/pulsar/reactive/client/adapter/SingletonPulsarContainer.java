@@ -21,14 +21,14 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.testcontainers.containers.PulsarContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public final class SingletonPulsarContainer {
+final class SingletonPulsarContainer {
 
 	private SingletonPulsarContainer() {
 
 	}
 
 	/** The singleton instance for Pulsar container. */
-	public static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(
+	static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(
 			DockerImageName.parse("apachepulsar/pulsar").withTag("2.10.1"))
 					.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
 
@@ -36,7 +36,7 @@ public final class SingletonPulsarContainer {
 		PULSAR_CONTAINER.start();
 	}
 
-	public static PulsarClient createPulsarClient() throws PulsarClientException {
+	static PulsarClient createPulsarClient() throws PulsarClientException {
 		return PulsarClient.builder().serviceUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getPulsarBrokerUrl())
 				.build();
 	}
