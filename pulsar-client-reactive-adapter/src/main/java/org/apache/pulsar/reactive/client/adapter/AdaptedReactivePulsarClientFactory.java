@@ -28,9 +28,6 @@ import org.apache.pulsar.reactive.client.internal.adapter.ConcurrentHashMapProdu
 /**
  * Class to create {@link ReactivePulsarClient} and {@link ReactiveMessageSenderCache}.
  * instances.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public final class AdaptedReactivePulsarClientFactory {
 
