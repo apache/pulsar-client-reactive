@@ -15,6 +15,7 @@ dependencies {
 	testImplementation libs.assertj.core
 	testImplementation libs.bundles.log4j
 	testImplementation libs.mockito.core
+	testImplementation libs.mockito.inline
 
 	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
 	intTestImplementation libs.junit.jupiter

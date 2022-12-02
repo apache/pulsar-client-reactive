@@ -35,6 +35,7 @@ spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaforma
 spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
 licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
 
 [bundles]
 log4j = ["log4j-api", "log4j-core", "log4j-slf4j-impl", "slf4j-api"]
