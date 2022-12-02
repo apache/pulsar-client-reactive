@@ -27,6 +27,7 @@ import org.apache.pulsar.reactive.client.api.MessageGroupingFunction;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipeline;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -47,7 +48,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 
 	private final Mono<Void> pipeline;
 
-	private final Function<Message<T>, Mono<Void>> messageHandler;
+	private final Function<Message<T>, Publisher<Void>> messageHandler;
 
 	private final BiConsumer<Message<T>, Throwable> errorLogger;
 
@@ -55,7 +56,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 
 	private final Duration handlingTimeout;
 
-	private final Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
+	private final Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler;
 
 	private final int concurrency;
 
@@ -64,9 +65,9 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	private final MessageGroupingFunction groupingFunction;
 
 	DefaultReactiveMessagePipeline(ReactiveMessageConsumer<T> messageConsumer,
-			Function<Message<T>, Mono<Void>> messageHandler, BiConsumer<Message<T>, Throwable> errorLogger,
-			Retry pipelineRetrySpec, Duration handlingTimeout, Function<Mono<Void>, Mono<Void>> transformer,
-			Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler,
+			Function<Message<T>, Publisher<Void>> messageHandler, BiConsumer<Message<T>, Throwable> errorLogger,
+			Retry pipelineRetrySpec, Duration handlingTimeout, Function<Mono<Void>, Publisher<Void>> transformer,
+			Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler,
 			MessageGroupingFunction groupingFunction, int concurrency, int maxInflight) {
 		this.messageHandler = messageHandler;
 		this.errorLogger = errorLogger;
@@ -130,13 +131,13 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 			}
 		}
 		else {
-			return Objects.requireNonNull(this.streamingMessageHandler,
-					"streamingMessageHandler or messageHandler must be set").apply(messageFlux);
+			return Flux.from(Objects.requireNonNull(this.streamingMessageHandler,
+					"streamingMessageHandler or messageHandler must be set").apply(messageFlux));
 		}
 	}
 
 	private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
-		return this.messageHandler.apply(message).transform(this::decorateMessageHandler)
+		return Mono.from(this.messageHandler.apply(message)).transform(this::decorateMessageHandler)
 				.thenReturn(MessageResult.acknowledge(message.getMessageId())).onErrorResume((throwable) -> {
 					if (this.errorLogger != null) {
 						try {
