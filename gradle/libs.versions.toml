@@ -1,5 +1,5 @@
 [versions]
-pulsar = "2.10.1"
+pulsar = "2.10.2"
 junit-jupiter = "5.8.2"
 log4j = "2.18.0"
 slf4j = "1.7.36"
