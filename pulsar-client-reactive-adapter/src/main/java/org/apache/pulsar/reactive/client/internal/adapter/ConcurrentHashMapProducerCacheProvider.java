@@ -24,8 +24,6 @@ import org.apache.pulsar.reactive.client.adapter.ProducerCacheProvider;
 
 /**
  * Producer cache provider that uses a {@link ConcurrentHashMap} to cache entries.
- *
- * @author Lari Hotari
  */
 public class ConcurrentHashMapProducerCacheProvider implements ProducerCacheProvider {
 

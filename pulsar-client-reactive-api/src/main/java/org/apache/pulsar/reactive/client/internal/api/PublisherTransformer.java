@@ -21,8 +21,6 @@ import reactor.core.Disposable;
 
 /**
  * Class to transform a {@link Publisher} to another {@link Publisher}.
- *
- * @author Lari Hotari
  */
 public interface PublisherTransformer extends Disposable {
 

@@ -32,8 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ReactiveMessageReaderBuilder},
  * {@link MutableReactiveMessageReaderSpec} and
  * {@link ImmutableReactiveMessageReaderSpec}.
- *
- * @author Christophe Bornet
  */
 class ReactiveMessageReaderBuilderTest {
 

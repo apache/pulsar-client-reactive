@@ -36,8 +36,6 @@ import reactor.util.context.Context;
 /**
  * Transformer class that limits the number of reactive streams subscription requests to
  * keep the number of pending messages under a defined limit.
- *
- * @author Lari Hotari
  */
 public class InflightLimiter implements PublisherTransformer {
 

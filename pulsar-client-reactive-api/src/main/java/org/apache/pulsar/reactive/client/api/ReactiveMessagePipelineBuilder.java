@@ -30,8 +30,6 @@ import reactor.util.retry.Retry;
  * Builder interface for {@link ReactiveMessagePipeline}.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessagePipelineBuilder<T> {
 

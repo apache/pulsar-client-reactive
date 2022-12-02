@@ -34,9 +34,6 @@ import reactor.core.scheduler.Scheduler;
 
 /**
  * Spec for a {@link ReactiveMessageConsumer}.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageConsumerSpec {
 

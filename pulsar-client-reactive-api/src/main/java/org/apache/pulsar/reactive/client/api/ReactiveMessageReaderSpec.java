@@ -25,9 +25,6 @@ import org.apache.pulsar.client.api.ReaderBuilder;
 
 /**
  * Spec for a {@link ReactiveMessageReader}.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageReaderSpec {
 

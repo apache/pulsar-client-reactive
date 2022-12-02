@@ -36,8 +36,6 @@ import reactor.core.scheduler.Scheduler;
 
 /**
  * Immutable spec for a {@link ReactiveMessageConsumer}.
- *
- * @author Lari Hotari
  */
 public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageConsumerSpec {
 

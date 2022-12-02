@@ -24,8 +24,6 @@ import org.apache.pulsar.reactive.client.api.MessageGroupingFunction;
  * Default message grouping function. It uses a {@link Murmur3Hash32} hashing function to
  * compute a hash of the message key. All messages with the same key hash will be
  * processed in order by the same message handler instance.
- *
- * @author Lari Hotari
  */
 public class DefaultMessageGroupingFunction implements MessageGroupingFunction {
 

@@ -34,8 +34,6 @@ import reactor.util.concurrent.Queues;
  * flux is split into group fluxes based on the processing group. Each group flux is
  * processes messages in order (one-by-one). Multiple group fluxes are processed in
  * parallel.
- *
- * @author Lari Hotari
  */
 public final class GroupOrderedMessageProcessors {
 

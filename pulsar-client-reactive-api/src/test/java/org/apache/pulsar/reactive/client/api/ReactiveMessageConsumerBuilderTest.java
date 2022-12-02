@@ -41,8 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ReactiveMessageConsumerBuilder},
  * {@link MutableReactiveMessageConsumerSpec} and
  * {@link ImmutableReactiveMessageConsumerSpec}.
- *
- * @author Christophe Bornet
  */
 class ReactiveMessageConsumerBuilderTest {
 

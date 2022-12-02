@@ -18,9 +18,6 @@ package org.apache.pulsar.reactive.client.api;
 
 /**
  * Reactive message pipeline interface.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessagePipeline extends AutoCloseable {
 

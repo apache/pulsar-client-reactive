@@ -32,9 +32,6 @@ import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 
 /**
  * Spec for {@link ReactiveMessageSender} configuration.
- *
- * @author Lari Hotari
- * @author Christophe Bornet
  */
 public interface ReactiveMessageSenderSpec {
 

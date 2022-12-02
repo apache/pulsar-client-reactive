@@ -21,8 +21,6 @@ import java.util.Objects;
 
 /**
  * Spec for a {@link ReactiveMessageReader} to start reading from a given instant in time.
- *
- * @author Lari Hotari
  */
 public final class InstantStartAtSpec extends StartAtSpec {
 

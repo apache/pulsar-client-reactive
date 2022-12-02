@@ -18,8 +18,6 @@ package org.apache.pulsar.reactive.client.api;
 
 /**
  * Action to perform once the end of the stream is reached.
- *
- * @author Lari Hotari
  */
 public enum EndOfStreamAction {
 

@@ -27,7 +27,6 @@ import org.apache.pulsar.client.api.TypedMessageBuilder;
  * {@link TypedMessageBuilder}.
  *
  * @param <T> the message payload type
- * @author Lari Hotari
  * @see DefaultMessageSpecBuilder
  * @see TypedMessageBuilder
  */
