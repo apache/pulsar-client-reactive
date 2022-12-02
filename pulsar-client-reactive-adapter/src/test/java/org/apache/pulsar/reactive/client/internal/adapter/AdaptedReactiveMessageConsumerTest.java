@@ -65,8 +65,6 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link AdaptedReactiveMessageConsumer}.
- *
- * @author Christophe Bornet
  */
 class AdaptedReactiveMessageConsumerTest {
 

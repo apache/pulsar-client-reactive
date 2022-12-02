@@ -51,8 +51,6 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link AdaptedReactiveMessageReader}.
- *
- * @author Christophe Bornet
  */
 class AdaptedReactiveMessageReaderTest {
 
