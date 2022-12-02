@@ -73,6 +73,11 @@ publishing {
 						name = 'Lari Hotari'
 						email = 'lhotari@apache.org'
 					}
+					developer {
+						id = 'cbornet'
+						name = 'Christophe Bornet'
+						email = 'cbornet@apache.org'
+					}
 				}
 				scm {
 					connection = 'scm:git:https://github.com/apache/pulsar-client-reactive.git'
