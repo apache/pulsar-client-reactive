@@ -40,13 +40,16 @@ class ReactiveProducerAdapter<T> {
 
 	private final Supplier<PublisherTransformer> producerActionTransformer;
 
+	private final Object producerActionTransformerKey;
+
 	ReactiveProducerAdapter(Supplier<PulsarClient> pulsarClientSupplier,
 			Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory, ProducerCache producerCache,
-			Supplier<PublisherTransformer> producerActionTransformer) {
+			Supplier<PublisherTransformer> producerActionTransformer, Object producerActionTransformerKey) {
 		this.pulsarClientSupplier = pulsarClientSupplier;
 		this.producerBuilderFactory = producerBuilderFactory;
 		this.producerCache = producerCache;
 		this.producerActionTransformer = producerActionTransformer;
+		this.producerActionTransformerKey = producerActionTransformerKey;
 	}
 
 	private Mono<Producer<T>> createProducerMono() {
@@ -60,7 +63,7 @@ class ReactiveProducerAdapter<T> {
 			ProducerBuilderImpl<T> producerBuilder = (ProducerBuilderImpl<T>) this.producerBuilderFactory
 					.apply(pulsarClient);
 			ProducerCacheKey cacheKey = new ProducerCacheKey(pulsarClient, producerBuilder.getConf().clone(),
-					producerBuilder.getSchema());
+					producerBuilder.getSchema(), this.producerActionTransformerKey);
 			return Tuples.of(cacheKey, AdapterImplementationFactory.adaptPulsarFuture(producerBuilder::createAsync));
 		});
 	}

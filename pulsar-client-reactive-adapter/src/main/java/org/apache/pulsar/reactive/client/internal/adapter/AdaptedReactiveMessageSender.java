@@ -49,15 +49,18 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	private final Supplier<PublisherTransformer> producerActionTransformer;
 
+	private final Object producerActionTransformerKey;
+
 	AdaptedReactiveMessageSender(Schema<T> schema, ReactiveMessageSenderSpec senderSpec, int maxConcurrency,
 			ReactiveProducerAdapterFactory reactiveProducerAdapterFactory, ProducerCache producerCache,
-			Supplier<PublisherTransformer> producerActionTransformer) {
+			Supplier<PublisherTransformer> producerActionTransformer, Object producerActionTransformerKey) {
 		this.schema = schema;
 		this.senderSpec = senderSpec;
 		this.maxConcurrency = maxConcurrency;
 		this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
 		this.producerCache = producerCache;
 		this.producerActionTransformer = producerActionTransformer;
+		this.producerActionTransformerKey = producerActionTransformerKey;
 	}
 
 	ReactiveProducerAdapter<T> createReactiveProducerAdapter() {
@@ -65,7 +68,7 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 			ProducerBuilder<T> producerBuilder = pulsarClient.newProducer(this.schema);
 			configureProducerBuilder(producerBuilder);
 			return producerBuilder;
-		}, this.producerCache, this.producerActionTransformer);
+		}, this.producerCache, this.producerActionTransformer, this.producerActionTransformerKey);
 	}
 
 	private void configureProducerBuilder(ProducerBuilder<T> producerBuilder) {

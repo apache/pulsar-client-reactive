@@ -30,11 +30,14 @@ final class ProducerCacheKey {
 
 	private final Schema<?> schema;
 
+	private final Object producerActionTransformerKey;
+
 	ProducerCacheKey(final PulsarClient pulsarClient, final ProducerConfigurationData producerConfigurationData,
-			final Schema<?> schema) {
+			final Schema<?> schema, Object producerActionTransformerKey) {
 		this.pulsarClient = pulsarClient;
 		this.producerConfigurationData = producerConfigurationData;
 		this.schema = schema;
+		this.producerActionTransformerKey = producerActionTransformerKey;
 	}
 
 	@Override
@@ -48,12 +51,14 @@ final class ProducerCacheKey {
 		ProducerCacheKey that = (ProducerCacheKey) o;
 		return (Objects.equals(this.pulsarClient, that.pulsarClient)
 				&& Objects.equals(this.producerConfigurationData, that.producerConfigurationData)
-				&& Objects.equals(this.schema, that.schema));
+				&& Objects.equals(this.schema, that.schema))
+				&& Objects.equals(this.producerActionTransformerKey, that.producerActionTransformerKey);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.pulsarClient, this.producerConfigurationData, this.schema);
+		return Objects.hash(this.pulsarClient, this.producerConfigurationData, this.schema,
+				this.producerActionTransformerKey);
 	}
 
 }
