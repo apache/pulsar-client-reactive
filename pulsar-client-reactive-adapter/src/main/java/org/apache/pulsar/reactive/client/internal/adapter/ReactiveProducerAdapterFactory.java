@@ -32,9 +32,11 @@ class ReactiveProducerAdapterFactory {
 	}
 
 	<T> ReactiveProducerAdapter<T> create(Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory,
-			ProducerCache producerCache, Supplier<PublisherTransformer> producerActionTransformer) {
+			ProducerCache producerCache, Supplier<PublisherTransformer> producerActionTransformer,
+			Object producerActionTransformerKey) {
 		return new ReactiveProducerAdapter<>(this.pulsarClientSupplier, producerBuilderFactory, producerCache,
-				(producerActionTransformer != null) ? producerActionTransformer : PublisherTransformer::identity);
+				(producerActionTransformer != null) ? producerActionTransformer : PublisherTransformer::identity,
+				producerActionTransformerKey);
 	}
 
 }

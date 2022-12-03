@@ -16,6 +16,7 @@
 
 package org.apache.pulsar.reactive.client.internal.adapter;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.apache.pulsar.client.api.Schema;
@@ -96,17 +97,54 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
 	@Override
 	public ReactiveMessageSender<T> build() {
+		Object producerActionTransformerKey;
 		if (this.maxInflight > 0) {
 			this.producerActionTransformer = () -> new InflightLimiter(this.maxInflight,
 					Math.max(this.maxInflight / 2, 1), Schedulers.single(), this.maxConcurrentSenderSubscriptions);
+			producerActionTransformerKey = new ProducerActionTransformerKey(this.maxInflight,
+					this.maxConcurrentSenderSubscriptions);
+		}
+		else {
+			producerActionTransformerKey = null;
 		}
 		return new AdaptedReactiveMessageSender<>(this.schema, this.senderSpec, resolveMaxConcurrency(),
-				this.reactiveProducerAdapterFactory, (ProducerCache) this.producerCache,
-				this.producerActionTransformer);
+				this.reactiveProducerAdapterFactory, (ProducerCache) this.producerCache, this.producerActionTransformer,
+				producerActionTransformerKey);
 	}
 
 	private int resolveMaxConcurrency() {
 		return Math.min(Math.max(MAX_CONCURRENCY_LOWER_BOUND, this.maxInflight / 2), MAX_CONCURRENCY_UPPER_BOUND);
+	}
+
+	private static class ProducerActionTransformerKey {
+
+		private final int maxInflight;
+
+		private final int maxConcurrentSenderSubscriptions;
+
+		ProducerActionTransformerKey(int maxInflight, int maxConcurrentSenderSubscriptions) {
+			this.maxInflight = maxInflight;
+			this.maxConcurrentSenderSubscriptions = maxConcurrentSenderSubscriptions;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			ProducerActionTransformerKey that = (ProducerActionTransformerKey) o;
+			return this.maxInflight == that.maxInflight
+					&& this.maxConcurrentSenderSubscriptions == that.maxConcurrentSenderSubscriptions;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.maxInflight, this.maxConcurrentSenderSubscriptions);
+		}
+
 	}
 
 }
