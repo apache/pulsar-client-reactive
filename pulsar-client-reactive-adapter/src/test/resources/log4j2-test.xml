@@ -23,7 +23,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="reactor" level="info"/>
-		<Logger name="com.github.lhotari" level="trace"/>
+		<Logger name="org.apache.pulsar.reactive.client" level="trace"/>
 		<Root level="off">
 			<AppenderRef ref="STDOUT"/>
 		</Root>
