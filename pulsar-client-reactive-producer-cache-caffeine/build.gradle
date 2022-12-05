@@ -9,6 +9,7 @@ dependencies {
 	testImplementation libs.junit.jupiter
 	testImplementation libs.assertj.core
 	testImplementation libs.reactor.test
+	testImplementation libs.mockito.core
 }
 
 description = "Caffeine implementation of producer cache"
