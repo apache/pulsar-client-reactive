@@ -203,6 +203,7 @@ class ReactiveMessagePipelineTest {
 				.handlingTimeout(Duration.ofMillis(5)).build()) {
 			pipeline.start();
 			assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+			pipeline.stop();
 			// 9 messages should have been acked
 			assertThat(testConsumer.getAcknowledgedMessages()).hasSize(9);
 			// 1 message should have been nacked
