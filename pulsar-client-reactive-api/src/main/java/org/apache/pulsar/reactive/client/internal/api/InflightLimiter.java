@@ -36,6 +36,14 @@ import reactor.util.context.Context;
 /**
  * Transformer class that limits the number of reactive streams subscription requests to
  * keep the number of pending messages under a defined limit.
+ *
+ * Subscribing to upstream is postponed if the max inflight limit is reached since
+ * subscribing to a CompletableFuture is eager. The CompetableFuture will be created at
+ * subscription time and this demand cannot be controlled with Reactive Stream's requests.
+ * The solution for this is to acquire one slot at subscription time and return this slot
+ * when request is made to the subscription. Since it's not possible to backpressure the
+ * subscription requests, there's a configurable limit for the total number of pending
+ * subscriptions. Exceeding the limit will cause IllegalStateException at runtime.
  */
 public class InflightLimiter implements PublisherTransformer {
 
