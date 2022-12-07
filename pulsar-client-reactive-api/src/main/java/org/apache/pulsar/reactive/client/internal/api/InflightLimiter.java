@@ -16,6 +16,7 @@
 
 package org.apache.pulsar.reactive.client.internal.api;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,6 +62,8 @@ public class InflightLimiter implements PublisherTransformer {
 	private final int expectedSubscriptionsInflight;
 
 	private final Scheduler.Worker triggerNextWorker;
+
+	private final AtomicBoolean triggerNextTriggered = new AtomicBoolean(false);
 
 	/**
 	 * Constructs an InflightLimiter with a maximum number of in-flight messages.
@@ -124,21 +127,25 @@ public class InflightLimiter implements PublisherTransformer {
 	}
 
 	void maybeTriggerNext() {
-		if (!this.triggerNextWorker.isDisposed()) {
-			this.triggerNextWorker.schedule(() -> {
-				int remainingSubscriptions = this.pendingSubscriptions.size();
-				while (this.inflight.get() < this.maxInflight && remainingSubscriptions-- > 0) {
-					InflightLimiterSubscriber<?> subscriber = this.pendingSubscriptions.poll();
-					if (subscriber != null) {
-						if (!subscriber.isDisposed()) {
-							subscriber.requestMore();
+		if (!this.triggerNextWorker.isDisposed() && this.inflight.get() < this.maxInflight
+				&& !this.pendingSubscriptions.isEmpty()) {
+			if (this.triggerNextTriggered.compareAndSet(false, true)) {
+				this.triggerNextWorker.schedule(() -> {
+					this.triggerNextTriggered.set(false);
+					int remainingSubscriptions = this.pendingSubscriptions.size();
+					while (this.inflight.get() < this.maxInflight && remainingSubscriptions-- > 0) {
+						InflightLimiterSubscriber<?> subscriber = this.pendingSubscriptions.poll();
+						if (subscriber != null) {
+							if (!subscriber.isDisposed()) {
+								subscriber.requestMore();
+							}
+						}
+						else {
+							break;
 						}
 					}
-					else {
-						break;
-					}
-				}
-			});
+				});
+			}
 		}
 	}
 
