@@ -33,6 +33,13 @@ configurations {
 	intTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
+dependencies {
+	// add shared-test-resources directory to runtime classpath
+	def sharedTestResourcesEntry = files(new File(rootDir, "shared-test-resources"))
+	intTestRuntimeOnly sharedTestResourcesEntry
+	testRuntimeOnly sharedTestResourcesEntry
+}
+
 tasks.register('integrationTest', Test) {
 	description = 'Runs integration tests.'
 	group = 'verification'
