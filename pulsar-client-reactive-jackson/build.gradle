@@ -1,7 +1,7 @@
 plugins {
 	id 'pulsar-client-reactive.codestyle-conventions'
 	id 'pulsar-client-reactive.library-conventions'
-	id 'pulsar-client-reactive.integration-test-conventions'
+	id 'pulsar-client-reactive.test-conventions'
 }
 
 dependencies {
