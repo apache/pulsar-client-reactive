@@ -72,8 +72,6 @@ class InflightLimiterTest {
 					});
 				}).doOnNext((__) -> {
 					worker.schedule(() -> {
-						currentRequests.decrementAndGet();
-						totalRequests.decrementAndGet();
 						subscriptionsActiveBeforeCompletingFirstElement.decrementAndGet();
 						// Mono will complete after this element, so reduce all remaining
 						// requests;
