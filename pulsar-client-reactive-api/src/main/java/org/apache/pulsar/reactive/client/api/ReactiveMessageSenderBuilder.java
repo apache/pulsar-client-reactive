@@ -471,9 +471,10 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * compression than ZLib</li>
 	 * <li>{@link CompressionType#ZLIB}: Standard ZLib compression</li>
 	 * <li>{@link CompressionType#ZSTD}: Compress with Zstandard codec. Since Pulsar 2.3.
-	 * Zstd cannot be used if consumer applications are not in version >= 2.3 as well</li>
+	 * Zstd cannot be used if consumer applications are not in version &gt;= 2.3 as
+	 * well</li>
 	 * <li>{@link CompressionType#SNAPPY} Compress with Snappy codec. Since Pulsar 2.4.
-	 * Snappy cannot be used if consumer applications are not in version >= 2.4 as
+	 * Snappy cannot be used if consumer applications are not in version &gt;= 2.4 as
 	 * well</li>
 	 * </ul>
 	 * @param compressionType the compression type to set
