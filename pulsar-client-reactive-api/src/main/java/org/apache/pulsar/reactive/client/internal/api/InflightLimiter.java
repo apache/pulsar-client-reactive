@@ -16,6 +16,7 @@
 
 package org.apache.pulsar.reactive.client.internal.api;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,6 +37,14 @@ import reactor.util.context.Context;
 /**
  * Transformer class that limits the number of reactive streams subscription requests to
  * keep the number of pending messages under a defined limit.
+ *
+ * Subscribing to upstream is postponed if the max inflight limit is reached since
+ * subscribing to a CompletableFuture is eager. The CompetableFuture will be created at
+ * subscription time and this demand cannot be controlled with Reactive Stream's requests.
+ * The solution for this is to acquire one slot at subscription time and return this slot
+ * when request is made to the subscription. Since it's not possible to backpressure the
+ * subscription requests, there's a configurable limit for the total number of pending
+ * subscriptions. Exceeding the limit will cause IllegalStateException at runtime.
  */
 public class InflightLimiter implements PublisherTransformer {
 
@@ -54,24 +63,32 @@ public class InflightLimiter implements PublisherTransformer {
 
 	private final Scheduler.Worker triggerNextWorker;
 
+	private final AtomicBoolean triggerNextTriggered = new AtomicBoolean(false);
+
 	/**
 	 * Constructs an InflightLimiter with a maximum number of in-flight messages.
 	 * @param maxInflight the maximum number of in-flight messages
 	 */
 	public InflightLimiter(int maxInflight) {
-		this(maxInflight, maxInflight, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
+		this(maxInflight, 0, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
 	}
 
 	/**
 	 * Constructs an InflightLimiter.
 	 * @param maxInflight the maximum number of in-flight messages
-	 * @param expectedSubscriptionsInflight the expected number of in-flight subscriptions
+	 * @param expectedSubscriptionsInflight the expected number of in-flight
+	 * subscriptions. Will limit the per-subscription requests to maxInflight / max(active
+	 * subscriptions, expectedSubscriptionsInflight). Set to 0 to use active subscriptions
+	 * in the calculation.
 	 * @param triggerNextScheduler the scheduler on which it will be checked if the
 	 * subscriber can request more
 	 * @param maxPendingSubscriptions the maximum number of pending subscriptions
 	 */
 	public InflightLimiter(int maxInflight, int expectedSubscriptionsInflight, Scheduler triggerNextScheduler,
 			int maxPendingSubscriptions) {
+		if (maxInflight < 1) {
+			throw new IllegalArgumentException("maxInflight must be greater than 0");
+		}
 		this.maxInflight = maxInflight;
 		this.expectedSubscriptionsInflight = expectedSubscriptionsInflight;
 		this.triggerNextWorker = triggerNextScheduler.createWorker();
@@ -116,21 +133,25 @@ public class InflightLimiter implements PublisherTransformer {
 	}
 
 	void maybeTriggerNext() {
-		if (!this.triggerNextWorker.isDisposed()) {
-			this.triggerNextWorker.schedule(() -> {
-				int remainingSubscriptions = this.pendingSubscriptions.size();
-				while (this.inflight.get() < this.maxInflight && remainingSubscriptions-- > 0) {
-					InflightLimiterSubscriber<?> subscriber = this.pendingSubscriptions.poll();
-					if (subscriber != null) {
-						if (!subscriber.isDisposed()) {
-							subscriber.requestMore();
+		if (!this.triggerNextWorker.isDisposed() && this.inflight.get() < this.maxInflight
+				&& !this.pendingSubscriptions.isEmpty()) {
+			if (this.triggerNextTriggered.compareAndSet(false, true)) {
+				this.triggerNextWorker.schedule(() -> {
+					this.triggerNextTriggered.set(false);
+					int remainingSubscriptions = this.pendingSubscriptions.size();
+					while (this.inflight.get() < this.maxInflight && remainingSubscriptions-- > 0) {
+						InflightLimiterSubscriber<?> subscriber = this.pendingSubscriptions.poll();
+						if (subscriber != null) {
+							if (!subscriber.isDisposed()) {
+								subscriber.requestMore();
+							}
+						}
+						else {
+							break;
 						}
 					}
-					else {
-						break;
-					}
-				}
-			});
+				});
+			}
 		}
 	}
 
@@ -177,7 +198,12 @@ public class InflightLimiter implements PublisherTransformer {
 		private final Subscription subscription = new Subscription() {
 			@Override
 			public void request(long n) {
-				InflightLimiterSubscriber.this.requestedDemand.addAndGet(n);
+				if (n == Long.MAX_VALUE) {
+					InflightLimiterSubscriber.this.requestedDemand.set(n);
+				}
+				else if (InflightLimiterSubscriber.this.requestedDemand.get() != Long.MAX_VALUE) {
+					InflightLimiterSubscriber.this.requestedDemand.addAndGet(n);
+				}
 				maybeAddToPending();
 				maybeTriggerNext();
 			}
@@ -248,16 +274,20 @@ public class InflightLimiter implements PublisherTransformer {
 		}
 
 		void requestMore() {
-			if (this.state.get() == InflightLimiterSubscriberState.SUBSCRIBED || (this.requestedDemand.get() > 0
-					&& this.inflightForSubscription.get() <= InflightLimiter.this.expectedSubscriptionsInflight / 2
-					&& InflightLimiter.this.inflight.get() < InflightLimiter.this.maxInflight)) {
+			// spread requests evenly across active subscriptions (or expected number of
+			// subscriptions)
+			int maxInflightForSubscription = Math
+					.max(InflightLimiter.this.maxInflight / Math.max(InflightLimiter.this.activeSubscriptions.get(),
+							InflightLimiter.this.expectedSubscriptionsInflight), 1);
+			if (this.requestedDemand.get() > 0 && (this.state.get() == InflightLimiterSubscriberState.SUBSCRIBED
+					|| (this.inflightForSubscription.get() < maxInflightForSubscription
+							&& InflightLimiter.this.inflight.get() < InflightLimiter.this.maxInflight))) {
 				if (this.state.compareAndSet(InflightLimiterSubscriberState.INITIAL,
 						InflightLimiterSubscriberState.SUBSCRIBING)) {
 					// consume one slot for the subscription, since the first element
 					// might already be in flight
 					// when a CompletableFuture is mapped to a Mono
 					InflightLimiter.this.inflight.incrementAndGet();
-					this.requestedDemand.decrementAndGet();
 					this.inflightForSubscription.incrementAndGet();
 					this.source.subscribe(InflightLimiterSubscriber.this);
 				}
@@ -270,20 +300,10 @@ public class InflightLimiter implements PublisherTransformer {
 						// reverse the slot reservation made when transitioning from
 						// INITIAL to SUBSCRIBING
 						InflightLimiter.this.inflight.decrementAndGet();
-						this.requestedDemand.incrementAndGet();
 						this.inflightForSubscription.decrementAndGet();
 					}
-					long maxRequest = Math
-							.max(Math.min(
-									Math.min(
-											Math.min(this.requestedDemand.get(),
-													InflightLimiter.this.maxInflight
-															- InflightLimiter.this.inflight.get()),
-											InflightLimiter.this.expectedSubscriptionsInflight
-													- this.inflightForSubscription.get()),
-									InflightLimiter.this.maxInflight
-											/ Math.max(InflightLimiter.this.activeSubscriptions.get(), 1)),
-									1);
+					long maxRequest = Math.max(Math.min(this.requestedDemand.get(),
+							maxInflightForSubscription - this.inflightForSubscription.get()), 1);
 					InflightLimiter.this.inflight.addAndGet((int) maxRequest);
 					this.requestedDemand.addAndGet(-maxRequest);
 					this.inflightForSubscription.addAndGet((int) maxRequest);
