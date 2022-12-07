@@ -99,6 +99,7 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 	public ReactiveMessageSender<T> build() {
 		Object producerActionTransformerKey;
 		if (this.maxInflight > 0) {
+			Objects.requireNonNull(this.producerCache, "cache must be provided when maxInflight is set.");
 			this.producerActionTransformer = () -> new InflightLimiter(this.maxInflight,
 					Math.max(this.maxInflight / 2, 1), Schedulers.single(), this.maxConcurrentSenderSubscriptions);
 			producerActionTransformerKey = new ProducerActionTransformerKey(this.maxInflight,
