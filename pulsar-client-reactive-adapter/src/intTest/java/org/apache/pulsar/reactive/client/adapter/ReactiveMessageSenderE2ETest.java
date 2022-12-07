@@ -62,7 +62,7 @@ class ReactiveMessageSenderE2ETest {
 				ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
 				ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-						.topic(topicName).maxInflight(1).build();
+						.topic(topicName).build();
 				MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
 				assertThat(messageId).isNotNull();
 
