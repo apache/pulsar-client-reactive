@@ -289,7 +289,6 @@ class ReactiveMessagePipelineTest {
 			// Drain the queue
 			for (int i = 0; i < 9; i++) {
 				String poll = queue.poll(5, TimeUnit.SECONDS);
-				System.out.println(poll);
 				assertThat(poll).isNotNull();
 			}
 		}
