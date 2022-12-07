@@ -13,6 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+	id 'com.adarshr.test-logger'
+}
+
+testlogger {
+	showStandardStreams true
+}
 
 sourceSets {
 	intTest {
@@ -24,6 +31,13 @@ sourceSets {
 configurations {
 	intTestImplementation.extendsFrom implementation
 	intTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+	// add shared-test-resources directory to runtime classpath
+	def sharedTestResourcesEntry = files(new File(rootDir, "shared-test-resources"))
+	intTestRuntimeOnly sharedTestResourcesEntry
+	testRuntimeOnly sharedTestResourcesEntry
 }
 
 tasks.register('integrationTest', Test) {

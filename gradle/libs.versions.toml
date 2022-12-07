@@ -13,6 +13,7 @@ checkstyle = '8.45.1'
 spring-javaformat = '0.0.34'
 licenser = "0.6.1"
 mockito = "4.9.0"
+testlogger = "3.2.0"
 
 [libraries]
 pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
@@ -36,6 +37,7 @@ spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javafo
 licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
+testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger"}
 
 [bundles]
 log4j = ["log4j-api", "log4j-core", "log4j-slf4j-impl", "slf4j-api"]
