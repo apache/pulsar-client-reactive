@@ -169,12 +169,12 @@ class InflightLimiterTest {
 
 	@Test
 	void shouldSpreadRequestsEvenlyAcrossUpstream() {
-		InflightLimiter inflightLimiter = new InflightLimiter(1, 1, Schedulers.single(),
+		InflightLimiter inflightLimiter = new InflightLimiter(1, 0, Schedulers.single(),
 				InflightLimiter.DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
 		List<Integer> values = Flux
-				.merge(100, Flux.range(1, 100).delayElements(Duration.ofMillis(1)).as(inflightLimiter::createOperator),
-						Flux.range(101, 100).delayElements(Duration.ofMillis(1)).as(inflightLimiter::createOperator),
-						Flux.range(201, 100).delayElements(Duration.ofMillis(1)).as(inflightLimiter::createOperator))
+				.merge(100, Flux.range(1, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
+						Flux.range(101, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
+						Flux.range(201, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator))
 				.collectList().block();
 		assertThat(values).containsExactlyInAnyOrderElementsOf(
 				IntStream.rangeClosed(1, 300).boxed().collect(Collectors.toList()));
