@@ -585,7 +585,7 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 * <ul>
 	 * <li>Decreases the throughput of the consumer, by disabling pre-fetching of
 	 * messages. This approach improves the message distribution on shared subscription,
-	 * by pushing messages only to the consumers that are ready to process them./li>
+	 * by pushing messages only to the consumers that are ready to process them.</li>
 	 * <li>Doesn't support batched messages: if the consumer receives any batched message,
 	 * it will close the connection with the broker and
 	 * {@link ReactiveMessageConsumer#consumeOne},
