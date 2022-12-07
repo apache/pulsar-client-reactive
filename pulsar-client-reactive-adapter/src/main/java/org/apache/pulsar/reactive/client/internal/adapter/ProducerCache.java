@@ -17,7 +17,7 @@
 package org.apache.pulsar.reactive.client.internal.adapter;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.apache.pulsar.client.api.Producer;
@@ -50,10 +50,10 @@ class ProducerCache implements ReactiveMessageSenderCache {
 
 	<T, R> Mono<R> usingCachedProducer(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
 			Supplier<PublisherTransformer> producerActionTransformer,
-			Function<Producer<T>, Mono<R>> usingProducerAction) {
+			BiFunction<Producer<T>, PublisherTransformer, Mono<R>> usingProducerAction) {
 		return Mono.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
-				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer())
-						.as(producerCacheEntry::decorateProducerAction),
+				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer(),
+						producerCacheEntry.getProducerActionTransformer()),
 				this::returnCacheEntry);
 	}
 
@@ -69,10 +69,10 @@ class ProducerCache implements ReactiveMessageSenderCache {
 
 	<T, R> Flux<R> usingCachedProducerMany(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
 			Supplier<PublisherTransformer> producerActionTransformer,
-			Function<Producer<T>, Flux<R>> usingProducerAction) {
+			BiFunction<Producer<T>, PublisherTransformer, Flux<R>> usingProducerAction) {
 		return Flux.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
-				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer())
-						.as(producerCacheEntry::decorateProducerAction),
+				(producerCacheEntry) -> usingProducerAction.apply(producerCacheEntry.getProducer(),
+						producerCacheEntry.getProducerActionTransformer()),
 				this::returnCacheEntry);
 	}
 

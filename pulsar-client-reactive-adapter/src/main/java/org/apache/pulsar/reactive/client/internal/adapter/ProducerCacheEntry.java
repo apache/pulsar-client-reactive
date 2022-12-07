@@ -133,4 +133,8 @@ class ProducerCacheEntry implements AutoCloseable {
 		return Mono.from(this.producerActionTransformer.transform(source));
 	}
 
+	PublisherTransformer getProducerActionTransformer() {
+		return this.producerActionTransformer;
+	}
+
 }

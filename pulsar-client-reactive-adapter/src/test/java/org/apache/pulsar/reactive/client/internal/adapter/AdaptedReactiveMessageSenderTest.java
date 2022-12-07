@@ -19,10 +19,17 @@ package org.apache.pulsar.reactive.client.internal.adapter;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.pulsar.client.api.BatcherBuilder;
@@ -36,10 +43,12 @@ import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
+import org.apache.pulsar.client.impl.MessageIdImpl;
 import org.apache.pulsar.client.impl.ProducerBase;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.TypedMessageBuilderImpl;
 import org.apache.pulsar.client.impl.conf.ProducerConfigurationData;
+import org.apache.pulsar.client.internal.DefaultImplementation;
 import org.apache.pulsar.reactive.client.adapter.AdaptedReactivePulsarClientFactory;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
@@ -59,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -316,6 +326,77 @@ class AdaptedReactiveMessageSenderTest {
 				.verifyError(IllegalStateException.class);
 
 		assertThat(reconnectTimeout).isBetween(Duration.ofSeconds(4), Duration.ofSeconds(5));
+	}
+
+	@Test
+	void maxInFlightUsingSendOne() throws Exception {
+		doTestMaxInFlight((reactiveSender, inputFlux) -> inputFlux
+				.flatMap((i) -> reactiveSender.sendOne(MessageSpec.of(String.valueOf(i))), 100));
+	}
+
+	@Test
+	void maxInFlightUsingSendMany() throws Exception {
+		doTestMaxInFlight((reactiveSender, inputFlux) -> inputFlux.window(3).flatMap(
+				(subFlux) -> subFlux.map((i) -> MessageSpec.of(String.valueOf(i))).as(reactiveSender::sendMany), 100));
+	}
+
+	void doTestMaxInFlight(BiFunction<ReactiveMessageSender<String>, Flux<Integer>, Flux<MessageId>> sendingFunction)
+			throws Exception {
+		ScheduledExecutorService executorService = null;
+		try {
+			executorService = Executors.newSingleThreadScheduledExecutor();
+			final ScheduledExecutorService finalExecutorService = executorService;
+			PulsarClientImpl pulsarClient = spy(
+					(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+			AtomicLong totalRequests = new AtomicLong();
+			AtomicLong requestsMax = new AtomicLong();
+			ProducerBase<String> producer = mock(ProducerBase.class);
+			given(producer.closeAsync()).willReturn(CompletableFuture.completedFuture(null));
+			given(producer.isConnected()).willReturn(true);
+			given(producer.newMessage()).willAnswer((__) -> {
+				TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+						new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+				given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+					CompletableFuture<MessageId> messageSender = new CompletableFuture<>();
+					finalExecutorService.execute(() -> {
+						long current = totalRequests.incrementAndGet();
+						requestsMax.accumulateAndGet(current, Math::max);
+					});
+					finalExecutorService.schedule(() -> {
+						totalRequests.decrementAndGet();
+						// encode integer in message value to entry id in message id
+						int encodedEntryId = Integer.parseInt(typedMessageBuilder.getMessage().getValue());
+						messageSender.complete(
+								DefaultImplementation.getDefaultImplementation().newMessageId(1, encodedEntryId, 1));
+					}, 5, TimeUnit.MILLISECONDS);
+					return messageSender;
+				});
+				return typedMessageBuilder;
+			});
+
+			given(pulsarClient.createProducerAsync(any(), eq(Schema.STRING), isNull()))
+					.willReturn(CompletableFuture.completedFuture(producer));
+
+			ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+					.messageSender(Schema.STRING).maxInflight(7).cache(AdaptedReactivePulsarClientFactory.createCache())
+					.maxConcurrentSenderSubscriptions(1024).topic("my-topic").build();
+
+			List<Integer> inputValues = IntStream.rangeClosed(1, 1000).boxed().collect(Collectors.toList());
+
+			Flux<Integer> inputFlux = Flux.fromIterable(inputValues);
+			Flux<MessageId> outputFlux = sendingFunction.apply(reactiveSender, inputFlux);
+
+			// get message value from encoded entry id in message id
+			List<Integer> outputValues = outputFlux.map((m) -> (int) ((MessageIdImpl) m).getEntryId()).collectList()
+					.block();
+			assertThat(outputValues).containsExactlyInAnyOrderElementsOf(inputValues);
+			assertThat(requestsMax.get()).isEqualTo(7);
+		}
+		finally {
+			if (executorService != null) {
+				executorService.shutdownNow();
+			}
+		}
 	}
 
 }
