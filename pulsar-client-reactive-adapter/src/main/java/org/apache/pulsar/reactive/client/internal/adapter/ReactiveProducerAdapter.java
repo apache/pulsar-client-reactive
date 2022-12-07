@@ -16,6 +16,7 @@
 
 package org.apache.pulsar.reactive.client.internal.adapter;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -72,7 +73,7 @@ class ReactiveProducerAdapter<T> {
 		return AdapterImplementationFactory.adaptPulsarFuture(producer::closeAsync);
 	}
 
-	<R> Mono<R> usingProducer(Function<Producer<T>, Mono<R>> usingProducerAction) {
+	<R> Mono<R> usingProducer(BiFunction<Producer<T>, PublisherTransformer, Mono<R>> usingProducerAction) {
 		if (this.producerCache != null) {
 			return usingCachedProducer(usingProducerAction);
 		}
@@ -81,16 +82,16 @@ class ReactiveProducerAdapter<T> {
 		}
 	}
 
-	private <R> Mono<R> usingUncachedProducer(Function<Producer<T>, Mono<R>> usingProducerAction) {
+	private <R> Mono<R> usingUncachedProducer(
+			BiFunction<Producer<T>, PublisherTransformer, Mono<R>> usingProducerAction) {
 		return Mono.usingWhen(createProducerMono(),
 				(producer) -> Mono.using(this.producerActionTransformer::get,
-						(transformer) -> usingProducerAction.apply(producer)
-								.as((mono) -> Mono.from(transformer.transform(mono))),
-						Disposable::dispose),
+						(transformer) -> usingProducerAction.apply(producer, transformer), Disposable::dispose),
 				this::closeProducer);
 	}
 
-	private <R> Mono<R> usingCachedProducer(Function<Producer<T>, Mono<R>> usingProducerAction) {
+	private <R> Mono<R> usingCachedProducer(
+			BiFunction<Producer<T>, PublisherTransformer, Mono<R>> usingProducerAction) {
 		return createCachedProducerKeyAndMono().flatMap((keyAndProducerMono) -> {
 			ProducerCacheKey cacheKey = keyAndProducerMono.getT1();
 			Mono<Producer<T>> producerMono = keyAndProducerMono.getT2();
@@ -99,7 +100,7 @@ class ReactiveProducerAdapter<T> {
 		});
 	}
 
-	<R> Flux<R> usingProducerMany(Function<Producer<T>, Flux<R>> usingProducerAction) {
+	<R> Flux<R> usingProducerMany(BiFunction<Producer<T>, PublisherTransformer, Flux<R>> usingProducerAction) {
 		if (this.producerCache != null) {
 			return usingCachedProducerMany(usingProducerAction);
 		}
@@ -108,13 +109,16 @@ class ReactiveProducerAdapter<T> {
 		}
 	}
 
-	private <R> Flux<R> usingUncachedProducerMany(Function<Producer<T>, Flux<R>> usingProducerAction) {
-		return Flux.usingWhen(createProducerMono(), (producer) -> Flux.using(this.producerActionTransformer::get,
-				(transformer) -> usingProducerAction.apply(producer).as(transformer::transform), Disposable::dispose),
+	private <R> Flux<R> usingUncachedProducerMany(
+			BiFunction<Producer<T>, PublisherTransformer, Flux<R>> usingProducerAction) {
+		return Flux.usingWhen(createProducerMono(),
+				(producer) -> Flux.using(this.producerActionTransformer::get,
+						(transformer) -> usingProducerAction.apply(producer, transformer), Disposable::dispose),
 				this::closeProducer);
 	}
 
-	private <R> Flux<R> usingCachedProducerMany(Function<Producer<T>, Flux<R>> usingProducerAction) {
+	private <R> Flux<R> usingCachedProducerMany(
+			BiFunction<Producer<T>, PublisherTransformer, Flux<R>> usingProducerAction) {
 		return createCachedProducerKeyAndMono().flatMapMany((keyAndProducerMono) -> {
 			ProducerCacheKey cacheKey = keyAndProducerMono.getT1();
 			Mono<Producer<T>> producerMono = keyAndProducerMono.getT2();

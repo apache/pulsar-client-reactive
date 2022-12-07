@@ -55,7 +55,6 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.internal.api.InternalMessageSpec;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -335,7 +334,6 @@ class AdaptedReactiveMessageSenderTest {
 				.flatMap((i) -> reactiveSender.sendOne(MessageSpec.of(String.valueOf(i))), 100));
 	}
 
-	@Disabled("This fails since sendMany doesn't currently work with InflightLimiter")
 	@Test
 	void maxInFlightUsingSendMany() throws Exception {
 		doTestMaxInFlight((reactiveSender, inputFlux) -> inputFlux.window(3).flatMap(

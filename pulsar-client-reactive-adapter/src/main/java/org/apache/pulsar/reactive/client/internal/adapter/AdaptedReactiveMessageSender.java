@@ -183,24 +183,24 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	@Override
 	public Mono<MessageId> sendOne(MessageSpec<T> messageSpec) {
-		return createReactiveProducerAdapter().usingProducer((producer) -> createMessageMono(messageSpec, producer));
+		return createReactiveProducerAdapter()
+				.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
 	}
 
-	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
+	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer,
+			PublisherTransformer transformer) {
 		return PulsarFutureAdapter.adaptPulsarFuture(() -> {
 			TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();
 			((InternalMessageSpec<T>) messageSpec).configure(typedMessageBuilder);
 			return typedMessageBuilder.sendAsync();
-		});
+		}).transform(transformer::transform);
 	}
 
 	@Override
 	public Flux<MessageId> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
-		return createReactiveProducerAdapter().usingProducerMany((producer) ->
-		// TODO: ensure that inner publishers are subscribed in order so that message
-		// order is retained
-		Flux.from(messageSpecs).flatMapSequential((messageSpec) -> createMessageMono(messageSpec, producer),
-				this.maxConcurrency));
+		return createReactiveProducerAdapter()
+				.usingProducerMany((producer, transformer) -> Flux.from(messageSpecs).flatMapSequential(
+						(messageSpec) -> createMessageMono(messageSpec, producer, transformer), this.maxConcurrency));
 	}
 
 }
