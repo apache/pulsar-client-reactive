@@ -70,19 +70,25 @@ public class InflightLimiter implements PublisherTransformer {
 	 * @param maxInflight the maximum number of in-flight messages
 	 */
 	public InflightLimiter(int maxInflight) {
-		this(maxInflight, maxInflight, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
+		this(maxInflight, 0, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
 	}
 
 	/**
 	 * Constructs an InflightLimiter.
 	 * @param maxInflight the maximum number of in-flight messages
-	 * @param expectedSubscriptionsInflight the expected number of in-flight subscriptions
+	 * @param expectedSubscriptionsInflight the expected number of in-flight
+	 * subscriptions. Will limit the per-subscription requests to maxInflight / max(active
+	 * subscriptions, expectedSubscriptionsInflight). Set to 0 to use active subscriptions
+	 * in the calculation.
 	 * @param triggerNextScheduler the scheduler on which it will be checked if the
 	 * subscriber can request more
 	 * @param maxPendingSubscriptions the maximum number of pending subscriptions
 	 */
 	public InflightLimiter(int maxInflight, int expectedSubscriptionsInflight, Scheduler triggerNextScheduler,
 			int maxPendingSubscriptions) {
+		if (maxInflight < 1) {
+			throw new IllegalArgumentException("maxInflight must be greater than 0");
+		}
 		this.maxInflight = maxInflight;
 		this.expectedSubscriptionsInflight = expectedSubscriptionsInflight;
 		this.triggerNextWorker = triggerNextScheduler.createWorker();
@@ -268,9 +274,14 @@ public class InflightLimiter implements PublisherTransformer {
 		}
 
 		void requestMore() {
-			if (this.state.get() == InflightLimiterSubscriberState.SUBSCRIBED || (this.requestedDemand.get() > 0
-					&& this.inflightForSubscription.get() <= InflightLimiter.this.expectedSubscriptionsInflight / 2
-					&& InflightLimiter.this.inflight.get() < InflightLimiter.this.maxInflight)) {
+			// spread requests evenly across active subscriptions (or expected number of
+			// subscriptions)
+			int maxInflightForSubscription = Math
+					.max(InflightLimiter.this.maxInflight / Math.max(InflightLimiter.this.activeSubscriptions.get(),
+							InflightLimiter.this.expectedSubscriptionsInflight), 1);
+			if (this.requestedDemand.get() > 0 && (this.state.get() == InflightLimiterSubscriberState.SUBSCRIBED
+					|| (this.inflightForSubscription.get() < maxInflightForSubscription
+							&& InflightLimiter.this.inflight.get() < InflightLimiter.this.maxInflight))) {
 				if (this.state.compareAndSet(InflightLimiterSubscriberState.INITIAL,
 						InflightLimiterSubscriberState.SUBSCRIBING)) {
 					// consume one slot for the subscription, since the first element
@@ -291,17 +302,8 @@ public class InflightLimiter implements PublisherTransformer {
 						InflightLimiter.this.inflight.decrementAndGet();
 						this.inflightForSubscription.decrementAndGet();
 					}
-					long maxRequest = Math
-							.max(Math.min(
-									Math.min(
-											Math.min(this.requestedDemand.get(),
-													InflightLimiter.this.maxInflight
-															- InflightLimiter.this.inflight.get()),
-											InflightLimiter.this.expectedSubscriptionsInflight
-													- this.inflightForSubscription.get()),
-									InflightLimiter.this.maxInflight
-											/ Math.max(InflightLimiter.this.activeSubscriptions.get(), 1)),
-									1);
+					long maxRequest = Math.max(Math.min(this.requestedDemand.get(),
+							maxInflightForSubscription - this.inflightForSubscription.get()), 1);
 					InflightLimiter.this.inflight.addAndGet((int) maxRequest);
 					this.requestedDemand.addAndGet(-maxRequest);
 					this.inflightForSubscription.addAndGet((int) maxRequest);
