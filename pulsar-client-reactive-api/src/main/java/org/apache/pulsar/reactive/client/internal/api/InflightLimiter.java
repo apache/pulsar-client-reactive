@@ -192,7 +192,12 @@ public class InflightLimiter implements PublisherTransformer {
 		private final Subscription subscription = new Subscription() {
 			@Override
 			public void request(long n) {
-				InflightLimiterSubscriber.this.requestedDemand.addAndGet(n);
+				if (n == Long.MAX_VALUE) {
+					InflightLimiterSubscriber.this.requestedDemand.set(n);
+				}
+				else if (InflightLimiterSubscriber.this.requestedDemand.get() != Long.MAX_VALUE) {
+					InflightLimiterSubscriber.this.requestedDemand.addAndGet(n);
+				}
 				maybeAddToPending();
 				maybeTriggerNext();
 			}
@@ -272,7 +277,6 @@ public class InflightLimiter implements PublisherTransformer {
 					// might already be in flight
 					// when a CompletableFuture is mapped to a Mono
 					InflightLimiter.this.inflight.incrementAndGet();
-					this.requestedDemand.decrementAndGet();
 					this.inflightForSubscription.incrementAndGet();
 					this.source.subscribe(InflightLimiterSubscriber.this);
 				}
@@ -285,7 +289,6 @@ public class InflightLimiter implements PublisherTransformer {
 						// reverse the slot reservation made when transitioning from
 						// INITIAL to SUBSCRIBING
 						InflightLimiter.this.inflight.decrementAndGet();
-						this.requestedDemand.incrementAndGet();
 						this.inflightForSubscription.decrementAndGet();
 					}
 					long maxRequest = Math
