@@ -186,7 +186,8 @@ class ReactiveMessagePipelineTest {
 	void handlingTimeout() throws Exception {
 		int numMessages = 10;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
-		CountDownLatch latch = new CountDownLatch(numMessages);
+		CountDownLatch latch = new CountDownLatch(1);
+		testConsumer.setFinishedCallback(latch::countDown);
 		AtomicReference<MessageId> timedoutMessageId = new AtomicReference<>();
 		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.defer(() -> {
 			Duration delay;
@@ -197,13 +198,12 @@ class ReactiveMessagePipelineTest {
 			else {
 				delay = Duration.ofMillis(2);
 			}
-			return Mono.delay(delay).doFinally((__) -> latch.countDown()).then();
+			return Mono.delay(delay).then();
 		});
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler)
 				.handlingTimeout(Duration.ofMillis(5)).build()) {
 			pipeline.start();
 			assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
-			pipeline.stop();
 			// 9 messages should have been acked
 			assertThat(testConsumer.getAcknowledgedMessages()).hasSize(9);
 			// 1 message should have been nacked
@@ -422,6 +422,8 @@ class ReactiveMessagePipelineTest {
 
 		private final int numMessages;
 
+		private volatile Runnable finishedCallback;
+
 		TestConsumer(int numMessages) {
 			this.numMessages = numMessages;
 		}
@@ -429,6 +431,10 @@ class ReactiveMessagePipelineTest {
 		private final List<MessageId> acknowledgedMessages = new CopyOnWriteArrayList<>();
 
 		private final List<MessageId> nackedMessages = new CopyOnWriteArrayList<>();
+
+		void setFinishedCallback(Runnable finishedCallback) {
+			this.finishedCallback = finishedCallback;
+		}
 
 		@Override
 		public <R> Flux<R> consumeMany(Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
@@ -442,7 +448,11 @@ class ReactiveMessagePipelineTest {
 					else {
 						this.nackedMessages.add(result.getMessageId());
 					}
-				}).mapNotNull(MessageResult::getValue);
+				}).mapNotNull(MessageResult::getValue).doFinally((__) -> {
+					if (this.finishedCallback != null) {
+						this.finishedCallback.run();
+					}
+				});
 			});
 		}
 
