@@ -17,8 +17,6 @@
  * under the License.
  */
 
-import java.time.Year
-
 plugins {
 	id 'groovy-gradle-plugin'
 }

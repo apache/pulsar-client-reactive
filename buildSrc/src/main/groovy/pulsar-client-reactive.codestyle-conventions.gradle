@@ -17,8 +17,6 @@
  * under the License.
  */
 
-import java.time.Year
-
 plugins {
 	id 'checkstyle'
 	id "org.cadixdev.licenser"
@@ -35,9 +33,6 @@ checkstyle {
 
 license {
 	header = rootProject.file('checkstyle/HEADER.txt')
-	ext {
-		year = Year.now().getValue().toString()
-	}
 	tasks {
 		gradle {
 			files.from('build.gradle', 'settings.gradle', 'gradle.properties')
