@@ -50,3 +50,10 @@ tasks.register('integrationTest', Test) {
 }
 
 check.dependsOn integrationTest
+
+
+tasks.withType(Test) {
+	// reduces CPU usage in tests when JIT compiler doesn't spend time compiling code
+	// this could help reduce flakiness in CI where there's less CPU resources available
+	jvmArgs '-XX:TieredStopAtLevel=1'
+}
