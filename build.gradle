@@ -36,7 +36,6 @@ allprojects {
 					'**/META-INF/services/*',
 					'out/**', '*.ipr', '**/*.iml', '*.iws', '.idea/**', // Intellij files
 					'.classpath', '.project', '.settings/**', 'bin/**', // Eclipse files
-					'CONTRIBUTING.adoc', 'README.adoc',
 		]
 	}
 }
