@@ -40,3 +40,24 @@ allprojects {
 		]
 	}
 }
+
+task sourceTar(type: Tar) {
+	destinationDirectory = buildDir
+	archiveBaseName = "pulsar-client-reactive-${rootProject.version}"
+	archiveClassifier = "src"
+	archiveExtension = "tar.gz"
+ 	compression = Compression.GZIP
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	includeEmptyDirs = false
+	into(archiveBaseName) {
+		from(rootDir) {
+			excludes = [
+					'.github/**', '.asf.yaml',
+					'**/build/**', '**/target/**',
+					'out/**', '*.ipr', '**/*.iml', '*.iws', '.idea/**', // Intellij files
+					'.classpath', '.project', '.settings/**', 'bin/**', // Eclipse files
+					'**/.gradle/**', '**/wrapper/**', 'gradlew*',  // gradle wrapper files excluded from src zip
+			]
+		}
+	}
+}
