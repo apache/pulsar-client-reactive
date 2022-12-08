@@ -21,4 +21,43 @@ plugins {
 allprojects {
     group = 'org.apache.pulsar'
     apply plugin: 'io.spring.javaformat'
+	apply plugin: 'org.nosphere.apache.rat'
+
+	repositories {
+		mavenCentral()
+	}
+
+	tasks.named('rat') {
+		inputDir = projectDir
+		excludes = ['.asf.yaml', // ASF metadata for github integration excluded from src zip
+					'**/.gradle/**', '**/wrapper/**', 'gradlew*',  // gradle wrapper files excluded from src zip
+					'gradle.properties',  // artifactory release plugin removes header when bumping version
+					'**/build/**', '**/target/**', 'licenses/**', 'notices/**',
+					'**/META-INF/services/*',
+					'out/**', '*.ipr', '**/*.iml', '*.iws', '.idea/**', // Intellij files
+					'.classpath', '.project', '.settings/**', 'bin/**', // Eclipse files
+					'CONTRIBUTING.adoc', 'README.adoc',
+		]
+	}
+}
+
+task sourceTar(type: Tar) {
+	destinationDirectory = buildDir
+	archiveBaseName = "pulsar-client-reactive-${rootProject.version}"
+	archiveClassifier = "src"
+	archiveExtension = "tar.gz"
+ 	compression = Compression.GZIP
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	includeEmptyDirs = false
+	into(archiveBaseName) {
+		from(rootDir) {
+			excludes = [
+					'.github/**', '.asf.yaml',
+					'**/build/**', '**/target/**',
+					'out/**', '*.ipr', '**/*.iml', '*.iws', '.idea/**', // Intellij files
+					'.classpath', '.project', '.settings/**', 'bin/**', // Eclipse files
+					'**/.gradle/**', '**/wrapper/**', 'gradlew*',  // gradle wrapper files excluded from src zip
+			]
+		}
+	}
 }

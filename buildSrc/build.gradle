@@ -31,4 +31,5 @@ dependencies {
 	implementation libs.spring.javaformat.gradle.plugin
 	implementation libs.licenser
 	implementation libs.testlogger
+	implementation 'org.nosphere.apache:creadur-rat-gradle:0.8.0'
 }
