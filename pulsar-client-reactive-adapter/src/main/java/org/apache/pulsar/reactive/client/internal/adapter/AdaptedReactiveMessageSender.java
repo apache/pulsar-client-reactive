@@ -37,6 +37,8 @@ import org.apache.pulsar.reactive.client.internal.api.PublisherTransformer;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
@@ -204,6 +206,16 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 		return createReactiveProducerAdapter()
 				.usingProducerMany((producer, transformer) -> Flux.from(messageSpecs).flatMapSequential(
 						(messageSpec) -> createMessageMono(messageSpec, producer, transformer), this.maxConcurrency));
+	}
+
+	@Override
+	public <K> Flux<Tuple2<K, MessageId>> sendManyCorrelated(
+			Publisher<Tuple2<K, MessageSpec<T>>> tuplesOfCorrelationKeyAndMessageSpec) {
+		return createReactiveProducerAdapter().usingProducerMany(
+				(producer, transformer) -> Flux.from(tuplesOfCorrelationKeyAndMessageSpec).flatMapSequential(
+						(keyAndMessageSpec) -> createMessageMono(keyAndMessageSpec.getT2(), producer, transformer)
+								.map((messageId) -> Tuples.of(keyAndMessageSpec.getT1(), messageId)),
+						this.maxConcurrency));
 	}
 
 }

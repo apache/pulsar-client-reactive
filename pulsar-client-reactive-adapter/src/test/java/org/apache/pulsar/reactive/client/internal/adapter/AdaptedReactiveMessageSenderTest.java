@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -67,6 +69,8 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -193,6 +197,41 @@ class AdaptedReactiveMessageSenderTest {
 		inOrder.verify(typedMessageBuilder1).sendAsync();
 		inOrder.verify(typedMessageBuilder2).value("test2");
 		inOrder.verify(typedMessageBuilder2).sendAsync();
+	}
+
+	@Test
+	void sendManyCorrelated() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+
+		AtomicInteger entryId = new AtomicInteger();
+		List<MessageId> messageIds = new CopyOnWriteArrayList<>();
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				MessageId messageId = DefaultImplementation.getDefaultImplementation().newMessageId(1,
+						entryId.incrementAndGet(), 1);
+				messageIds.add(messageId);
+				return CompletableFuture.completedFuture(messageId);
+			});
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.STRING).topic("my-topic").build();
+
+		Flux<Tuple2<Integer, MessageSpec<String>>> keysAndMessageSpecs = Flux
+				.just(Tuples.of(123, MessageSpec.of("test1")), Tuples.of(456, MessageSpec.of("test2")));
+		StepVerifier.create(reactiveSender.sendManyCorrelated(keysAndMessageSpecs))
+				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(123, messageIds.get(0))))
+				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(456, messageIds.get(1)))).verifyComplete();
 	}
 
 	@ParameterizedTest
