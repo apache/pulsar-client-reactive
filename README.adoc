@@ -19,52 +19,33 @@
 = Reactive client for Apache Pulsar
 
 :github: https://github.com/apache/pulsar-client-reactive
+:latest_version: 0.1.0
 
 Reactive client for Apache Pulsar which is compatible with the Reactive Streams specification.
 This uses Project Reactor as the Reactive Streams implementation.
 
 == Getting it
 
-There is no release available yet. Snapshot builds are published to Apache snapshot repository, https://repository.apache.org/content/repositories/snapshots.
-
 *This library requires Java 8 or + to run*.
 
 With Gradle:
 
-[source,groovy]
+[source,groovy,subs="verbatim,attributes"]
 ----
-repositories {
-    maven {
-        url 'https://repository.apache.org/content/repositories/snapshots'
-	}
-}
-
 dependencies {
-    implementation "org.apache.pulsar:pulsar-client-reactive-adapter:0.1.0-SNAPSHOT"
+    implementation "org.apache.pulsar:pulsar-client-reactive-adapter:{latest_version}"
 }
 ----
 
 With Maven:
 
-[source,xml]
+[source,xml,subs="verbatim,attributes"]
 ----
-<repository>
-	<id>apache.snapshots</id>
-	<name>Apache Development Snapshot Repository</name>
-	<url>https://repository.apache.org/content/repositories/snapshots/</url>
-	<releases>
-		<enabled>false</enabled>
-	</releases>
-	<snapshots>
-		<enabled>true</enabled>
-	</snapshots>
-</repository>
-
 <dependencies>
     <dependency>
         <groupId>org.apache.pulsar</groupId>
         <artifactId>pulsar-client-reactive-adapter</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>{latest_version}</version>
     </dependency>
 </dependencies>
 ----
@@ -103,28 +84,28 @@ By default a ConcurrentHashMap based cache is used. It's recommended to use a mo
 
 Adding Caffeine based producer cache with Gradle:
 
-[source,groovy]
+[source,groovy,subs="verbatim,attributes"]
 ----
 dependencies {
-    implementation "org.apache.pulsar:pulsar-client-reactive-adapter:0.1.0-SNAPSHOT"
-    implementation "org.apache.pulsar:pulsar-client-reactive-producer-cache-caffeine:0.1.0-SNAPSHOT"
+    implementation "org.apache.pulsar:pulsar-client-reactive-adapter:{latest_version}"
+    implementation "org.apache.pulsar:pulsar-client-reactive-producer-cache-caffeine:{latest_version}"
 }
 ----
 
 Adding Caffeine based producer cache with Maven:
 
-[source,xml]
+[source,xml,subs="verbatim,attributes"]
 ----
 <dependencies>
     <dependency>
         <groupId>org.apache.pulsar</groupId>
         <artifactId>pulsar-client-reactive-adapter</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>{latest_version}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.pulsar</groupId>
         <artifactId>pulsar-client-reactive-producer-cache-caffeine</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>{latest_version}</version>
     </dependency>
 </dependencies>
 ----
@@ -177,7 +158,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
     ReactiveMessageReader<String> messageReader =
             reactivePulsarClient.messageReader(Schema.STRING)
                     .topic(topicName)
-                    .startAtSpec(StartAtSpec.LATEST)
+                    .startAtSpec(StartAtSpec.ofLatest())
                     .endOfStreamAction(EndOfStreamAction.POLL)
                     .build();
     messageReader.readMany()
@@ -208,7 +189,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
 
 [source,java]
 ----
-ReactiveMessageHandler reactiveMessagePipeline =
+ReactiveMessagePipeline reactiveMessagePipeline =
     reactivePulsarClient
         .messageConsumer(Schema.STRING)
         .subscriptionName("sub")
