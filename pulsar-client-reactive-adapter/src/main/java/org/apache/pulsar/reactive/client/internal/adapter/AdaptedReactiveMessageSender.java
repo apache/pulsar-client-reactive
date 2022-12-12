@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
+import org.apache.pulsar.reactive.client.api.CorrelatedMessageSendingException;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderSpec;
@@ -188,24 +189,25 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	@Override
 	public Mono<MessageId> sendOne(MessageSpec<T> messageSpec) {
-		return createReactiveProducerAdapter()
-				.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
+		return createReactiveProducerAdapter().usingProducer(
+				(producer, transformer) -> createMessageMono(messageSpec, producer, transformer, messageSpec));
 	}
 
 	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer,
-			PublisherTransformer transformer) {
+			PublisherTransformer transformer, Object correlationKey) {
 		return PulsarFutureAdapter.adaptPulsarFuture(() -> {
 			TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();
 			((InternalMessageSpec<T>) messageSpec).configure(typedMessageBuilder);
 			return typedMessageBuilder.sendAsync();
-		}).transform(transformer::transform);
+		}).transform(transformer::transform).onErrorResume(
+				(throwable) -> Mono.error(new CorrelatedMessageSendingException(throwable, correlationKey)));
 	}
 
 	@Override
 	public Flux<MessageId> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
-		return createReactiveProducerAdapter()
-				.usingProducerMany((producer, transformer) -> Flux.from(messageSpecs).flatMapSequential(
-						(messageSpec) -> createMessageMono(messageSpec, producer, transformer), this.maxConcurrency));
+		return createReactiveProducerAdapter().usingProducerMany((producer, transformer) -> Flux.from(messageSpecs)
+				.flatMapSequential((messageSpec) -> createMessageMono(messageSpec, producer, transformer, messageSpec),
+						this.maxConcurrency));
 	}
 
 	@Override
@@ -213,8 +215,9 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 			Publisher<Tuple2<K, MessageSpec<T>>> tuplesOfCorrelationKeyAndMessageSpec) {
 		return createReactiveProducerAdapter().usingProducerMany(
 				(producer, transformer) -> Flux.from(tuplesOfCorrelationKeyAndMessageSpec).flatMapSequential(
-						(keyAndMessageSpec) -> createMessageMono(keyAndMessageSpec.getT2(), producer, transformer)
-								.map((messageId) -> Tuples.of(keyAndMessageSpec.getT1(), messageId)),
+						(keyAndMessageSpec) -> createMessageMono(keyAndMessageSpec.getT2(), producer, transformer,
+								keyAndMessageSpec.getT1())
+										.map((messageId) -> Tuples.of(keyAndMessageSpec.getT1(), messageId)),
 						this.maxConcurrency));
 	}
 

@@ -39,4 +39,9 @@ class ValueOnlyMessageSpec<T> implements InternalMessageSpec<T> {
 		typedMessageBuilder.value(this.value);
 	}
 
+	@Override
+	public String toString() {
+		return "ValueOnlyMessageSpec{" + "value=" + this.value + '}';
+	}
+
 }
