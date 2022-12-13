@@ -169,6 +169,37 @@ class AdaptedReactiveMessageSenderTest {
 	}
 
 	@Test
+	void sendOneErrorDoesntUseCorrelatedMessageSendingException() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				CompletableFuture<MessageId> failed = new CompletableFuture<>();
+				failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
+				return failed;
+			});
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.STRING).topic("my-topic").build();
+
+		StepVerifier.create(reactiveSender.sendOne(MessageSpec.of("test1")))
+				// the original exception should be returned without wrapping it in
+				// CorrelatedMessageSendingException
+				.expectError(ProducerQueueIsFullError.class).verify();
+	}
+
+	@Test
 	void sendMany() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());

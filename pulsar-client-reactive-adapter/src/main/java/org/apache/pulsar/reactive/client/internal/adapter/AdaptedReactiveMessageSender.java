@@ -189,18 +189,23 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	@Override
 	public Mono<MessageId> sendOne(MessageSpec<T> messageSpec) {
-		return createReactiveProducerAdapter().usingProducer(
-				(producer, transformer) -> createMessageMono(messageSpec, producer, transformer, messageSpec));
+		return createReactiveProducerAdapter()
+				.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
 	}
 
 	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer,
 			PublisherTransformer transformer, Object correlationKey) {
+		return createMessageMono(messageSpec, producer, transformer).onErrorResume(
+				(throwable) -> Mono.error(new CorrelatedMessageSendingException(throwable, correlationKey)));
+	}
+
+	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer,
+			PublisherTransformer transformer) {
 		return PulsarFutureAdapter.adaptPulsarFuture(() -> {
 			TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();
 			((InternalMessageSpec<T>) messageSpec).configure(typedMessageBuilder);
 			return typedMessageBuilder.sendAsync();
-		}).transform(transformer::transform).onErrorResume(
-				(throwable) -> Mono.error(new CorrelatedMessageSendingException(throwable, correlationKey)));
+		}).transform(transformer::transform);
 	}
 
 	@Override
