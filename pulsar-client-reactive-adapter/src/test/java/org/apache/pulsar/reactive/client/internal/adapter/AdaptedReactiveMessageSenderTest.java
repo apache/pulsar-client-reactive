@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -45,6 +47,7 @@ import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullError;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.MessageIdImpl;
 import org.apache.pulsar.client.impl.ProducerBase;
@@ -53,6 +56,7 @@ import org.apache.pulsar.client.impl.TypedMessageBuilderImpl;
 import org.apache.pulsar.client.impl.conf.ProducerConfigurationData;
 import org.apache.pulsar.client.internal.DefaultImplementation;
 import org.apache.pulsar.reactive.client.adapter.AdaptedReactivePulsarClientFactory;
+import org.apache.pulsar.reactive.client.api.CorrelatedMessageSendingException;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
@@ -67,6 +71,8 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -163,6 +169,37 @@ class AdaptedReactiveMessageSenderTest {
 	}
 
 	@Test
+	void sendOneErrorDoesntUseCorrelatedMessageSendingException() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				CompletableFuture<MessageId> failed = new CompletableFuture<>();
+				failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
+				return failed;
+			});
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.STRING).topic("my-topic").build();
+
+		StepVerifier.create(reactiveSender.sendOne(MessageSpec.of("test1")))
+				// the original exception should be returned without wrapping it in
+				// CorrelatedMessageSendingException
+				.expectError(ProducerQueueIsFullError.class).verify();
+	}
+
+	@Test
 	void sendMany() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
@@ -193,6 +230,95 @@ class AdaptedReactiveMessageSenderTest {
 		inOrder.verify(typedMessageBuilder1).sendAsync();
 		inOrder.verify(typedMessageBuilder2).value("test2");
 		inOrder.verify(typedMessageBuilder2).sendAsync();
+	}
+
+	@Test
+	void sendManyErrorShowsInputInMessage() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+
+		AtomicInteger entryId = new AtomicInteger();
+		List<MessageId> messageIds = new CopyOnWriteArrayList<>();
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				if (entryId.get() == 1) {
+					CompletableFuture<MessageId> failed = new CompletableFuture<>();
+					failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
+					return failed;
+				}
+				MessageId messageId = DefaultImplementation.getDefaultImplementation().newMessageId(1,
+						entryId.incrementAndGet(), 1);
+				messageIds.add(messageId);
+				return CompletableFuture.completedFuture(messageId);
+			});
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.STRING).topic("my-topic").build();
+
+		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"), MessageSpec.of("test2"));
+		StepVerifier.create(reactiveSender.sendMany(messageSpecs))
+				.assertNext((next) -> assertThat(next).isEqualTo(messageIds.get(0)))
+				.expectErrorSatisfies(
+						(throwable) -> assertThat(throwable).isInstanceOf(CorrelatedMessageSendingException.class)
+								.extracting(CorrelatedMessageSendingException.class::cast)
+								.satisfies((cme) -> assertThat(cme.toString()).contains("value=test2")))
+				.verify();
+	}
+
+	@Test
+	void sendManyCorrelated() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+
+		AtomicInteger entryId = new AtomicInteger();
+		List<MessageId> messageIds = new CopyOnWriteArrayList<>();
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				if (entryId.get() == 2) {
+					CompletableFuture<MessageId> failed = new CompletableFuture<>();
+					failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
+					return failed;
+				}
+				MessageId messageId = DefaultImplementation.getDefaultImplementation().newMessageId(1,
+						entryId.incrementAndGet(), 1);
+				messageIds.add(messageId);
+				return CompletableFuture.completedFuture(messageId);
+			});
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.STRING).topic("my-topic").build();
+
+		Flux<Tuple2<Integer, MessageSpec<String>>> keysAndMessageSpecs = Flux.just(
+				Tuples.of(123, MessageSpec.of("test1")), Tuples.of(456, MessageSpec.of("test2")),
+				Tuples.of(789, MessageSpec.of("test3")));
+		StepVerifier.create(reactiveSender.sendManyCorrelated(keysAndMessageSpecs))
+				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(123, messageIds.get(0))))
+				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(456, messageIds.get(1))))
+				.expectErrorSatisfies(
+						(throwable) -> assertThat(throwable).isInstanceOf(CorrelatedMessageSendingException.class)
+								.extracting(CorrelatedMessageSendingException.class::cast)
+								.satisfies((cme) -> assertThat(cme.getCorrelationKey(Integer.class)).isEqualTo(789)))
+				.verify();
 	}
 
 	@ParameterizedTest

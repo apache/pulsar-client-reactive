@@ -23,6 +23,7 @@ import org.apache.pulsar.client.api.MessageId;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 /**
  * Reactive message sender interface.
@@ -40,11 +41,30 @@ public interface ReactiveMessageSender<T> {
 
 	/**
 	 * Send multiple messages and get the associated message ids in the same order as the
-	 * messages sent.
+	 * messages sent. A send error will terminate the returned Flux with an error that is
+	 * wrapped in a {@link CorrelatedMessageSendingException} where the
+	 * {@link CorrelatedMessageSendingException#getCorrelationKey(Class)} method will
+	 * return the MessageSpec sent as input.
 	 * @param messageSpecs the specs of the messages to send
 	 * @return a publisher that will emit a message id per message successfully sent in
 	 * the order that they have been sent
 	 */
 	Flux<MessageId> sendMany(Publisher<MessageSpec<T>> messageSpecs);
+
+	/**
+	 * Send multiple messages and correlate the resulted message ids to a provided
+	 * correlation key. The correlation key can be any type of object. A send error will
+	 * terminate the returned Flux with an error that is wrapped in a
+	 * {@link CorrelatedMessageSendingException} where the
+	 * {@link CorrelatedMessageSendingException#getCorrelationKey(Class)} method will
+	 * return the correlation key sent as input.
+	 * @param tuplesOfCorrelationKeyAndMessageSpec a publisher where the element is a
+	 * tuple of the correlation key and the specs of the message to send
+	 * @param <K> type of correlation key
+	 * @return a publisher that will emit a tuple of the provided correlation key and the
+	 * message id for each message successfully sent
+	 */
+	<K> Flux<Tuple2<K, MessageId>> sendManyCorrelated(
+			Publisher<Tuple2<K, MessageSpec<T>>> tuplesOfCorrelationKeyAndMessageSpec);
 
 }

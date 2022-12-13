@@ -19,6 +19,7 @@
 
 package org.apache.pulsar.reactive.client.internal.api;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -109,6 +110,44 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 		if (this.deliverAfterDelay != null) {
 			typedMessageBuilder.deliverAfter(this.deliverAfterDelay, this.deliverAfterUnit);
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder().append("DefaultMessageSpec{");
+		stringBuilder.append("value=").append(this.value);
+		if (this.key != null) {
+			stringBuilder.append(", key='").append(this.key).append('\'');
+		}
+		if (this.orderingKey != null) {
+			stringBuilder.append(", orderingKey=").append(Arrays.toString(this.orderingKey));
+		}
+		if (this.keyBytes != null) {
+			stringBuilder.append(", keyBytes=").append(Arrays.toString(this.keyBytes));
+		}
+		if (this.properties != null) {
+			stringBuilder.append(", properties=").append(this.properties);
+		}
+		if (this.eventTime != null) {
+			stringBuilder.append(", eventTime=").append(this.eventTime);
+		}
+		if (this.sequenceId != null) {
+			stringBuilder.append(", sequenceId=").append(this.sequenceId);
+		}
+		if (this.replicationClusters != null) {
+			stringBuilder.append(", replicationClusters=").append(this.replicationClusters);
+		}
+		if (this.disableReplication) {
+			stringBuilder.append(", disableReplication=").append(this.disableReplication);
+		}
+		if (this.deliverAt != null) {
+			stringBuilder.append(", deliverAt=").append(this.deliverAt);
+		}
+		if (this.deliverAfterDelay != null) {
+			stringBuilder.append(", deliverAfterDelay=").append(this.deliverAfterDelay);
+			stringBuilder.append(", deliverAfterUnit=").append(this.deliverAfterUnit);
+		}
+		return stringBuilder.append('}').toString();
 	}
 
 }
