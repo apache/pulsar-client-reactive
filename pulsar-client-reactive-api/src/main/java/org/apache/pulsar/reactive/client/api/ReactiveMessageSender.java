@@ -39,12 +39,19 @@ public interface ReactiveMessageSender<T> {
 	Mono<MessageId> sendOne(MessageSpec<T> messageSpec);
 
 	/**
-	 * Send multiple messages and get the associated message ids in the same order as the
-	 * messages sent.
+	 * Send multiple messages and get the sending results in the same order as the
+	 * messages sent. The results are {@link MessageSendResult} objects composed of the
+	 * message ID of the message sent and of the original message spec that was sent. A
+	 * {@code correlationMetadata} can be attached to a {@link MessageSpec} and retrieved
+	 * with {@link MessageSendResult#getCorrelationMetadata()} to correlate the messages
+	 * sent with the results. A send error will terminate the returned Flux with an error
+	 * that is wrapped in a {@link ReactiveMessageSendingException} where the
+	 * {@link ReactiveMessageSendingException#getMessageSpec()} method will return the
+	 * MessageSpec sent as input.
 	 * @param messageSpecs the specs of the messages to send
-	 * @return a publisher that will emit a message id per message successfully sent in
-	 * the order that they have been sent
+	 * @return a publisher that will emit a {@link MessageSendResult} per message
+	 * successfully sent in the order that they have been sent
 	 */
-	Flux<MessageId> sendMany(Publisher<MessageSpec<T>> messageSpecs);
+	Flux<MessageSendResult<T>> sendMany(Publisher<MessageSpec<T>> messageSpecs);
 
 }

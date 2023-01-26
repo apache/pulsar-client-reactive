@@ -156,6 +156,14 @@ public interface MessageSpecBuilder<T> {
 	MessageSpecBuilder<T> deliverAfter(long delay, TimeUnit unit);
 
 	/**
+	 * Attach a correlation metadata to the message spec to be able to correlate a sending
+	 * operation and the sending operation result.
+	 * @param correlationMetadata the correlation metadata to attach
+	 * @return the message builder instance
+	 */
+	MessageSpecBuilder<T> correlationMetadata(Object correlationMetadata);
+
+	/**
 	 * Builds the {@link MessageSpec}.
 	 * @return the built message spec
 	 */
