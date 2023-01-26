@@ -66,7 +66,7 @@ public class ReactiveMessageSendingException extends RuntimeException {
 
 	@Override
 	public String getMessage() {
-		return "Message sending failed for message with correlation id={" + this.getCorrelationMetadata() + "}";
+		return "Message sending failed for message with correlation metadata={" + this.getCorrelationMetadata() + "}";
 	}
 
 }
