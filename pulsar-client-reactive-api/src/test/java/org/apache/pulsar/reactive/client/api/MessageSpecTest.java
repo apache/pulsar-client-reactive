@@ -44,7 +44,7 @@ class MessageSpecTest {
 				.orderingKey(new byte[] { 2 }).property("my-prop-key-1", "my-prop-value-1")
 				.properties(Collections.singletonMap("my-prop-key-2", "my-prop-value-2")).eventTime(3).sequenceId(4)
 				.replicationClusters(Collections.singletonList("my-cluster")).disableReplication().deliverAt(5)
-				.deliverAfter(6, TimeUnit.SECONDS).build();
+				.deliverAfter(6, TimeUnit.SECONDS).correlationMetadata("my-context").build();
 
 		assertThat(messageSpec).isInstanceOf(InternalMessageSpec.class);
 
@@ -63,6 +63,9 @@ class MessageSpecTest {
 		assertThat(typedMessageBuilder.getDisableReplication()).isTrue();
 		assertThat(typedMessageBuilder.getDeliverAt()).isEqualTo(5);
 		assertThat(typedMessageBuilder.getDeliverAfter()).hasSeconds(6);
+
+		assertThat((String) messageSpec.getCorrelationMetadata()).isEqualTo("my-context");
+
 	}
 
 	@Test

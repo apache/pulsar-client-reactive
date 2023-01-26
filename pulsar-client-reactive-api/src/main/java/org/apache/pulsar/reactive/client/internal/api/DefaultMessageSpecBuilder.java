@@ -61,6 +61,8 @@ class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
 
 	private TimeUnit deliverAfterUnit;
 
+	private Object correlationMetadata;
+
 	@Override
 	public MessageSpecBuilder<T> key(String key) {
 		this.key = key;
@@ -141,10 +143,16 @@ class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
 	}
 
 	@Override
+	public MessageSpecBuilder<T> correlationMetadata(Object correlationMetadata) {
+		this.correlationMetadata = correlationMetadata;
+		return this;
+	}
+
+	@Override
 	public MessageSpec<T> build() {
 		return new DefaultMessageSpec<>(this.key, this.orderingKey, this.keyBytes, this.value, this.properties,
 				this.eventTime, this.sequenceId, this.replicationClusters, this.disableReplication, this.deliverAt,
-				this.deliverAfterDelay, this.deliverAfterUnit);
+				this.deliverAfterDelay, this.deliverAfterUnit, this.correlationMetadata);
 	}
 
 }

@@ -48,4 +48,13 @@ public interface MessageSpec<T> {
 		return ApiImplementationFactory.createValueOnlyMessageSpec(value);
 	}
 
+	/**
+	 * Gets the correlation metadata of this message spec.
+	 * @param <C> the correlation metadata type
+	 * @return the correlation metadata
+	 */
+	default <C> C getCorrelationMetadata() {
+		return null;
+	}
+
 }

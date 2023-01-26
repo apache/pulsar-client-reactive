@@ -60,9 +60,11 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 
 	private final TimeUnit deliverAfterUnit;
 
+	private final Object correlationMetadata;
+
 	DefaultMessageSpec(String key, byte[] orderingKey, byte[] keyBytes, T value, Map<String, String> properties,
 			Long eventTime, Long sequenceId, List<String> replicationClusters, boolean disableReplication,
-			Long deliverAt, Long deliverAfterDelay, TimeUnit deliverAfterUnit) {
+			Long deliverAt, Long deliverAfterDelay, TimeUnit deliverAfterUnit, Object correlationMetadata) {
 		this.key = key;
 		this.orderingKey = orderingKey;
 		this.keyBytes = keyBytes;
@@ -75,6 +77,7 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 		this.deliverAt = deliverAt;
 		this.deliverAfterDelay = deliverAfterDelay;
 		this.deliverAfterUnit = deliverAfterUnit;
+		this.correlationMetadata = correlationMetadata;
 	}
 
 	@Override
@@ -113,6 +116,11 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 	}
 
 	@Override
+	public <C> C getCorrelationMetadata() {
+		return (C) this.correlationMetadata;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder().append("DefaultMessageSpec{");
 		stringBuilder.append("value=").append(this.value);
@@ -146,6 +154,9 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 		if (this.deliverAfterDelay != null) {
 			stringBuilder.append(", deliverAfterDelay=").append(this.deliverAfterDelay);
 			stringBuilder.append(", deliverAfterUnit=").append(this.deliverAfterUnit);
+		}
+		if (this.correlationMetadata != null) {
+			stringBuilder.append(", correlationMetadata=").append(this.correlationMetadata);
 		}
 		return stringBuilder.append('}').toString();
 	}

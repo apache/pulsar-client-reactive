@@ -56,11 +56,12 @@ import org.apache.pulsar.client.impl.TypedMessageBuilderImpl;
 import org.apache.pulsar.client.impl.conf.ProducerConfigurationData;
 import org.apache.pulsar.client.internal.DefaultImplementation;
 import org.apache.pulsar.reactive.client.adapter.AdaptedReactivePulsarClientFactory;
-import org.apache.pulsar.reactive.client.api.CorrelatedMessageSendingException;
+import org.apache.pulsar.reactive.client.api.MessageSendResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageSendingException;
 import org.apache.pulsar.reactive.client.internal.api.InternalMessageSpec;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -71,8 +72,6 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -195,7 +194,7 @@ class AdaptedReactiveMessageSenderTest {
 
 		StepVerifier.create(reactiveSender.sendOne(MessageSpec.of("test1")))
 				// the original exception should be returned without wrapping it in
-				// CorrelatedMessageSendingException
+				// ReactiveMessageSendingException
 				.expectError(ProducerQueueIsFullError.class).verify();
 	}
 
@@ -221,8 +220,8 @@ class AdaptedReactiveMessageSenderTest {
 				.messageSender(Schema.STRING).topic("my-topic").build();
 
 		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"), MessageSpec.of("test2"));
-		StepVerifier.create(reactiveSender.sendMany(messageSpecs)).expectNext(MessageId.earliest)
-				.expectNext(MessageId.latest).verifyComplete();
+		StepVerifier.create(reactiveSender.sendMany(messageSpecs).map(MessageSendResult::getMessageId))
+				.expectNext(MessageId.earliest).expectNext(MessageId.latest).verifyComplete();
 
 		verify(pulsarClient).createProducerAsync(any(), any(), isNull());
 		InOrder inOrder = Mockito.inOrder(typedMessageBuilder1, typedMessageBuilder2);
@@ -265,13 +264,14 @@ class AdaptedReactiveMessageSenderTest {
 		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
 				.messageSender(Schema.STRING).topic("my-topic").build();
 
-		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"), MessageSpec.of("test2"));
+		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"),
+				MessageSpec.builder("test2").correlationMetadata("my-context").build());
 		StepVerifier.create(reactiveSender.sendMany(messageSpecs))
-				.assertNext((next) -> assertThat(next).isEqualTo(messageIds.get(0)))
+				.assertNext((next) -> assertThat(next.getMessageId()).isEqualTo(messageIds.get(0)))
 				.expectErrorSatisfies(
-						(throwable) -> assertThat(throwable).isInstanceOf(CorrelatedMessageSendingException.class)
-								.extracting(CorrelatedMessageSendingException.class::cast)
-								.satisfies((cme) -> assertThat(cme.toString()).contains("value=test2")))
+						(throwable) -> assertThat(throwable).isInstanceOf(ReactiveMessageSendingException.class)
+								.extracting(ReactiveMessageSendingException.class::cast)
+								.satisfies((cme) -> assertThat(cme.toString()).contains("correlation id={my-context}")))
 				.verify();
 	}
 
@@ -308,17 +308,19 @@ class AdaptedReactiveMessageSenderTest {
 		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
 				.messageSender(Schema.STRING).topic("my-topic").build();
 
-		Flux<Tuple2<Integer, MessageSpec<String>>> keysAndMessageSpecs = Flux.just(
-				Tuples.of(123, MessageSpec.of("test1")), Tuples.of(456, MessageSpec.of("test2")),
-				Tuples.of(789, MessageSpec.of("test3")));
-		StepVerifier.create(reactiveSender.sendManyCorrelated(keysAndMessageSpecs))
-				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(123, messageIds.get(0))))
-				.assertNext((next) -> assertThat(next).isEqualTo(Tuples.of(456, messageIds.get(1))))
-				.expectErrorSatisfies(
-						(throwable) -> assertThat(throwable).isInstanceOf(CorrelatedMessageSendingException.class)
-								.extracting(CorrelatedMessageSendingException.class::cast)
-								.satisfies((cme) -> assertThat(cme.getCorrelationKey(Integer.class)).isEqualTo(789)))
-				.verify();
+		MessageSpec<String> messageSpec1 = MessageSpec.of("test1");
+		Flux<MessageSpec<String>> keysAndMessageSpecs = Flux.just(messageSpec1,
+				MessageSpec.builder("test2").correlationMetadata(456).build(),
+				MessageSpec.builder("test3").correlationMetadata(789).build());
+		StepVerifier.create(reactiveSender.sendMany(keysAndMessageSpecs)).assertNext((next) -> {
+			assertThat(next.getMessageId()).isEqualTo(messageIds.get(0));
+			assertThat(next.getMessageSpec()).isEqualTo(messageSpec1);
+		}).assertNext((next) -> {
+			assertThat(next.getMessageId()).isEqualTo(messageIds.get(1));
+			assertThat((int) next.getCorrelationMetadata()).isEqualTo(456);
+		}).expectErrorSatisfies((throwable) -> assertThat(throwable).isInstanceOf(ReactiveMessageSendingException.class)
+				.extracting(ReactiveMessageSendingException.class::cast)
+				.satisfies((cme) -> assertThat((int) cme.getCorrelationMetadata()).isEqualTo(789))).verify();
 	}
 
 	@ParameterizedTest
@@ -470,8 +472,10 @@ class AdaptedReactiveMessageSenderTest {
 	@ParameterizedTest
 	@CsvSource({ "7,100", "13,100", "37,500", "51,1000" })
 	void maxInFlightUsingSendMany(int maxInflight, int maxElements) throws Exception {
-		doTestMaxInFlight((reactiveSender, inputFlux) -> inputFlux.window(3).flatMap(
-				(subFlux) -> subFlux.map((i) -> MessageSpec.of(String.valueOf(i))).as(reactiveSender::sendMany), 100),
+		doTestMaxInFlight(
+				(reactiveSender, inputFlux) -> inputFlux.window(3)
+						.flatMap((subFlux) -> subFlux.map((i) -> MessageSpec.of(String.valueOf(i)))
+								.as(reactiveSender::sendMany).map(MessageSendResult::getMessageId), 100),
 				maxInflight, maxElements);
 	}
 
