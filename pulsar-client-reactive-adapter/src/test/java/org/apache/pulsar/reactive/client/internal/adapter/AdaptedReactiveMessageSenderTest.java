@@ -268,10 +268,10 @@ class AdaptedReactiveMessageSenderTest {
 				MessageSpec.builder("test2").correlationMetadata("my-context").build());
 		StepVerifier.create(reactiveSender.sendMany(messageSpecs))
 				.assertNext((next) -> assertThat(next.getMessageId()).isEqualTo(messageIds.get(0)))
-				.expectErrorSatisfies(
-						(throwable) -> assertThat(throwable).isInstanceOf(ReactiveMessageSendingException.class)
-								.extracting(ReactiveMessageSendingException.class::cast)
-								.satisfies((cme) -> assertThat(cme.toString()).contains("correlation id={my-context}")))
+				.expectErrorSatisfies((throwable) -> assertThat(throwable)
+						.isInstanceOf(ReactiveMessageSendingException.class)
+						.extracting(ReactiveMessageSendingException.class::cast)
+						.satisfies((cme) -> assertThat(cme.toString()).contains("correlation metadata={my-context}")))
 				.verify();
 	}
 
