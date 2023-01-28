@@ -63,6 +63,7 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSendingException;
 import org.apache.pulsar.reactive.client.internal.api.InternalMessageSpec;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -232,7 +233,7 @@ class AdaptedReactiveMessageSenderTest {
 	}
 
 	@Test
-	void sendManyErrorShowsInputInMessage() throws Exception {
+	void sendManyStopOnError() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 
@@ -262,17 +263,17 @@ class AdaptedReactiveMessageSenderTest {
 				eq(Schema.STRING), isNull());
 
 		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.STRING).topic("my-topic").build();
+				.messageSender(Schema.STRING).topic("my-topic").stopOnError(true).build();
 
-		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"),
-				MessageSpec.builder("test2").correlationMetadata("my-context").build());
+		MessageSpec<String> failingMessage = MessageSpec.builder("test2").correlationMetadata("my-context").build();
+		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"), failingMessage);
 		StepVerifier.create(reactiveSender.sendMany(messageSpecs))
 				.assertNext((next) -> assertThat(next.getMessageId()).isEqualTo(messageIds.get(0)))
-				.expectErrorSatisfies((throwable) -> assertThat(throwable)
-						.isInstanceOf(ReactiveMessageSendingException.class)
-						.extracting(ReactiveMessageSendingException.class::cast)
-						.satisfies((cme) -> assertThat(cme.toString()).contains("correlation metadata={my-context}")))
-				.verify();
+				.verifyErrorSatisfies((throwable) -> assertThat(throwable)
+						.asInstanceOf(InstanceOfAssertFactories.type(ReactiveMessageSendingException.class))
+						.satisfies((cme) -> assertThat(cme.getMessageSpec()).isSameAs(failingMessage))
+						.satisfies((cme) -> assertThat((String) cme.getCorrelationMetadata()).isEqualTo("my-context"))
+						.satisfies((cme) -> assertThat(cme.toString()).contains("correlation metadata={my-context}")));
 	}
 
 	@Test
@@ -315,12 +316,16 @@ class AdaptedReactiveMessageSenderTest {
 		StepVerifier.create(reactiveSender.sendMany(keysAndMessageSpecs)).assertNext((next) -> {
 			assertThat(next.getMessageId()).isEqualTo(messageIds.get(0));
 			assertThat(next.getMessageSpec()).isEqualTo(messageSpec1);
+			assertThat(next.getException()).isNull();
 		}).assertNext((next) -> {
 			assertThat(next.getMessageId()).isEqualTo(messageIds.get(1));
 			assertThat((int) next.getCorrelationMetadata()).isEqualTo(456);
-		}).expectErrorSatisfies((throwable) -> assertThat(throwable).isInstanceOf(ReactiveMessageSendingException.class)
-				.extracting(ReactiveMessageSendingException.class::cast)
-				.satisfies((cme) -> assertThat((int) cme.getCorrelationMetadata()).isEqualTo(789))).verify();
+			assertThat(next.getException()).isNull();
+		}).assertNext((next) -> {
+			assertThat(next.getMessageId()).isNull();
+			assertThat((int) next.getCorrelationMetadata()).isEqualTo(789);
+			assertThat(next.getException()).isInstanceOf(ProducerQueueIsFullError.class);
+		}).verifyComplete();
 	}
 
 	@ParameterizedTest

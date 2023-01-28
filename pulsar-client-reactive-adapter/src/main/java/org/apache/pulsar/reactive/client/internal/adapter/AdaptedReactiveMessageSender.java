@@ -56,9 +56,12 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	private final Object producerActionTransformerKey;
 
+	private final boolean stopOnError;
+
 	AdaptedReactiveMessageSender(Schema<T> schema, ReactiveMessageSenderSpec senderSpec, int maxConcurrency,
 			ReactiveProducerAdapterFactory reactiveProducerAdapterFactory, ProducerCache producerCache,
-			Supplier<PublisherTransformer> producerActionTransformer, Object producerActionTransformerKey) {
+			Supplier<PublisherTransformer> producerActionTransformer, Object producerActionTransformerKey,
+			boolean stopOnError) {
 		this.schema = schema;
 		this.senderSpec = senderSpec;
 		this.maxConcurrency = maxConcurrency;
@@ -66,6 +69,7 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 		this.producerCache = producerCache;
 		this.producerActionTransformer = producerActionTransformer;
 		this.producerActionTransformerKey = producerActionTransformerKey;
+		this.stopOnError = stopOnError;
 	}
 
 	ReactiveProducerAdapter<T> createReactiveProducerAdapter() {
@@ -192,10 +196,19 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 				.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
 	}
 
-	private Mono<MessageId> createMessageMonoWrapped(MessageSpec<T> messageSpec, Producer<T> producer,
+	private Mono<MessageSendResult<T>> createMessageSendResult(MessageSpec<T> messageSpec, Producer<T> producer,
 			PublisherTransformer transformer) {
-		return createMessageMono(messageSpec, producer, transformer)
-				.onErrorResume((throwable) -> Mono.error(new ReactiveMessageSendingException(throwable, messageSpec)));
+		Mono<MessageSendResult<T>> result = createMessageMono(messageSpec, producer, transformer)
+				.map((messageId) -> new MessageSendResult<>(messageId, messageSpec, null));
+
+		if (this.stopOnError) {
+			return result.onErrorResume(
+					(throwable) -> Mono.error(new ReactiveMessageSendingException(throwable, messageSpec)));
+		}
+		else {
+			return result
+					.onErrorResume((throwable) -> Mono.just(new MessageSendResult<>(null, messageSpec, throwable)));
+		}
 	}
 
 	private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer,
@@ -209,10 +222,8 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 	@Override
 	public Flux<MessageSendResult<T>> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
-		return createReactiveProducerAdapter()
-				.usingProducerMany((producer, transformer) -> Flux.from(messageSpecs).flatMapSequential(
-						(messageSpec) -> createMessageMonoWrapped(messageSpec, producer, transformer)
-								.map((messageId) -> new MessageSendResult<>(messageId, messageSpec)),
+		return createReactiveProducerAdapter().usingProducerMany((producer, transformer) -> Flux.from(messageSpecs)
+				.flatMapSequential((messageSpec) -> createMessageSendResult(messageSpec, producer, transformer),
 						this.maxConcurrency));
 	}
 

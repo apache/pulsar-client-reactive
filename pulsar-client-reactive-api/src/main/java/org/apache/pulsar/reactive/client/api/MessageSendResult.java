@@ -35,14 +35,18 @@ public class MessageSendResult<T> {
 
 	private final MessageSpec<T> messageSpec;
 
+	private final Throwable exception;
+
 	/**
 	 * Creates a new instance.
 	 * @param messageId the ID assigned to the message
 	 * @param messageSpec the message spec that was sent
+	 * @param exception the exception if any
 	 */
-	public MessageSendResult(MessageId messageId, MessageSpec<T> messageSpec) {
+	public MessageSendResult(MessageId messageId, MessageSpec<T> messageSpec, Throwable exception) {
 		this.messageId = messageId;
 		this.messageSpec = messageSpec;
+		this.exception = exception;
 	}
 
 	/**
@@ -59,6 +63,14 @@ public class MessageSendResult<T> {
 	 */
 	public MessageSpec<T> getMessageSpec() {
 		return this.messageSpec;
+	}
+
+	/**
+	 * Gets the exception if any.
+	 * @return the exception if any
+	 */
+	public Throwable getException() {
+		return this.exception;
 	}
 
 	/**

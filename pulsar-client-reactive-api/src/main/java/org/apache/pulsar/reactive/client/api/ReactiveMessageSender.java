@@ -44,10 +44,7 @@ public interface ReactiveMessageSender<T> {
 	 * message ID of the message sent and of the original message spec that was sent. A
 	 * {@code correlationMetadata} can be attached to a {@link MessageSpec} and retrieved
 	 * with {@link MessageSendResult#getCorrelationMetadata()} to correlate the messages
-	 * sent with the results. A send error will terminate the returned Flux with an error
-	 * that is wrapped in a {@link ReactiveMessageSendingException} where the
-	 * {@link ReactiveMessageSendingException#getMessageSpec()} method will return the
-	 * MessageSpec sent as input.
+	 * sent with the results.
 	 * @param messageSpecs the specs of the messages to send
 	 * @return a publisher that will emit a {@link MessageSendResult} per message
 	 * successfully sent in the order that they have been sent

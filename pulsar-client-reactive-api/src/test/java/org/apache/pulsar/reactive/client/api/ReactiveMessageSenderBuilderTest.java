@@ -170,6 +170,11 @@ class ReactiveMessageSenderBuilderTest {
 		}
 
 		@Override
+		public ReactiveMessageSenderBuilder<String> stopOnError(boolean stopOnError) {
+			return null;
+		}
+
+		@Override
 		public ReactiveMessageSenderBuilder<String> clone() {
 			return null;
 		}

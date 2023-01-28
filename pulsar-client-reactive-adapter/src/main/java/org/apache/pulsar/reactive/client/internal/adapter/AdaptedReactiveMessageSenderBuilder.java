@@ -49,6 +49,8 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
 	private int maxConcurrentSenderSubscriptions = InflightLimiter.DEFAULT_MAX_PENDING_SUBSCRIPTIONS;
 
+	private boolean stopOnError = false;
+
 	private Supplier<PublisherTransformer> producerActionTransformer = PublisherTransformer::identity;
 
 	AdaptedReactiveMessageSenderBuilder(Schema<T> schema,
@@ -88,6 +90,12 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 	}
 
 	@Override
+	public ReactiveMessageSenderBuilder<T> stopOnError(boolean stopOnError) {
+		this.stopOnError = stopOnError;
+		return this;
+	}
+
+	@Override
 	public ReactiveMessageSenderBuilder<T> clone() {
 		AdaptedReactiveMessageSenderBuilder<T> cloned = new AdaptedReactiveMessageSenderBuilder<>(this.schema,
 				this.reactiveProducerAdapterFactory, new MutableReactiveMessageSenderSpec(this.senderSpec));
@@ -95,6 +103,7 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 		cloned.maxInflight = this.maxInflight;
 		cloned.maxConcurrentSenderSubscriptions = this.maxConcurrentSenderSubscriptions;
 		cloned.producerActionTransformer = this.producerActionTransformer;
+		cloned.stopOnError = this.stopOnError;
 		return cloned;
 	}
 
@@ -113,7 +122,7 @@ class AdaptedReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 		}
 		return new AdaptedReactiveMessageSender<>(this.schema, this.senderSpec, resolveMaxConcurrency(),
 				this.reactiveProducerAdapterFactory, (ProducerCache) this.producerCache, this.producerActionTransformer,
-				producerActionTransformerKey);
+				producerActionTransformerKey, this.stopOnError);
 	}
 
 	private int resolveMaxConcurrency() {
