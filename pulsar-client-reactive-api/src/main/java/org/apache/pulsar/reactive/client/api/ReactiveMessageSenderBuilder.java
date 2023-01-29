@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.HashingScheme;
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
@@ -70,6 +71,18 @@ public interface ReactiveMessageSenderBuilder<T> {
 	 * @return the sender builder instance
 	 */
 	ReactiveMessageSenderBuilder<T> maxConcurrentSenderSubscriptions(int maxConcurrentSenderSubscriptions);
+
+	/**
+	 * Sets whether an error when sending an individual message of the
+	 * {@link ReactiveMessageSender#sendMany(Publisher)} operation should stop the full
+	 * stream or not. (default: false). If true, the original error is wrapped in a
+	 * {@link ReactiveMessageSendingException} and propagated downstream. If false, a
+	 * {@link MessageSendResult} is returned with the exception put in the
+	 * {@code Exception} field and a {@code null} {@link MessageId} field.
+	 * @param stopOnError true if the send stream should stop on error, false otherwise.
+	 * @return the sender builder instance
+	 */
+	ReactiveMessageSenderBuilder<T> stopOnError(boolean stopOnError);
 
 	/**
 	 * Creates and returns a copy of this reactive sender builder.
