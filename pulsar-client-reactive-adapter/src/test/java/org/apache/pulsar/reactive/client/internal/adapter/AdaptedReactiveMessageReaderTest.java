@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.Schema;
@@ -126,6 +127,29 @@ class AdaptedReactiveMessageReaderTest {
 		StepVerifier.create(reactiveReader.readMany()).expectNext(message1).expectNext(message2).verifyComplete();
 
 		verify(reader, times(2)).readNextAsync();
+	}
+
+	@Test
+	void readPulsarException() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		Reader<String> reader = mock(Reader.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(reader).closeAsync();
+		doReturn(CompletableFuture.completedFuture(true)).when(reader).hasMessageAvailableAsync();
+
+		CompletableFuture<String> failedFuture = new CompletableFuture<>();
+		failedFuture.completeExceptionally(new PulsarClientException.InvalidMessageException("test"));
+		doReturn(failedFuture).when(reader).readNextAsync();
+
+		doReturn(CompletableFuture.completedFuture(reader)).when(pulsarClient).createReaderAsync(any(),
+				eq(Schema.STRING));
+
+		ReactiveMessageReader<String> reactiveReader = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageReader(Schema.STRING).topic("my-topic").build();
+
+		StepVerifier.create(reactiveReader.readOne()).verifyError(PulsarClientException.InvalidMessageException.class);
+		StepVerifier.create(reactiveReader.readMany()).verifyError(PulsarClientException.InvalidMessageException.class);
 	}
 
 	@Test

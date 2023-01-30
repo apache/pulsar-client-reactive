@@ -69,8 +69,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -169,7 +167,7 @@ class AdaptedReactiveMessageSenderTest {
 	}
 
 	@Test
-	void sendOneErrorDoesntUseCorrelatedMessageSendingException() throws Exception {
+	void sendOnePulsarException() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 
@@ -197,39 +195,6 @@ class AdaptedReactiveMessageSenderTest {
 				// the original exception should be returned without wrapping it in
 				// ReactiveMessageSendingException
 				.expectError(ProducerQueueIsFullError.class).verify();
-	}
-
-	@Test
-	void sendMany() throws Exception {
-		PulsarClientImpl pulsarClient = spy(
-				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
-
-		ProducerBase<String> producer = mock(ProducerBase.class);
-		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
-		TypedMessageBuilderImpl<String> typedMessageBuilder1 = spy(
-				new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder1).sendAsync();
-		TypedMessageBuilderImpl<String> typedMessageBuilder2 = spy(
-				new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-		doReturn(CompletableFuture.completedFuture(MessageId.latest)).when(typedMessageBuilder2).sendAsync();
-
-		doReturn(typedMessageBuilder1, typedMessageBuilder2).when(producer).newMessage();
-		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
-				eq(Schema.STRING), isNull());
-
-		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.STRING).topic("my-topic").build();
-
-		Flux<MessageSpec<String>> messageSpecs = Flux.just(MessageSpec.of("test1"), MessageSpec.of("test2"));
-		StepVerifier.create(reactiveSender.sendMany(messageSpecs).map(MessageSendResult::getMessageId))
-				.expectNext(MessageId.earliest).expectNext(MessageId.latest).verifyComplete();
-
-		verify(pulsarClient).createProducerAsync(any(), any(), isNull());
-		InOrder inOrder = Mockito.inOrder(typedMessageBuilder1, typedMessageBuilder2);
-		inOrder.verify(typedMessageBuilder1).value("test1");
-		inOrder.verify(typedMessageBuilder1).sendAsync();
-		inOrder.verify(typedMessageBuilder2).value("test2");
-		inOrder.verify(typedMessageBuilder2).sendAsync();
 	}
 
 	@Test
@@ -271,13 +236,15 @@ class AdaptedReactiveMessageSenderTest {
 				.assertNext((next) -> assertThat(next.getMessageId()).isEqualTo(messageIds.get(0)))
 				.verifyErrorSatisfies((throwable) -> assertThat(throwable)
 						.asInstanceOf(InstanceOfAssertFactories.type(ReactiveMessageSendingException.class))
-						.satisfies((cme) -> assertThat(cme.getMessageSpec()).isSameAs(failingMessage))
-						.satisfies((cme) -> assertThat((String) cme.getCorrelationMetadata()).isEqualTo("my-context"))
-						.satisfies((cme) -> assertThat(cme.toString()).contains("correlation metadata={my-context}")));
+						.satisfies((rmse) -> assertThat(rmse.getCause()).isInstanceOf(ProducerQueueIsFullError.class))
+						.satisfies((rmse) -> assertThat(rmse.getMessageSpec()).isSameAs(failingMessage))
+						.satisfies((rmse) -> assertThat((String) rmse.getCorrelationMetadata()).isEqualTo("my-context"))
+						.satisfies(
+								(rmse) -> assertThat(rmse.toString()).contains("correlation metadata={my-context}")));
 	}
 
 	@Test
-	void sendManyCorrelated() throws Exception {
+	void sendMany() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 

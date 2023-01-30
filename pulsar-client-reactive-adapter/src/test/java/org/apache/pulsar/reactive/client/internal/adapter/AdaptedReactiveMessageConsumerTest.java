@@ -39,6 +39,7 @@ import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
@@ -325,6 +326,32 @@ class AdaptedReactiveMessageConsumerTest {
 		verify(consumer, times(3)).receiveAsync();
 		verify(consumer).acknowledgeAsync(eq(MessageId.earliest));
 		verify(consumer).acknowledgeAsync(eq(MessageId.latest));
+	}
+
+	@Test
+	void consumePulsarException() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		Consumer<String> consumer = mock(Consumer.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(consumer).closeAsync();
+
+		CompletableFuture<String> failedFuture = new CompletableFuture<>();
+		failedFuture.completeExceptionally(new PulsarClientException.InvalidMessageException("test"));
+		doReturn(failedFuture).when(consumer).receiveAsync();
+
+		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
+				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+
+		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub").build();
+
+		StepVerifier.create(reactiveConsumer.consumeOne((message) -> Mono.just(MessageResult.acknowledge(message))))
+				.verifyError(PulsarClientException.InvalidMessageException.class);
+
+		StepVerifier
+				.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn)))
+				.verifyError(PulsarClientException.InvalidMessageException.class);
 	}
 
 }
