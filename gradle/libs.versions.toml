@@ -27,6 +27,7 @@ testcontainers = "1.17.3"
 jctools = "3.3.0"
 caffeine = "2.9.3"
 jackson = "2.13.4"
+mutiny = "1.9.0"
 checkstyle = '8.45.1'
 spring-javaformat = '0.0.34'
 licenser = "0.6.1"
@@ -51,6 +52,7 @@ jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+mutiny = { module = "io.smallrye.reactive:mutiny", version.ref = "mutiny" }
 spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "spring-javaformat" }
 spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
 licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }

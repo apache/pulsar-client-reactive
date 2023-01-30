@@ -17,10 +17,18 @@
  * under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-mutiny'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+plugins {
+	id 'pulsar-client-reactive.codestyle-conventions'
+	id 'pulsar-client-reactive.library-conventions'
+}
+
+dependencies {
+	api project(':pulsar-client-reactive-adapter')
+	api libs.mutiny
+
+	testImplementation libs.junit.jupiter
+	testImplementation libs.assertj.core
+}
+
+description = "Wrappers for Mutiny"
 
