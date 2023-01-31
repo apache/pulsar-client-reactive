@@ -26,8 +26,15 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageResult;
+import org.apache.pulsar.reactive.client.api.MutableReactiveMessageConsumerSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumerBuilder;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageReaderBuilder;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
+import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.mutiny.api.MutinyMessageConsumer;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -36,9 +43,9 @@ import reactor.core.publisher.Mono;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for {@link MutinyConsumer}.
+ * Unit tests for {@link MutinyMessageConsumer}.
  */
-class MutinyConsumerTest {
+class MutinyMessageConsumerTest {
 
 	@Test
 	void consumeOne() throws Exception {
@@ -60,7 +67,7 @@ class MutinyConsumerTest {
 			}
 		};
 
-		MutinyConsumer<String> mutinyConsumer = new MutinyConsumer<>(consumer);
+		MutinyMessageConsumer<String> mutinyConsumer = createMutinyMessageConsumer(consumer);
 		Function<Message<String>, Uni<MessageResult<Integer>>> handler = (message) -> Uni.createFrom()
 				.item(MessageResult.acknowledge(message.getMessageId(), message.getValue().length()));
 		Uni<Integer> message = mutinyConsumer.consumeOne(handler);
@@ -88,14 +95,52 @@ class MutinyConsumerTest {
 			}
 		};
 
-		MutinyConsumer<String> mutinyConsumer = new MutinyConsumer<>(consumer);
+		MutinyMessageConsumer<String> mutinyConsumer = createMutinyMessageConsumer(consumer);
 		Function<Multi<Message<String>>, Publisher<MessageResult<Integer>>> handler = (messages) -> messages
 				.map((message) -> MessageResult.acknowledge(message.getMessageId(),
 						Integer.valueOf(message.getValue().split("-")[2])));
 		Multi<Integer> messages = mutinyConsumer.consumeMany(handler);
 		messages.subscribe().withSubscriber(new AssertSubscriber<>(10)).assertItems(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 				.assertCompleted();
+	}
 
+	private static MutinyMessageConsumer<String> createMutinyMessageConsumer(ReactiveMessageConsumer<String> consumer) {
+		ReactiveMessageConsumerBuilder<String> consumerBuilder = new ReactiveMessageConsumerBuilder<String>() {
+			@Override
+			public MutableReactiveMessageConsumerSpec getMutableSpec() {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageConsumerBuilder<String> clone() {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageConsumer<String> build() {
+				return consumer;
+			}
+		};
+
+		ReactivePulsarClient reactiveClient = new ReactivePulsarClient() {
+
+			@Override
+			public <T> ReactiveMessageSenderBuilder<T> messageSender(Schema<T> schema) {
+				return null;
+			}
+
+			@Override
+			public <T> ReactiveMessageReaderBuilder<T> messageReader(Schema<T> schema) {
+				return null;
+			}
+
+			@Override
+			public <T> ReactiveMessageConsumerBuilder<T> messageConsumer(Schema<T> schema) {
+				return (ReactiveMessageConsumerBuilder<T>) consumerBuilder;
+			}
+		};
+
+		return MutinyPulsarClientFactory.create(reactiveClient).messageConsumer(Schema.STRING).build();
 	}
 
 }

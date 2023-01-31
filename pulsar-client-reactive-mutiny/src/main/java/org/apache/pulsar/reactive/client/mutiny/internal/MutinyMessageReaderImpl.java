@@ -17,42 +17,40 @@
  * under the License.
  */
 
-package org.apache.pulsar.reactive.client.mutiny;
+package org.apache.pulsar.reactive.client.mutiny.internal;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageReader;
+import org.apache.pulsar.reactive.client.mutiny.api.MutinyMessageReader;
 
 /**
- * A Mutiny wrapper for a {@link ReactiveMessageReader}.
+ * A Mutiny reader implementation wrapping a {@link ReactiveMessageReader}.
+ *
+ * @param <T> the type of the messages
  */
-public class MutinyReader<T> {
+class MutinyMessageReaderImpl<T> implements MutinyMessageReader<T> {
 
 	private final ReactiveMessageReader<T> reader;
 
 	/**
-	 * Create a new {@link MutinyReader} wrapping the given {@link ReactiveMessageReader}.
+	 * Create a new {@link MutinyMessageReaderImpl} wrapping the given
+	 * {@link ReactiveMessageReader}.
 	 * @param reader the reader to wrap
 	 */
-	public MutinyReader(ReactiveMessageReader<T> reader) {
+	MutinyMessageReaderImpl(ReactiveMessageReader<T> reader) {
 		this.reader = reader;
 	}
 
-	/**
-	 * Read one message.
-	 * @return the message read
-	 */
+	@Override
 	public Uni<Message<T>> readOne() {
-		return Uni.createFrom().publisher(this.reader.readOne());
+		return this.reader.readOne().as(Uni.createFrom()::publisher);
 	}
 
-	/**
-	 * Read messages continuously.
-	 * @return the messages read
-	 */
+	@Override
 	public Multi<Message<T>> readMany() {
-		return Multi.createFrom().publisher(this.reader.readMany());
+		return this.reader.readMany().as(Multi.createFrom()::publisher);
 	}
 
 }

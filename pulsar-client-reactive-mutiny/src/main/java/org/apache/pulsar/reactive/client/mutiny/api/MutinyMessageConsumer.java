@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.pulsar.reactive.client.mutiny;
+package org.apache.pulsar.reactive.client.mutiny.api;
 
 import java.util.function.Function;
 
@@ -25,24 +25,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.reactive.client.api.MessageResult;
-import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumer;
 import org.reactivestreams.Publisher;
 
 /**
- * A Mutiny wrapper for a {@link ReactiveMessageConsumer}.
+ * Mutiny message consumer interface.
+ *
+ * @param <T> the message payload type
  */
-public class MutinyConsumer<T> {
-
-	private final ReactiveMessageConsumer<T> consumer;
-
-	/**
-	 * Create a new {@link MutinyConsumer} wrapping the given
-	 * {@link ReactiveMessageConsumer}.
-	 * @param consumer the consumer to wrap
-	 */
-	public MutinyConsumer(ReactiveMessageConsumer<T> consumer) {
-		this.consumer = consumer;
-	}
+public interface MutinyMessageConsumer<T> {
 
 	/**
 	 * Consumes one message.
@@ -54,9 +44,7 @@ public class MutinyConsumer<T> {
 	 * @return the value contained by the {@link MessageResult} returned by the message
 	 * handler
 	 */
-	public <R> Uni<R> consumeOne(Function<Message<T>, Uni<MessageResult<R>>> messageHandler) {
-		return Uni.createFrom().publisher(this.consumer.consumeOne((m) -> messageHandler.apply(m).toMulti()));
-	}
+	<R> Uni<R> consumeOne(Function<Message<T>, Uni<MessageResult<R>>> messageHandler);
 
 	/**
 	 * Consumes messages continuously.
@@ -68,9 +56,6 @@ public class MutinyConsumer<T> {
 	 * @return the values contained by the {@link MessageResult}s returned by the message
 	 * handler
 	 */
-	public <R> Multi<R> consumeMany(Function<Multi<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
-		return Multi.createFrom()
-				.publisher(this.consumer.consumeMany((m) -> messageHandler.apply(Multi.createFrom().publisher(m))));
-	}
+	<R> Multi<R> consumeMany(Function<Multi<Message<T>>, Publisher<MessageResult<R>>> messageHandler);
 
 }

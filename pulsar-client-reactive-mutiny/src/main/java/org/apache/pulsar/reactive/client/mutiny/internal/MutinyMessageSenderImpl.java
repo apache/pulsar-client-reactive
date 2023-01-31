@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.pulsar.reactive.client.mutiny;
+package org.apache.pulsar.reactive.client.mutiny.internal;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -25,45 +25,35 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.reactive.client.api.MessageSendResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
+import org.apache.pulsar.reactive.client.mutiny.api.MutinyMessageSender;
 import org.reactivestreams.Publisher;
 
 /**
- * A Mutiny wrapper for a {@link ReactiveMessageSender}.
+ * A Mutiny sender implementation wrapping a {@link ReactiveMessageSender}.
+ *
+ * @param <T> the type of the messages
  */
-public class MutinySender<T> {
+class MutinyMessageSenderImpl<T> implements MutinyMessageSender<T> {
 
 	private final ReactiveMessageSender<T> sender;
 
 	/**
-	 * Create a new {@link MutinySender} wrapping the given {@link ReactiveMessageSender}.
+	 * Create a new {@link MutinyMessageSenderImpl} wrapping the given
+	 * {@link ReactiveMessageSender}.
 	 * @param sender the sender to wrap
 	 */
-	public MutinySender(ReactiveMessageSender<T> sender) {
+	MutinyMessageSenderImpl(ReactiveMessageSender<T> sender) {
 		this.sender = sender;
 	}
 
-	/**
-	 * Send one message.
-	 * @param messageSpec the spec of the message to send
-	 * @return a publisher that will emit one message id and complete
-	 */
+	@Override
 	public Uni<MessageId> sendOne(MessageSpec<T> messageSpec) {
-		return Uni.createFrom().publisher(this.sender.sendOne(messageSpec));
+		return this.sender.sendOne(messageSpec).as(Uni.createFrom()::publisher);
 	}
 
-	/**
-	 * Send multiple messages and get the sending results in the same order as the
-	 * messages sent. The results are {@link MessageSendResult} objects composed of the
-	 * message ID of the message sent and of the original message spec that was sent. A
-	 * {@code correlationMetadata} can be attached to a {@link MessageSpec} and retrieved
-	 * with {@link MessageSendResult#getCorrelationMetadata()} to correlate the messages
-	 * sent with the results.
-	 * @param messageSpecs the specs of the messages to send
-	 * @return a publisher that will emit a {@link MessageSendResult} per message
-	 * successfully sent in the order that they have been sent
-	 */
+	@Override
 	public Multi<MessageSendResult<T>> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
-		return Multi.createFrom().publisher(this.sender.sendMany(messageSpecs));
+		return this.sender.sendMany(messageSpecs).as(Multi.createFrom()::publisher);
 	}
 
 }

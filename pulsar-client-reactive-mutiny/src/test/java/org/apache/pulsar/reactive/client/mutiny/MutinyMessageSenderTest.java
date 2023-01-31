@@ -23,9 +23,17 @@ import java.util.concurrent.TimeUnit;
 
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.reactive.client.api.MessageSendResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
+import org.apache.pulsar.reactive.client.api.MutableReactiveMessageSenderSpec;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageConsumerBuilder;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageReaderBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderBuilder;
+import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
+import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.mutiny.api.MutinyMessageSender;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -34,9 +42,9 @@ import reactor.core.publisher.Mono;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for {@link MutinySender}.
+ * Unit tests for {@link MutinyMessageSender}.
  */
-class MutinySenderTest {
+class MutinyMessageSenderTest {
 
 	@Test
 	void sendOne() throws Exception {
@@ -54,7 +62,7 @@ class MutinySenderTest {
 				throw new UnsupportedOperationException("should not be called");
 			}
 		};
-		MutinySender<String> mutinySender = new MutinySender<>(sender);
+		MutinyMessageSender<String> mutinySender = createMutinyMessageSender(sender);
 		MessageId messageId = mutinySender.sendOne(MessageSpec.builder("test").correlationMetadata("test").build())
 				.subscribeAsCompletionStage().get(5, TimeUnit.SECONDS);
 		assertThat(messageId).isEqualTo(MessageId.earliest);
@@ -74,13 +82,74 @@ class MutinySenderTest {
 						.map((messageSpec) -> new MessageSendResult<>(MessageId.earliest, messageSpec, null));
 			}
 		};
-		MutinySender<String> mutinySender = new MutinySender<>(sender);
+		MutinyMessageSender<String> mutinySender = createMutinyMessageSender(sender);
 
 		MessageSpec<String> message1 = MessageSpec.of("test1");
 		MessageSpec<String> message2 = MessageSpec.of("test2");
 		Flux<MessageSpec<String>> messageSpecs = Flux.just(message1, message2);
 		mutinySender.sendMany(messageSpecs).map(MessageSendResult::getMessageSpec).subscribe()
 				.withSubscriber(new AssertSubscriber<>(2)).assertCompleted().assertItems(message1, message2);
+	}
+
+	private static MutinyMessageSender<String> createMutinyMessageSender(ReactiveMessageSender<String> sender) {
+		ReactiveMessageSenderBuilder<String> senderBuilder = new ReactiveMessageSenderBuilder<String>() {
+
+			@Override
+			public MutableReactiveMessageSenderSpec getMutableSpec() {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSenderBuilder<String> cache(ReactiveMessageSenderCache producerCache) {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSenderBuilder<String> maxInflight(int maxInflight) {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSenderBuilder<String> maxConcurrentSenderSubscriptions(
+					int maxConcurrentSenderSubscriptions) {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSenderBuilder<String> stopOnError(boolean stopOnError) {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSenderBuilder<String> clone() {
+				return null;
+			}
+
+			@Override
+			public ReactiveMessageSender<String> build() {
+				return sender;
+			}
+		};
+
+		ReactivePulsarClient reactiveClient = new ReactivePulsarClient() {
+
+			@Override
+			public <T> ReactiveMessageSenderBuilder<T> messageSender(Schema<T> schema) {
+				return (ReactiveMessageSenderBuilder<T>) senderBuilder;
+			}
+
+			@Override
+			public <T> ReactiveMessageReaderBuilder<T> messageReader(Schema<T> schema) {
+				return null;
+			}
+
+			@Override
+			public <T> ReactiveMessageConsumerBuilder<T> messageConsumer(Schema<T> schema) {
+				return null;
+			}
+		};
+
+		return MutinyPulsarClientFactory.create(reactiveClient).messageSender(Schema.STRING).build();
 	}
 
 }
