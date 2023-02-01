@@ -57,4 +57,10 @@ public interface MessageSpec<T> {
 		return null;
 	}
 
+	/**
+	 * Gets the value of this message spec.
+	 * @return the value of this message spec
+	 */
+	T getValue();
+
 }

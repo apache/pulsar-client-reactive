@@ -44,4 +44,9 @@ class ValueOnlyMessageSpec<T> implements InternalMessageSpec<T> {
 		return "ValueOnlyMessageSpec{" + "value=" + this.value + '}';
 	}
 
+	@Override
+	public T getValue() {
+		return this.value;
+	}
+
 }
