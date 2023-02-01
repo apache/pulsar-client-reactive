@@ -121,6 +121,11 @@ class DefaultMessageSpec<T> implements InternalMessageSpec<T> {
 	}
 
 	@Override
+	public T getValue() {
+		return this.value;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder().append("DefaultMessageSpec{");
 		stringBuilder.append("value=").append(this.value);
