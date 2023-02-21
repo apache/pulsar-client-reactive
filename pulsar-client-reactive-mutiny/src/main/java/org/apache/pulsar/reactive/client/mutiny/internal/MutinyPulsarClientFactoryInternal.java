@@ -17,10 +17,27 @@
  * under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-mutiny'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.mutiny.internal;
 
+import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
+import org.apache.pulsar.reactive.client.mutiny.api.MutinyPulsarClient;
+
+/**
+ * Internal factory for {@link MutinyPulsarClient}. This class is not intended to be used
+ * by users.
+ */
+public final class MutinyPulsarClientFactoryInternal {
+
+	private MutinyPulsarClientFactoryInternal() {
+	}
+
+	/**
+	 * Create a {@link MutinyPulsarClient} from a {@link ReactivePulsarClient}.
+	 * @param reactiveClient the reactive client
+	 * @return the mutiny client
+	 */
+	public static MutinyPulsarClient create(ReactivePulsarClient reactiveClient) {
+		return new MutinyPulsarClientImpl(reactiveClient);
+	}
+
+}

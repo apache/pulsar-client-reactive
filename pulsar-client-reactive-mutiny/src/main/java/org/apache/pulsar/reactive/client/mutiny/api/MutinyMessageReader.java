@@ -17,10 +17,29 @@
  * under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-mutiny'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.mutiny.api;
 
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
+import org.apache.pulsar.client.api.Message;
+
+/**
+ * Mutiny message reader interface.
+ *
+ * @param <T> the message payload type
+ */
+public interface MutinyMessageReader<T> {
+
+	/**
+	 * Read one message.
+	 * @return the message read
+	 */
+	Uni<Message<T>> readOne();
+
+	/**
+	 * Read messages continuously.
+	 * @return the messages read
+	 */
+	Multi<Message<T>> readMany();
+
+}
