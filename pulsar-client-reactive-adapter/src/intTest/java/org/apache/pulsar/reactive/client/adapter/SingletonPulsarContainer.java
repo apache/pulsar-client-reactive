@@ -19,6 +19,8 @@
 
 package org.apache.pulsar.reactive.client.adapter;
 
+import java.util.Locale;
+
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.testcontainers.containers.PulsarContainer;
@@ -31,9 +33,8 @@ final class SingletonPulsarContainer {
 	}
 
 	/** The singleton instance for Pulsar container. */
-	static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(
-			DockerImageName.parse("apachepulsar/pulsar").withTag("2.11.0"))
-					.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
+	static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(getPulsarImage())
+			.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
 
 	static {
 		PULSAR_CONTAINER.start();
@@ -42,6 +43,24 @@ final class SingletonPulsarContainer {
 	static PulsarClient createPulsarClient() throws PulsarClientException {
 		return PulsarClient.builder().serviceUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getPulsarBrokerUrl())
 				.build();
+	}
+
+	static DockerImageName getPulsarImage() {
+		return isRunningOnMacM1() ? getMacM1PulsarImage() : getStandardPulsarImage();
+	}
+
+	private static boolean isRunningOnMacM1() {
+		String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+		String osArchitecture = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
+		return osName.contains("mac") && osArchitecture.equals("aarch64");
+	}
+
+	private static DockerImageName getStandardPulsarImage() {
+		return DockerImageName.parse("apachepulsar/pulsar:2.11.0");
+	}
+
+	private static DockerImageName getMacM1PulsarImage() {
+		return DockerImageName.parse("kezhenxu94/pulsar").asCompatibleSubstituteFor("apachepulsar/pulsar");
 	}
 
 }
