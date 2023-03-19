@@ -450,12 +450,19 @@ class PulsarReactiveClientModuleTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "parallel", "elastic", "boundedElastic", "immediate", "single" })
+	@ValueSource(strings = { "parallel", "boundedElastic", "immediate", "single" })
 	void shouldSerDeserScheduler(String scheduler) throws Exception {
 		String content = (String.format("\"%s\"", scheduler));
 		Scheduler policy = MAPPER.readValue(content, Scheduler.class);
 		String json = MAPPER.writeValueAsString(policy);
 		assertThat(json).isEqualTo(content);
+	}
+
+	@Test
+	void shouldSerDeserDeprecatedElasticScheduler() throws Exception {
+		Scheduler policy = MAPPER.readValue("\"elastic\"", Scheduler.class);
+		String json = MAPPER.writeValueAsString(policy);
+		assertThat(json).isEqualTo("\"boundedElastic\"");
 	}
 
 	@Test
