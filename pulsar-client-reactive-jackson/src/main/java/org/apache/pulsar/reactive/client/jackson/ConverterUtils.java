@@ -98,9 +98,8 @@ abstract class ConverterUtils {
 			case "single":
 				return Schedulers.single();
 			case "boundedElastic":
-				return Schedulers.boundedElastic();
 			case "elastic":
-				return Schedulers.elastic();
+				return Schedulers.boundedElastic();
 			case "immediate":
 				return Schedulers.immediate();
 			default:
