@@ -37,6 +37,7 @@ dependencies {
 	testImplementation libs.mockito.inline
 
 	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
+	intTestImplementation project(path: ':pulsar-client-reactive-producer-cache-caffeine-shaded', configuration: 'shadow')
 	intTestImplementation libs.junit.jupiter
 	intTestImplementation libs.testcontainers.pulsar
 	intTestImplementation libs.assertj.core

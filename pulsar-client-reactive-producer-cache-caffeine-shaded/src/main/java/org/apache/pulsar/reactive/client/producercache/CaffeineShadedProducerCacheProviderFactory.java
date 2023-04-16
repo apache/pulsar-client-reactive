@@ -17,9 +17,20 @@
  * under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-producer-cache-caffeine-shaded'
-include 'pulsar-client-reactive-jackson'
+package org.apache.pulsar.reactive.client.producercache;
+
+import org.apache.pulsar.reactive.client.adapter.ProducerCacheProvider;
+import org.apache.pulsar.reactive.client.adapter.ProducerCacheProviderFactory;
+
+/**
+ * {@link ProducerCacheProviderFactory} that creates instances of
+ * {@link CaffeineShadedProducerCacheProvider}.
+ */
+public class CaffeineShadedProducerCacheProviderFactory implements ProducerCacheProviderFactory {
+
+	@Override
+	public ProducerCacheProvider get() {
+		return new CaffeineShadedProducerCacheProvider();
+	}
+
+}
