@@ -1,0 +1,84 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+plugins {
+	id 'pulsar-client-reactive.codestyle-conventions'
+	id 'pulsar-client-reactive.library-conventions'
+	id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+dependencies {
+	api project(':pulsar-client-reactive-adapter')
+	implementation libs.caffeine
+	shadow project(':pulsar-client-reactive-adapter')
+	testImplementation libs.junit.jupiter
+	testImplementation libs.assertj.core
+	testImplementation libs.reactor.test
+	testImplementation libs.mockito.core
+}
+
+description = "Caffeine (shaded) implementation of producer cache"
+
+jar {
+	archiveClassifier.set('original')
+}
+
+shadowJar {
+	archiveClassifier.set(null)
+	dependsOn(project.tasks.jar)
+	manifest {
+		inheritFrom project.tasks.jar.manifest
+	}
+	relocate 'com.github.benmanes.caffeine', 'org.springframework.pulsar.shade.com.github.benmanes.caffeine'
+	relocate 'com.google', 'org.springframework.pulsar.shade.com.google'
+	relocate 'org.checkerframework', 'org.springframework.pulsar.shade.org.checkerframework'
+	dependencies {
+		exclude(dependency {
+			!['com.github.ben-manes.caffeine', 'org.checkerframework', 'com.google.errorprone'].contains(it.moduleGroup)
+		})
+	}
+}
+
+tasks.build.dependsOn tasks.shadowJar
+
+// disable module metadata - otherwise original jar will be used when published
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
+
+// delay the maven publishing - instead add shadowJar to the publication
+components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
+	skip()
+}
+
+publishing {
+	publications {
+		mavenJava {
+			artifact(shadowJar)
+			pom.withXml {
+				Node pomNode = asNode()
+				pomNode.dependencies.'*'.findAll() {
+					it.artifactId.text() == 'caffeine'
+				}.each() {
+					it.parent().remove(it)
+				}
+			}
+		}
+	}
+}

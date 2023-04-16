@@ -36,6 +36,7 @@ import org.apache.pulsar.reactive.client.api.ReactiveMessageSenderCache;
 import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
 import org.apache.pulsar.reactive.client.internal.adapter.ConcurrentHashMapProducerCacheProvider;
 import org.apache.pulsar.reactive.client.producercache.CaffeineProducerCacheProvider;
+import org.apache.pulsar.reactive.client.producercache.CaffeineShadedProducerCacheProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -46,12 +47,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReactiveMessageSenderE2ETest {
 
 	private static Stream<Arguments> shouldSendMessageToTopicWithCachedProducer() {
-		return Arrays
-				.asList(Arguments.of("ConcurrentHashMapProducerCacheProvider",
+		return Arrays.asList(
+				Arguments.of("ConcurrentHashMapProducerCacheProvider",
 						AdaptedReactivePulsarClientFactory.createCache(new ConcurrentHashMapProducerCacheProvider())),
-						Arguments.of("Default", AdaptedReactivePulsarClientFactory.createCache()),
-						Arguments.of("CaffeineProducerCacheProvider",
-								AdaptedReactivePulsarClientFactory.createCache(new CaffeineProducerCacheProvider())))
+				Arguments.of("Default", AdaptedReactivePulsarClientFactory.createCache()),
+				Arguments.of("CaffeineProducerCacheProvider",
+						AdaptedReactivePulsarClientFactory.createCache(new CaffeineProducerCacheProvider())),
+				Arguments.of("CaffeineShadedProducerCacheProvider",
+						AdaptedReactivePulsarClientFactory.createCache(new CaffeineShadedProducerCacheProvider())))
 				.stream();
 	}
 

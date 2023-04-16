@@ -80,7 +80,9 @@ messageId.subscribe(System.out::println);
 
 === Sending messages with cached producer
 
-By default a ConcurrentHashMap based cache is used. It's recommended to use a more advanced cache based on Caffeine. The cache will get used as the default implementation when it is on the classpath.
+By default, a ConcurrentHashMap based cache is used.
+It's recommended to use a more advanced cache based on Caffeine.
+The cache will get used as the default implementation when it is on the classpath.
 
 Adding Caffeine based producer cache with Gradle:
 
@@ -126,10 +128,47 @@ Mono<MessageId> messageId = messageSender
 messageId.subscribe(System.out::println);
 ----
 
-It is recommended to use a cached producer in most cases. The cache enables reusing the Pulsar Producer instance and related resources across multiple message sending calls.
+It is recommended to use a cached producer in most cases.
+The cache enables reusing the Pulsar Producer instance and related resources across multiple message sending calls.
 This improves performance since a producer won't have to be created and closed before and after sending a message.
 
-The adapter library implementation together with the cache implementation will also enable reactive backpressure for sending messages. The `maxInflight` setting will limit the number of messages that are pending from the client to the broker. The solution will limit reactive streams subscription requests to keep the number of pending messages under the defined limit. This limit is per-topic and impacts the local JVM only.
+The adapter library implementation together with the cache implementation will also enable reactive backpressure for sending messages.
+The `maxInflight` setting will limit the number of messages that are pending from the client to the broker.
+The solution will limit reactive streams subscription requests to keep the number of pending messages under the defined limit.
+This limit is per-topic and impacts the local JVM only.
+
+=== Shaded version of Caffeine
+A version of the provider is available that shades it usage of Caffeine.
+This is useful in scenarios where there is another version of Caffeine required in your application or if you do not want Caffeine on the classpath.
+
+Adding shaded Caffeine based producer cache with Gradle:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+dependencies {
+    implementation "org.apache.pulsar:pulsar-client-reactive-adapter:{latest_version}"
+    implementation "org.apache.pulsar:pulsar-client-reactive-producer-cache-caffeine-shaded:{latest_version}"
+}
+----
+
+Adding shaded Caffeine based producer cache with Maven:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependencies>
+    <dependency>
+        <groupId>org.apache.pulsar</groupId>
+        <artifactId>pulsar-client-reactive-adapter</artifactId>
+        <version>{latest_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.pulsar</groupId>
+        <artifactId>pulsar-client-reactive-producer-cache-caffeine-shaded</artifactId>
+        <version>{latest_version}</version>
+    </dependency>
+</dependencies>
+----
+
 
 === Reading messages
 
