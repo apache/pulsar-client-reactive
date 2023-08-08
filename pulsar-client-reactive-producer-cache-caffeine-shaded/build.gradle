@@ -45,9 +45,9 @@ shadowJar {
 	manifest {
 		inheritFrom project.tasks.jar.manifest
 	}
-	relocate 'com.github.benmanes.caffeine', 'org.springframework.pulsar.shade.com.github.benmanes.caffeine'
-	relocate 'com.google', 'org.springframework.pulsar.shade.com.google'
-	relocate 'org.checkerframework', 'org.springframework.pulsar.shade.org.checkerframework'
+	relocate 'com.github.benmanes.caffeine', 'org.apache.pulsar.reactive.shade.com.github.benmanes.caffeine'
+	relocate 'com.google', 'org.apache.pulsar.reactive.shade.com.google'
+	relocate 'org.checkerframework', 'org.apache.pulsar.reactive.shade.org.checkerframework'
 	dependencies {
 		exclude(dependency {
 			!['com.github.ben-manes.caffeine', 'org.checkerframework', 'com.google.errorprone'].contains(it.moduleGroup)
