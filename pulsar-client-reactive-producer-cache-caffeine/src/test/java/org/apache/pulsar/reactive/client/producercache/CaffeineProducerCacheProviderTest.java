@@ -32,6 +32,7 @@ import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.ProducerBase;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.TypedMessageBuilderImpl;
+import org.apache.pulsar.client.impl.schema.JSONSchema;
 import org.apache.pulsar.reactive.client.adapter.AdaptedReactivePulsarClientFactory;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
@@ -59,42 +60,17 @@ class CaffeineProducerCacheProviderTest {
 	void cacheProvider(String name, CaffeineProducerCacheProvider cacheProvider) throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
-
-		ProducerBase<String> producer = mock(ProducerBase.class);
-		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
-		doReturn(CompletableFuture.completedFuture(null)).when(producer).flushAsync();
-		doReturn(true).when(producer).isConnected();
-		TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
-				new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder).sendAsync();
-
-		doReturn(typedMessageBuilder).when(producer).newMessage();
-
-		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
-				eq(Schema.STRING), isNull());
-
-		ProducerBase<Integer> producer2 = mock(ProducerBase.class);
-		doReturn(CompletableFuture.completedFuture(null)).when(producer2).closeAsync();
-		doReturn(CompletableFuture.completedFuture(null)).when(producer2).flushAsync();
-		doReturn(true).when(producer2).isConnected();
-		TypedMessageBuilderImpl<Integer> typedMessageBuilder2 = spy(
-				new TypedMessageBuilderImpl<>(producer2, Schema.INT32));
-		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder2).sendAsync();
-
-		doReturn(typedMessageBuilder2).when(producer2).newMessage();
-
-		doReturn(CompletableFuture.completedFuture(producer2)).when(pulsarClient).createProducerAsync(any(),
-				eq(Schema.INT32), isNull());
-
+		setupMockProducerForSchema(Schema.STRING, pulsarClient);
+		setupMockProducerForSchema(Schema.INT32, pulsarClient);
 		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory.createCache(cacheProvider);
 
+		// Send N string messages (should only create producer for string messages once)
 		ReactiveMessageSender<String> sender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.STRING).topic("my-topic").cache(cache).build();
-
+				.messageSender(Schema.STRING).topic("my-topic-str").cache(cache).build();
 		sender.sendOne(MessageSpec.of("a")).then(sender.sendOne(MessageSpec.of("b")))
 				.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany)).blockLast(Duration.ofSeconds(5));
 
-		verify(pulsarClient).createProducerAsync(any(), any(), isNull());
+		verify(pulsarClient, times(1)).createProducerAsync(any(), eq(Schema.STRING), isNull());
 	}
 
 	private static Stream<Arguments> cacheProvider() {
@@ -110,6 +86,38 @@ class CaffeineProducerCacheProviderTest {
 	}
 
 	@Test
+	void complexTypesAreCachedProperly() throws Exception {
+		// Because !Schema.JSON(Foo.class).equals(Schema.JSON(Foo.class))..
+		// Ensure that two separate senders using the same JSON schema type are cached
+		// properly
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+		setupMockProducerForSchema(Schema.JSON(TestMessage.class), pulsarClient);
+		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory
+				.createCache(new CaffeineProducerCacheProvider());
+
+		// Send N JSON messages across 2 senders w/ same schema type (should only create 1
+		// producer)
+		ReactiveMessageSender<TestMessage> jsonSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.JSON(TestMessage.class)).topic("my-topic-json").cache(cache).build();
+
+		ReactiveMessageSender<TestMessage> jsonSender2 = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+				.messageSender(Schema.JSON(TestMessage.class)).topic("my-topic-json").cache(cache).build();
+
+		jsonSender.sendOne(MessageSpec.of(new TestMessage("a")))
+				.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
+				.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
+				.blockLast(Duration.ofSeconds(5));
+
+		jsonSender2.sendOne(MessageSpec.of(new TestMessage("a")))
+				.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
+				.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
+				.blockLast(Duration.ofSeconds(5));
+
+		verify(pulsarClient, times(1)).createProducerAsync(any(), any(JSONSchema.class), isNull());
+	}
+
+	@Test
 	void loadedByServiceLoader() {
 		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory.createCache();
 		assertThat(cache).extracting("cacheProvider").isInstanceOf(CaffeineProducerCacheProvider.class);
@@ -119,48 +127,49 @@ class CaffeineProducerCacheProviderTest {
 	void caffeinePropsAreRespected() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
-
-		ProducerBase<String> producer = mock(ProducerBase.class);
-		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
-		doReturn(CompletableFuture.completedFuture(null)).when(producer).flushAsync();
-		doReturn(true).when(producer).isConnected();
-		TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
-				new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder).sendAsync();
-
-		doReturn(typedMessageBuilder).when(producer).newMessage();
-
-		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
-				eq(Schema.STRING), isNull());
-
-		ProducerBase<Integer> producer2 = mock(ProducerBase.class);
-		doReturn(CompletableFuture.completedFuture(null)).when(producer2).closeAsync();
-		doReturn(CompletableFuture.completedFuture(null)).when(producer2).flushAsync();
-		doReturn(true).when(producer2).isConnected();
-		TypedMessageBuilderImpl<Integer> typedMessageBuilder2 = spy(
-				new TypedMessageBuilderImpl<>(producer2, Schema.INT32));
-		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder2).sendAsync();
-
-		doReturn(typedMessageBuilder2).when(producer2).newMessage();
-
-		doReturn(CompletableFuture.completedFuture(producer2)).when(pulsarClient).createProducerAsync(any(),
-				eq(Schema.INT32), isNull());
+		setupMockProducerForSchema(Schema.STRING, pulsarClient);
+		setupMockProducerForSchema(Schema.INT32, pulsarClient);
 
 		CaffeineProducerCacheProvider cacheProvider = new CaffeineProducerCacheProvider(
 				Caffeine.newBuilder().expireAfterWrite(Duration.ofMillis(100)).maximumSize(100));
 		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory.createCache(cacheProvider);
-
 		ReactiveMessageSender<String> sender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
 				.messageSender(Schema.STRING).topic("my-topic").cache(cache).build();
 
 		sender.sendOne(MessageSpec.of("a")).then(sender.sendOne(MessageSpec.of("b")))
 				.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany)).blockLast(Duration.ofSeconds(5));
-
 		Thread.sleep(101);
-
 		sender.sendOne(MessageSpec.of("d")).block(Duration.ofSeconds(5));
 
 		verify(pulsarClient, times(2)).createProducerAsync(any(), any(), isNull());
+	}
+
+	private <T> void setupMockProducerForSchema(Schema<T> schema, PulsarClientImpl pulsarClient) {
+		ProducerBase<T> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).closeAsync();
+		doReturn(CompletableFuture.completedFuture(null)).when(producer).flushAsync();
+		doReturn(true).when(producer).isConnected();
+		TypedMessageBuilderImpl<T> typedMessageBuilder = spy(new TypedMessageBuilderImpl<>(producer, schema));
+		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder).sendAsync();
+		doReturn(typedMessageBuilder).when(producer).newMessage();
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
+				any(schema.getClass()), isNull());
+	}
+
+	static class TestMessage {
+
+		private final String id;
+
+		TestMessage(String id) {
+			this.id = id;
+		}
+
+		// CHECKSTYLE:OFF
+		public String getId() {
+			return this.id;
+		}
+		// CHECKSTYLE:ON
+
 	}
 
 }

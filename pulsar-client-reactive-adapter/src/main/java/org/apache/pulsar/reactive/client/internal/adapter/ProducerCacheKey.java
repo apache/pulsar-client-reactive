@@ -24,6 +24,7 @@ import java.util.Objects;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.conf.ProducerConfigurationData;
+import org.apache.pulsar.common.protocol.schema.SchemaHash;
 
 final class ProducerCacheKey {
 
@@ -33,6 +34,8 @@ final class ProducerCacheKey {
 
 	private final Schema<?> schema;
 
+	private final SchemaHash schemaHash;
+
 	private final Object producerActionTransformerKey;
 
 	ProducerCacheKey(final PulsarClient pulsarClient, final ProducerConfigurationData producerConfigurationData,
@@ -40,6 +43,7 @@ final class ProducerCacheKey {
 		this.pulsarClient = pulsarClient;
 		this.producerConfigurationData = producerConfigurationData;
 		this.schema = schema;
+		this.schemaHash = (this.schema != null) ? SchemaHash.of(this.schema) : null;
 		this.producerActionTransformerKey = producerActionTransformerKey;
 	}
 
@@ -54,14 +58,21 @@ final class ProducerCacheKey {
 		ProducerCacheKey that = (ProducerCacheKey) o;
 		return (Objects.equals(this.pulsarClient, that.pulsarClient)
 				&& Objects.equals(this.producerConfigurationData, that.producerConfigurationData)
-				&& Objects.equals(this.schema, that.schema))
+				&& Objects.equals(this.schemaHash, that.schemaHash))
 				&& Objects.equals(this.producerActionTransformerKey, that.producerActionTransformerKey);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.pulsarClient, this.producerConfigurationData, this.schema,
+		return Objects.hash(this.pulsarClient, this.producerConfigurationData, this.schemaHash,
 				this.producerActionTransformerKey);
+	}
+
+	@Override
+	public String toString() {
+		return "ProducerCacheKey{" + "pulsarClient=" + this.pulsarClient + ", producerConfigurationData="
+				+ this.producerConfigurationData + ", schema=" + this.schema + ", producerActionTransformerKey="
+				+ this.producerActionTransformerKey + "}";
 	}
 
 }
