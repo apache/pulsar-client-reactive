@@ -328,7 +328,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 	default ReactiveMessageSenderBuilder<T> roundRobinRouterBatchingPartitionSwitchFrequency(
 			int roundRobinRouterBatchingPartitionSwitchFrequency) {
 		getMutableSpec()
-				.setRoundRobinRouterBatchingPartitionSwitchFrequency(roundRobinRouterBatchingPartitionSwitchFrequency);
+			.setRoundRobinRouterBatchingPartitionSwitchFrequency(roundRobinRouterBatchingPartitionSwitchFrequency);
 		return this;
 	}
 

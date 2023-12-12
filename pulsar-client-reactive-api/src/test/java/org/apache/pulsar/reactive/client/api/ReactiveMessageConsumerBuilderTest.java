@@ -88,7 +88,7 @@ class ReactiveMessageConsumerBuilderTest {
 	@Test
 	void applySpec() {
 		ReactiveMessageConsumerSpec spec = new TestReactiveMessageConsumerBuilder().applySpec(createConsumerSpec())
-				.getMutableSpec();
+			.getMutableSpec();
 		assertConsumerSpecWithAllValues(spec);
 	}
 
@@ -97,8 +97,11 @@ class ReactiveMessageConsumerBuilderTest {
 		ArrayList<String> topics = new ArrayList<>();
 		topics.add("topic-1");
 		ReactiveMessageConsumerSpec spec = new TestReactiveMessageConsumerBuilder().topic("ignored-1")
-				.topic("ignored-2", "ignored-3").topics(topics).topic("topic-2").topic("topic-3", "topic-4")
-				.toImmutableSpec();
+			.topic("ignored-2", "ignored-3")
+			.topics(topics)
+			.topic("topic-2")
+			.topic("topic-3", "topic-4")
+			.toImmutableSpec();
 		assertThat(spec.getTopicNames()).containsExactly("topic-1", "topic-2", "topic-3", "topic-4");
 	}
 
@@ -107,8 +110,10 @@ class ReactiveMessageConsumerBuilderTest {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("key-1", "value-1");
 		ReactiveMessageConsumerSpec spec = new TestReactiveMessageConsumerBuilder()
-				.property("key-ignored", "property-ignored").properties(properties).property("key-2", "value-2")
-				.toImmutableSpec();
+			.property("key-ignored", "property-ignored")
+			.properties(properties)
+			.property("key-2", "value-2")
+			.toImmutableSpec();
 		assertThat(spec.getProperties()).hasSize(2).containsEntry("key-1", "value-1").containsEntry("key-2", "value-2");
 	}
 
@@ -117,10 +122,13 @@ class ReactiveMessageConsumerBuilderTest {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("key-1", "value-1");
 		ReactiveMessageConsumerSpec spec = new TestReactiveMessageConsumerBuilder()
-				.subscriptionProperty("key-ignored", "property-ignored").subscriptionProperties(properties)
-				.subscriptionProperty("key-2", "value-2").toImmutableSpec();
-		assertThat(spec.getSubscriptionProperties()).hasSize(2).containsEntry("key-1", "value-1").containsEntry("key-2",
-				"value-2");
+			.subscriptionProperty("key-ignored", "property-ignored")
+			.subscriptionProperties(properties)
+			.subscriptionProperty("key-2", "value-2")
+			.toImmutableSpec();
+		assertThat(spec.getSubscriptionProperties()).hasSize(2)
+			.containsEntry("key-1", "value-1")
+			.containsEntry("key-2", "value-2");
 	}
 
 	private void assertConsumerSpecWithAllValues(ReactiveMessageConsumerSpec spec) {
@@ -164,22 +172,39 @@ class ReactiveMessageConsumerBuilderTest {
 	}
 
 	private ReactiveMessageConsumerBuilder<String> createConsumerBuilder() {
-		return new TestReactiveMessageConsumerBuilder().topic("my-topic").topicsPattern(Pattern.compile("my-topic-*"))
-				.topicsPatternSubscriptionMode(RegexSubscriptionMode.PersistentOnly)
-				.topicsPatternAutoDiscoveryPeriod(Duration.ofSeconds(1)).subscriptionName("my-sub")
-				.subscriptionMode(SubscriptionMode.Durable).subscriptionType(SubscriptionType.Exclusive)
-				.subscriptionInitialPosition(SubscriptionInitialPosition.Latest).keySharedPolicy(keySharedPolicy)
-				.replicateSubscriptionState(true).subscriptionProperty("my-sub-key", "my-sub-value")
-				.consumerName("my-consumer").priorityLevel(2).readCompacted(true).property("my-key", "my-value")
-				.batchIndexAckEnabled(true).ackTimeout(Duration.ofSeconds(3)).ackTimeoutTickTime(Duration.ofSeconds(4))
-				.acknowledgementsGroupTime(Duration.ofSeconds(5)).acknowledgeAsynchronously(true)
-				.acknowledgeScheduler(scheduler).negativeAckRedeliveryDelay(Duration.ofSeconds(6))
-				.deadLetterPolicy(deadLetterPolicy).retryLetterTopicEnable(true).receiverQueueSize(7)
-				.maxTotalReceiverQueueSizeAcrossPartitions(8).autoUpdatePartitions(true)
-				.autoUpdatePartitionsInterval(Duration.ofSeconds(9)).cryptoKeyReader(cryptoKeyReader)
-				.cryptoFailureAction(ConsumerCryptoFailureAction.FAIL).maxPendingChunkedMessage(10)
-				.autoAckOldestChunkedMessageOnQueueFull(true)
-				.expireTimeOfIncompleteChunkedMessage(Duration.ofSeconds(11));
+		return new TestReactiveMessageConsumerBuilder().topic("my-topic")
+			.topicsPattern(Pattern.compile("my-topic-*"))
+			.topicsPatternSubscriptionMode(RegexSubscriptionMode.PersistentOnly)
+			.topicsPatternAutoDiscoveryPeriod(Duration.ofSeconds(1))
+			.subscriptionName("my-sub")
+			.subscriptionMode(SubscriptionMode.Durable)
+			.subscriptionType(SubscriptionType.Exclusive)
+			.subscriptionInitialPosition(SubscriptionInitialPosition.Latest)
+			.keySharedPolicy(keySharedPolicy)
+			.replicateSubscriptionState(true)
+			.subscriptionProperty("my-sub-key", "my-sub-value")
+			.consumerName("my-consumer")
+			.priorityLevel(2)
+			.readCompacted(true)
+			.property("my-key", "my-value")
+			.batchIndexAckEnabled(true)
+			.ackTimeout(Duration.ofSeconds(3))
+			.ackTimeoutTickTime(Duration.ofSeconds(4))
+			.acknowledgementsGroupTime(Duration.ofSeconds(5))
+			.acknowledgeAsynchronously(true)
+			.acknowledgeScheduler(scheduler)
+			.negativeAckRedeliveryDelay(Duration.ofSeconds(6))
+			.deadLetterPolicy(deadLetterPolicy)
+			.retryLetterTopicEnable(true)
+			.receiverQueueSize(7)
+			.maxTotalReceiverQueueSizeAcrossPartitions(8)
+			.autoUpdatePartitions(true)
+			.autoUpdatePartitionsInterval(Duration.ofSeconds(9))
+			.cryptoKeyReader(cryptoKeyReader)
+			.cryptoFailureAction(ConsumerCryptoFailureAction.FAIL)
+			.maxPendingChunkedMessage(10)
+			.autoAckOldestChunkedMessageOnQueueFull(true)
+			.expireTimeOfIncompleteChunkedMessage(Duration.ofSeconds(11));
 	}
 
 	static class TestReactiveMessageConsumerBuilder implements ReactiveMessageConsumerBuilder<String> {

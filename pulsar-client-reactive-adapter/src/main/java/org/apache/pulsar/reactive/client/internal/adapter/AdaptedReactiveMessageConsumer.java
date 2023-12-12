@@ -61,14 +61,12 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 
 	@Override
 	public <R> Mono<R> consumeOne(Function<Message<T>, Publisher<MessageResult<R>>> messageHandler) {
-		return createReactiveConsumerAdapter().usingConsumer((consumer) -> Mono.using(
-				this::pinAcknowledgeScheduler, (
-						pinnedAcknowledgeScheduler) -> readNextMessage(consumer)
-								.flatMap((message) -> Mono.from(messageHandler.apply(message)))
-								.delayUntil((messageResult) -> handleAcknowledgement(consumer, messageResult,
-										pinnedAcknowledgeScheduler))
-								.handle(this::handleMessageResult),
-				Scheduler::dispose));
+		return createReactiveConsumerAdapter().usingConsumer((consumer) -> Mono
+			.using(this::pinAcknowledgeScheduler, (pinnedAcknowledgeScheduler) -> readNextMessage(consumer)
+				.flatMap((message) -> Mono.from(messageHandler.apply(message)))
+				.delayUntil(
+						(messageResult) -> handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler))
+				.handle(this::handleMessageResult), Scheduler::dispose));
 	}
 
 	private Scheduler pinAcknowledgeScheduler() {
@@ -85,7 +83,7 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 			}
 			else {
 				acknowledgementMono = Mono
-						.fromRunnable(() -> consumer.negativeAcknowledge(messageResult.getMessageId()));
+					.fromRunnable(() -> consumer.negativeAcknowledge(messageResult.getMessageId()));
 			}
 			acknowledgementMono = acknowledgementMono.subscribeOn(pinnedAcknowledgeScheduler);
 			if (this.acknowledgeAsynchronously) {
@@ -205,8 +203,8 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 			consumerBuilder.maxPendingChunkedMessage(this.consumerSpec.getMaxPendingChunkedMessage());
 		}
 		if (this.consumerSpec.getAutoAckOldestChunkedMessageOnQueueFull() != null) {
-			consumerBuilder.autoAckOldestChunkedMessageOnQueueFull(
-					this.consumerSpec.getAutoAckOldestChunkedMessageOnQueueFull());
+			consumerBuilder
+				.autoAckOldestChunkedMessageOnQueueFull(this.consumerSpec.getAutoAckOldestChunkedMessageOnQueueFull());
 		}
 		if (this.consumerSpec.getExpireTimeOfIncompleteChunkedMessage() != null) {
 			consumerBuilder.expireTimeOfIncompleteChunkedMessage(
@@ -216,14 +214,12 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 
 	@Override
 	public <R> Flux<R> consumeMany(Function<Flux<Message<T>>, Publisher<MessageResult<R>>> messageHandler) {
-		return createReactiveConsumerAdapter().usingConsumerMany((consumer) -> Flux.using(
-				this::pinAcknowledgeScheduler, (
-						pinnedAcknowledgeScheduler) -> Flux
-								.from(messageHandler.apply(readNextMessage(consumer).repeat()))
-								.delayUntil((messageResult) -> handleAcknowledgement(consumer, messageResult,
-										pinnedAcknowledgeScheduler))
-								.handle(this::handleMessageResult),
-				Scheduler::dispose));
+		return createReactiveConsumerAdapter().usingConsumerMany((consumer) -> Flux
+			.using(this::pinAcknowledgeScheduler, (pinnedAcknowledgeScheduler) -> Flux
+				.from(messageHandler.apply(readNextMessage(consumer).repeat()))
+				.delayUntil(
+						(messageResult) -> handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler))
+				.handle(this::handleMessageResult), Scheduler::dispose));
 	}
 
 	@Override

@@ -42,8 +42,10 @@ public class CaffeineProducerCacheProvider implements ProducerCacheProvider {
 	 * Constructor for CaffeineProducerCacheProvider with default values.
 	 */
 	public CaffeineProducerCacheProvider() {
-		this(Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).expireAfterWrite(Duration.ofMinutes(10))
-				.maximumSize(1000));
+		this(Caffeine.newBuilder()
+			.expireAfterAccess(Duration.ofMinutes(1))
+			.expireAfterWrite(Duration.ofMinutes(10))
+			.maximumSize(1000));
 	}
 
 	/**
@@ -62,7 +64,9 @@ public class CaffeineProducerCacheProvider implements ProducerCacheProvider {
 	 */
 	public CaffeineProducerCacheProvider(Caffeine<Object, Object> caffeineBuilder) {
 		this.cache = caffeineBuilder.scheduler(Scheduler.systemScheduler())
-				.executor(Schedulers.boundedElastic()::schedule).removalListener(this::onRemoval).buildAsync();
+			.executor(Schedulers.boundedElastic()::schedule)
+			.removalListener(this::onRemoval)
+			.buildAsync();
 	}
 
 	private void onRemoval(Object key, Object entry, RemovalCause cause) {

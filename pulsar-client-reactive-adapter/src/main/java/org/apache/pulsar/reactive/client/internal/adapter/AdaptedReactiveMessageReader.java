@@ -63,8 +63,9 @@ class AdaptedReactiveMessageReader<T> implements ReactiveMessageReader<T> {
 	static <T> Mono<Message<T>> readNextMessage(Reader<T> reader, EndOfStreamAction endOfStreamAction) {
 		Mono<Message<T>> messageMono = PulsarFutureAdapter.adaptPulsarFuture(reader::readNextAsync);
 		if (endOfStreamAction == EndOfStreamAction.COMPLETE) {
-			return PulsarFutureAdapter.adaptPulsarFuture(reader::hasMessageAvailableAsync).filter(Boolean::booleanValue)
-					.flatMap((__) -> messageMono);
+			return PulsarFutureAdapter.adaptPulsarFuture(reader::hasMessageAvailableAsync)
+				.filter(Boolean::booleanValue)
+				.flatMap((__) -> messageMono);
 		}
 		else {
 			return messageMono;
@@ -132,7 +133,7 @@ class AdaptedReactiveMessageReader<T> implements ReactiveMessageReader<T> {
 	@Override
 	public Mono<Message<T>> readOne() {
 		return createReactiveReaderAdapter(this.startAtSpec)
-				.usingReader((reader) -> readNextMessage(reader, this.endOfStreamAction));
+			.usingReader((reader) -> readNextMessage(reader, this.endOfStreamAction));
 	}
 
 	@Override

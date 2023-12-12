@@ -280,8 +280,8 @@ public class InflightLimiter implements PublisherTransformer {
 			// spread requests evenly across active subscriptions (or expected number of
 			// subscriptions)
 			int maxInflightForSubscription = Math
-					.max(InflightLimiter.this.maxInflight / Math.max(InflightLimiter.this.activeSubscriptions.get(),
-							InflightLimiter.this.expectedSubscriptionsInflight), 1);
+				.max(InflightLimiter.this.maxInflight / Math.max(InflightLimiter.this.activeSubscriptions.get(),
+						InflightLimiter.this.expectedSubscriptionsInflight), 1);
 			if (this.requestedDemand.get() > 0 && (this.state.get() == InflightLimiterSubscriberState.SUBSCRIBED
 					|| (this.inflightForSubscription.get() < maxInflightForSubscription
 							&& InflightLimiter.this.inflight.get() < InflightLimiter.this.maxInflight))) {

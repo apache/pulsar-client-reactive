@@ -60,7 +60,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PulsarReactiveClientModuleTest {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new PulsarReactiveClientModule())
-			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 	@ParameterizedTest
 	@ValueSource(classes = { ReactiveMessageConsumerSpec.class, ImmutableReactiveMessageConsumerSpec.class,
@@ -505,7 +505,7 @@ class PulsarReactiveClientModuleTest {
 		CryptoKeyReader cryptoKeyReader = MAPPER.readValue(content, CryptoKeyReader.class);
 		String json = MAPPER.writeValueAsString(cryptoKeyReader);
 		String expected = ("{'className':'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader'}")
-				.replaceAll("'", "\"");
+			.replaceAll("'", "\"");
 		assertThat(json).isEqualTo(expected);
 	}
 

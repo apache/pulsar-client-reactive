@@ -57,15 +57,15 @@ class ReactiveProducerAdapter<T> {
 	}
 
 	private Mono<Producer<T>> createProducerMono() {
-		return AdapterImplementationFactory.adaptPulsarFuture(
-				() -> this.producerBuilderFactory.apply(this.pulsarClientSupplier.get()).createAsync());
+		return AdapterImplementationFactory
+			.adaptPulsarFuture(() -> this.producerBuilderFactory.apply(this.pulsarClientSupplier.get()).createAsync());
 	}
 
 	private Mono<Tuple2<ProducerCacheKey, Mono<Producer<T>>>> createCachedProducerKeyAndMono() {
 		return Mono.fromCallable(() -> {
 			PulsarClient pulsarClient = this.pulsarClientSupplier.get();
 			ProducerBuilderImpl<T> producerBuilder = (ProducerBuilderImpl<T>) this.producerBuilderFactory
-					.apply(pulsarClient);
+				.apply(pulsarClient);
 			ProducerCacheKey cacheKey = new ProducerCacheKey(pulsarClient, producerBuilder.getConf().clone(),
 					producerBuilder.getSchema(), this.producerActionTransformerKey);
 			return Tuples.of(cacheKey, AdapterImplementationFactory.adaptPulsarFuture(producerBuilder::createAsync));

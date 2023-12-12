@@ -46,9 +46,9 @@ class ProducerCache implements ReactiveMessageSenderCache {
 	private <T> Mono<ProducerCacheEntry> getProducerCacheEntry(final ProducerCacheKey cacheKey,
 			Mono<Producer<T>> producerMono, Supplier<PublisherTransformer> producerActionTransformer) {
 		return AdapterImplementationFactory
-				.adaptPulsarFuture(() -> this.cacheProvider.getOrCreateCachedEntry(cacheKey,
-						(__) -> createCacheEntry(producerMono, producerActionTransformer)))
-				.flatMap((producerCacheEntry) -> producerCacheEntry.recreateIfClosed(producerMono));
+			.adaptPulsarFuture(() -> this.cacheProvider.getOrCreateCachedEntry(cacheKey,
+					(__) -> createCacheEntry(producerMono, producerActionTransformer)))
+			.flatMap((producerCacheEntry) -> producerCacheEntry.recreateIfClosed(producerMono));
 	}
 
 	<T, R> Mono<R> usingCachedProducer(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
@@ -67,7 +67,7 @@ class ProducerCache implements ReactiveMessageSenderCache {
 	private <T> Mono<ProducerCacheEntry> leaseCacheEntry(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
 			Supplier<PublisherTransformer> producerActionTransformer) {
 		return this.getProducerCacheEntry(cacheKey, producerMono, producerActionTransformer)
-				.doOnNext(ProducerCacheEntry::activateLease);
+			.doOnNext(ProducerCacheEntry::activateLease);
 	}
 
 	<T, R> Flux<R> usingCachedProducerMany(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,

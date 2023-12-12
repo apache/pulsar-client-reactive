@@ -83,7 +83,7 @@ class ReactiveMessageSenderBuilderTest {
 	@Test
 	void applySpec() {
 		ReactiveMessageSenderSpec spec = new TestReactiveMessageSenderBuilder().applySpec(createSenderSpec())
-				.getMutableSpec();
+			.getMutableSpec();
 		assertSenderSpecWithAllValues(spec);
 	}
 
@@ -92,8 +92,10 @@ class ReactiveMessageSenderBuilderTest {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("key-1", "value-1");
 		ReactiveMessageSenderSpec spec = new TestReactiveMessageSenderBuilder()
-				.property("key-ignored", "property-ignored").properties(properties).property("key-2", "value-2")
-				.toImmutableSpec();
+			.property("key-ignored", "property-ignored")
+			.properties(properties)
+			.property("key-2", "value-2")
+			.toImmutableSpec();
 		assertThat(spec.getProperties()).hasSize(2).containsEntry("key-1", "value-1").containsEntry("key-2", "value-2");
 	}
 
@@ -131,17 +133,32 @@ class ReactiveMessageSenderBuilderTest {
 	}
 
 	private ReactiveMessageSenderBuilder<String> createSenderBuilder() {
-		return new TestReactiveMessageSenderBuilder().topic("my-topic").producerName("my-producer")
-				.sendTimeout(Duration.ofSeconds(1)).maxPendingMessages(2).maxPendingMessagesAcrossPartitions(3)
-				.messageRoutingMode(MessageRoutingMode.SinglePartition).hashingScheme(HashingScheme.JavaStringHash)
-				.cryptoFailureAction(ProducerCryptoFailureAction.FAIL).messageRouter(messageRouter)
-				.batchingMaxPublishDelay(Duration.ofSeconds(4)).roundRobinRouterBatchingPartitionSwitchFrequency(5)
-				.batchingMaxMessages(6).batchingMaxBytes(7).batchingEnabled(true).batcherBuilder(batcherBuilder)
-				.chunkingEnabled(true).cryptoKeyReader(cryptoKeyReader).encryptionKeys(Collections.singleton("my-key"))
-				.compressionType(CompressionType.LZ4).initialSequenceId(8).autoUpdatePartitions(true)
-				.autoUpdatePartitionsInterval(Duration.ofSeconds(9)).multiSchema(true)
-				.accessMode(ProducerAccessMode.Shared).lazyStartPartitionedProducers(true)
-				.property("my-key", "my-value");
+		return new TestReactiveMessageSenderBuilder().topic("my-topic")
+			.producerName("my-producer")
+			.sendTimeout(Duration.ofSeconds(1))
+			.maxPendingMessages(2)
+			.maxPendingMessagesAcrossPartitions(3)
+			.messageRoutingMode(MessageRoutingMode.SinglePartition)
+			.hashingScheme(HashingScheme.JavaStringHash)
+			.cryptoFailureAction(ProducerCryptoFailureAction.FAIL)
+			.messageRouter(messageRouter)
+			.batchingMaxPublishDelay(Duration.ofSeconds(4))
+			.roundRobinRouterBatchingPartitionSwitchFrequency(5)
+			.batchingMaxMessages(6)
+			.batchingMaxBytes(7)
+			.batchingEnabled(true)
+			.batcherBuilder(batcherBuilder)
+			.chunkingEnabled(true)
+			.cryptoKeyReader(cryptoKeyReader)
+			.encryptionKeys(Collections.singleton("my-key"))
+			.compressionType(CompressionType.LZ4)
+			.initialSequenceId(8)
+			.autoUpdatePartitions(true)
+			.autoUpdatePartitionsInterval(Duration.ofSeconds(9))
+			.multiSchema(true)
+			.accessMode(ProducerAccessMode.Shared)
+			.lazyStartPartitionedProducers(true)
+			.property("my-key", "my-value");
 	}
 
 	static class TestReactiveMessageSenderBuilder implements ReactiveMessageSenderBuilder<String> {

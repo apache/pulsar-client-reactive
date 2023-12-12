@@ -64,18 +64,26 @@ class CaffeineShadedProducerCacheProviderTest {
 
 		// Send N string messages (should only create producer for string messages once)
 		ReactiveMessageSender<String> sender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.STRING).topic("my-topic-str").cache(cache).build();
-		sender.sendOne(MessageSpec.of("a")).then(sender.sendOne(MessageSpec.of("b")))
-				.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany)).blockLast(Duration.ofSeconds(5));
+			.messageSender(Schema.STRING)
+			.topic("my-topic-str")
+			.cache(cache)
+			.build();
+		sender.sendOne(MessageSpec.of("a"))
+			.then(sender.sendOne(MessageSpec.of("b")))
+			.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany))
+			.blockLast(Duration.ofSeconds(5));
 
 		verify(pulsarClient, times(1)).createProducerAsync(any(), eq(Schema.STRING), isNull());
 	}
 
 	private static Stream<Arguments> cacheProvider() {
-		return Arrays.asList(Arguments.of("Default <init>", new CaffeineShadedProducerCacheProvider()), Arguments.of(
-				"Params <init>",
-				new CaffeineShadedProducerCacheProvider(Duration.ofMinutes(1), Duration.ofMinutes(10), 1000L, 50)))
-				.stream();
+		return Arrays
+			.asList(Arguments.of("Default <init>", new CaffeineShadedProducerCacheProvider()),
+					Arguments
+						.of("Params <init>",
+								new CaffeineShadedProducerCacheProvider(Duration.ofMinutes(1), Duration.ofMinutes(10),
+										1000L, 50)))
+			.stream();
 	}
 
 	@Test
@@ -87,23 +95,29 @@ class CaffeineShadedProducerCacheProviderTest {
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 		setupMockProducerForSchema(Schema.JSON(TestMessage.class), pulsarClient);
 		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory
-				.createCache(new CaffeineShadedProducerCacheProvider());
+			.createCache(new CaffeineShadedProducerCacheProvider());
 
 		// Send N JSON messages across 2 senders w/ same schema type (should only create 1
 		// producer)
 		ReactiveMessageSender<TestMessage> jsonSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.JSON(TestMessage.class)).topic("my-topic-json").cache(cache).build();
+			.messageSender(Schema.JSON(TestMessage.class))
+			.topic("my-topic-json")
+			.cache(cache)
+			.build();
 		ReactiveMessageSender<TestMessage> jsonSender2 = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.JSON(TestMessage.class)).topic("my-topic-json").cache(cache).build();
+			.messageSender(Schema.JSON(TestMessage.class))
+			.topic("my-topic-json")
+			.cache(cache)
+			.build();
 
 		jsonSender.sendOne(MessageSpec.of(new TestMessage("a")))
-				.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
-				.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
-				.blockLast(Duration.ofSeconds(5));
+			.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
+			.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
+			.blockLast(Duration.ofSeconds(5));
 		jsonSender2.sendOne(MessageSpec.of(new TestMessage("a")))
-				.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
-				.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
-				.blockLast(Duration.ofSeconds(5));
+			.then(jsonSender.sendOne(MessageSpec.of(new TestMessage("b"))))
+			.thenMany(Flux.just(MessageSpec.of(new TestMessage("c"))).as(jsonSender::sendMany))
+			.blockLast(Duration.ofSeconds(5));
 
 		verify(pulsarClient, times(1)).createProducerAsync(any(), any(JSONSchema.class), isNull());
 	}
@@ -125,10 +139,15 @@ class CaffeineShadedProducerCacheProviderTest {
 				Duration.ofMinutes(1), Duration.ofMillis(100), 100L, 50);
 		ReactiveMessageSenderCache cache = AdaptedReactivePulsarClientFactory.createCache(cacheProvider);
 		ReactiveMessageSender<String> sender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageSender(Schema.STRING).topic("my-topic").cache(cache).build();
+			.messageSender(Schema.STRING)
+			.topic("my-topic")
+			.cache(cache)
+			.build();
 
-		sender.sendOne(MessageSpec.of("a")).then(sender.sendOne(MessageSpec.of("b")))
-				.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany)).blockLast(Duration.ofSeconds(5));
+		sender.sendOne(MessageSpec.of("a"))
+			.then(sender.sendOne(MessageSpec.of("b")))
+			.thenMany(Flux.just(MessageSpec.of("c")).as(sender::sendMany))
+			.blockLast(Duration.ofSeconds(5));
 		Thread.sleep(101);
 		sender.sendOne(MessageSpec.of("d")).block(Duration.ofSeconds(5));
 		verify(pulsarClient, times(2)).createProducerAsync(any(), any(), isNull());
@@ -142,8 +161,8 @@ class CaffeineShadedProducerCacheProviderTest {
 		TypedMessageBuilderImpl<T> typedMessageBuilder = spy(new TypedMessageBuilderImpl<>(producer, schema));
 		doReturn(CompletableFuture.completedFuture(MessageId.earliest)).when(typedMessageBuilder).sendAsync();
 		doReturn(typedMessageBuilder).when(producer).newMessage();
-		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient).createProducerAsync(any(),
-				any(schema.getClass()), isNull());
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient)
+			.createProducerAsync(any(), any(schema.getClass()), isNull());
 	}
 
 	static class TestMessage {

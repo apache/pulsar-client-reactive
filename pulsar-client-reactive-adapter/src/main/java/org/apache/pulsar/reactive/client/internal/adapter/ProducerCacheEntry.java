@@ -91,8 +91,10 @@ class ProducerCacheEntry implements AutoCloseable {
 					}
 				}
 			}
-			return Mono.defer(this.producerCreator::get).filter(Producer::isConnected)
-					.repeatWhenEmpty(5, (flux) -> flux.delayElements(Duration.ofSeconds(1))).thenReturn(this);
+			return Mono.defer(this.producerCreator::get)
+				.filter(Producer::isConnected)
+				.repeatWhenEmpty(5, (flux) -> flux.delayElements(Duration.ofSeconds(1)))
+				.thenReturn(this);
 		});
 	}
 

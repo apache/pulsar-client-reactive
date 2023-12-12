@@ -56,10 +56,15 @@ public class CaffeineShadedProducerCacheProvider implements ProducerCacheProvide
 	 */
 	public CaffeineShadedProducerCacheProvider(Duration cacheExpireAfterAccess, Duration cacheExpireAfterWrite,
 			Long cacheMaximumSize, Integer cacheInitialCapacity) {
-		this.cache = Caffeine.newBuilder().expireAfterAccess(cacheExpireAfterAccess)
-				.expireAfterWrite(cacheExpireAfterWrite).maximumSize(cacheMaximumSize)
-				.initialCapacity(cacheInitialCapacity).scheduler(Scheduler.systemScheduler())
-				.executor(Schedulers.boundedElastic()::schedule).removalListener(this::onRemoval).buildAsync();
+		this.cache = Caffeine.newBuilder()
+			.expireAfterAccess(cacheExpireAfterAccess)
+			.expireAfterWrite(cacheExpireAfterWrite)
+			.maximumSize(cacheMaximumSize)
+			.initialCapacity(cacheInitialCapacity)
+			.scheduler(Scheduler.systemScheduler())
+			.executor(Schedulers.boundedElastic()::schedule)
+			.removalListener(this::onRemoval)
+			.buildAsync();
 	}
 
 	private void onRemoval(Object key, Object entry, RemovalCause cause) {

@@ -77,15 +77,17 @@ class AdaptedReactiveMessageConsumerTest {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 		doReturn(CompletableFuture.completedFuture(new PartitionedTopicMetadata())).when(pulsarClient)
-				.getPartitionedTopicMetadata(anyString());
+			.getPartitionedTopicMetadata(anyString());
 
 		Consumer<String> consumer = mock(Consumer.class);
 		doReturn(CompletableFuture.completedFuture(null)).when(consumer).closeAsync();
 
 		CryptoKeyReader cryptoKeyReader = mock(CryptoKeyReader.class);
 
-		DeadLetterPolicy deadLetterPolicy = DeadLetterPolicy.builder().retryLetterTopic("my-rlt").maxRedeliverCount(1)
-				.build();
+		DeadLetterPolicy deadLetterPolicy = DeadLetterPolicy.builder()
+			.retryLetterTopic("my-rlt")
+			.maxRedeliverCount(1)
+			.build();
 
 		ConsumerConfigurationData<String> expectedConsumerConf = new ConsumerConfigurationData<>();
 		expectedConsumerConf.setTopicNames(new HashSet<>(Arrays.asList("my-topic", "my-rlt")));
@@ -128,22 +130,39 @@ class AdaptedReactiveMessageConsumerTest {
 		failedConsumer.completeExceptionally(new RuntimeException("didn't match expected consumer conf"));
 		doReturn(failedConsumer).when(pulsarClient).subscribeAsync(any(), eq(Schema.STRING), isNull());
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
+			.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub")
-				.subscriptionMode(SubscriptionMode.NonDurable).subscriptionType(SubscriptionType.Failover)
-				.subscriptionInitialPosition(SubscriptionInitialPosition.Earliest).replicateSubscriptionState(true)
-				.subscriptionProperty("my-sub-key", "my-sub-value").consumerName("my-consumer").priorityLevel(2)
-				.readCompacted(true).property("my-key", "my-value").batchIndexAckEnabled(true)
-				.ackTimeout(Duration.ofSeconds(3)).ackTimeoutTickTime(Duration.ofSeconds(4))
-				.acknowledgementsGroupTime(Duration.ofSeconds(5)).negativeAckRedeliveryDelay(Duration.ofSeconds(6))
-				.deadLetterPolicy(deadLetterPolicy).retryLetterTopicEnable(true).receiverQueueSize(7)
-				.maxTotalReceiverQueueSizeAcrossPartitions(8).autoUpdatePartitions(false)
-				.autoUpdatePartitionsInterval(Duration.ofSeconds(9)).cryptoKeyReader(cryptoKeyReader)
-				.cryptoFailureAction(ConsumerCryptoFailureAction.DISCARD).maxPendingChunkedMessage(10)
-				.autoAckOldestChunkedMessageOnQueueFull(true)
-				.expireTimeOfIncompleteChunkedMessage(Duration.ofSeconds(11)).clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.subscriptionMode(SubscriptionMode.NonDurable)
+			.subscriptionType(SubscriptionType.Failover)
+			.subscriptionInitialPosition(SubscriptionInitialPosition.Earliest)
+			.replicateSubscriptionState(true)
+			.subscriptionProperty("my-sub-key", "my-sub-value")
+			.consumerName("my-consumer")
+			.priorityLevel(2)
+			.readCompacted(true)
+			.property("my-key", "my-value")
+			.batchIndexAckEnabled(true)
+			.ackTimeout(Duration.ofSeconds(3))
+			.ackTimeoutTickTime(Duration.ofSeconds(4))
+			.acknowledgementsGroupTime(Duration.ofSeconds(5))
+			.negativeAckRedeliveryDelay(Duration.ofSeconds(6))
+			.deadLetterPolicy(deadLetterPolicy)
+			.retryLetterTopicEnable(true)
+			.receiverQueueSize(7)
+			.maxTotalReceiverQueueSizeAcrossPartitions(8)
+			.autoUpdatePartitions(false)
+			.autoUpdatePartitionsInterval(Duration.ofSeconds(9))
+			.cryptoKeyReader(cryptoKeyReader)
+			.cryptoFailureAction(ConsumerCryptoFailureAction.DISCARD)
+			.maxPendingChunkedMessage(10)
+			.autoAckOldestChunkedMessageOnQueueFull(true)
+			.expireTimeOfIncompleteChunkedMessage(Duration.ofSeconds(11))
+			.clone()
+			.build();
 
 		reactiveConsumer.consumeNothing().block(Duration.ofSeconds(5));
 
@@ -170,11 +189,16 @@ class AdaptedReactiveMessageConsumerTest {
 		failedConsumer.completeExceptionally(new RuntimeException("didn't match expected consumer conf"));
 		doReturn(failedConsumer).when(pulsarClient).subscribeAsync(any(), eq(Schema.STRING), isNull());
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
+			.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub")
-				.subscriptionType(SubscriptionType.Key_Shared).keySharedPolicy(keySharedPolicy).clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.subscriptionType(SubscriptionType.Key_Shared)
+			.keySharedPolicy(keySharedPolicy)
+			.clone()
+			.build();
 
 		reactiveConsumer.consumeNothing().block(Duration.ofSeconds(5));
 
@@ -201,12 +225,16 @@ class AdaptedReactiveMessageConsumerTest {
 		failedConsumer.completeExceptionally(new RuntimeException("didn't match expected consumer conf"));
 		doReturn(failedConsumer).when(pulsarClient).subscribeAsync(any(), eq(Schema.STRING), isNull());
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
+			.subscribeAsync(eq(expectedConsumerConf), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).subscriptionName("my-sub").topicsPattern(topicsPattern)
-				.topicsPatternSubscriptionMode(RegexSubscriptionMode.AllTopics)
-				.topicsPatternAutoDiscoveryPeriod(Duration.ofSeconds(1)).clone().build();
+			.messageConsumer(Schema.STRING)
+			.subscriptionName("my-sub")
+			.topicsPattern(topicsPattern)
+			.topicsPatternSubscriptionMode(RegexSubscriptionMode.AllTopics)
+			.topicsPatternAutoDiscoveryPeriod(Duration.ofSeconds(1))
+			.clone()
+			.build();
 
 		reactiveConsumer.consumeNothing().block(Duration.ofSeconds(5));
 
@@ -227,15 +255,19 @@ class AdaptedReactiveMessageConsumerTest {
 		doReturn(CompletableFuture.completedFuture(message)).when(consumer).receiveAsync();
 
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub")
-				.acknowledgeAsynchronously(false).clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.acknowledgeAsynchronously(false)
+			.clone()
+			.build();
 
 		Message<String> received = reactiveConsumer
-				.consumeOne((m) -> Mono.just(MessageResult.acknowledge(m.getMessageId(), m)))
-				.block(Duration.ofSeconds(5));
+			.consumeOne((m) -> Mono.just(MessageResult.acknowledge(m.getMessageId(), m)))
+			.block(Duration.ofSeconds(5));
 
 		verify(consumer).receiveAsync();
 		verify(consumer).acknowledgeAsync(MessageId.earliest);
@@ -254,15 +286,19 @@ class AdaptedReactiveMessageConsumerTest {
 		doReturn(CompletableFuture.completedFuture(message)).when(consumer).receiveAsync();
 
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub")
-				.acknowledgeAsynchronously(false).clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.acknowledgeAsynchronously(false)
+			.clone()
+			.build();
 
 		Message<String> received = reactiveConsumer
-				.consumeOne((m) -> Mono.just(MessageResult.negativeAcknowledge(m.getMessageId(), m)))
-				.block(Duration.ofSeconds(5));
+			.consumeOne((m) -> Mono.just(MessageResult.negativeAcknowledge(m.getMessageId(), m)))
+			.block(Duration.ofSeconds(5));
 
 		verify(consumer).receiveAsync();
 		verify(consumer).negativeAcknowledge(MessageId.earliest);
@@ -281,13 +317,17 @@ class AdaptedReactiveMessageConsumerTest {
 		doReturn(CompletableFuture.completedFuture(message)).when(consumer).receiveAsync();
 
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub").clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.clone()
+			.build();
 
 		Message<String> received = reactiveConsumer.consumeOne((m) -> Mono.just(MessageResult.acknowledge(null, m)))
-				.block(Duration.ofSeconds(5));
+			.block(Duration.ofSeconds(5));
 
 		verify(consumer).receiveAsync();
 		verify(consumer, never()).acknowledge(any(MessageId.class));
@@ -310,18 +350,26 @@ class AdaptedReactiveMessageConsumerTest {
 		doReturn(MessageId.earliest).when(message2).getMessageId();
 
 		doReturn(CompletableFuture.completedFuture(message1), CompletableFuture.completedFuture(message2),
-				new CompletableFuture<String>()).when(consumer).receiveAsync();
+				new CompletableFuture<String>())
+			.when(consumer)
+			.receiveAsync();
 
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub").clone().build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.clone()
+			.build();
 
 		StepVerifier
-				.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn))
-						.take(Duration.ofMillis(100)))
-				.expectNext(message1).expectNext(message2).verifyComplete();
+			.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn))
+				.take(Duration.ofMillis(100)))
+			.expectNext(message1)
+			.expectNext(message2)
+			.verifyComplete();
 
 		verify(consumer, times(3)).receiveAsync();
 		verify(consumer).acknowledgeAsync(eq(MessageId.earliest));
@@ -341,17 +389,20 @@ class AdaptedReactiveMessageConsumerTest {
 		doReturn(failedFuture).when(consumer).receiveAsync();
 
 		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
-				.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
 
 		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
-				.messageConsumer(Schema.STRING).topic("my-topic").subscriptionName("my-sub").build();
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.build();
 
 		StepVerifier.create(reactiveConsumer.consumeOne((message) -> Mono.just(MessageResult.acknowledge(message))))
-				.verifyError(PulsarClientException.InvalidMessageException.class);
+			.verifyError(PulsarClientException.InvalidMessageException.class);
 
 		StepVerifier
-				.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn)))
-				.verifyError(PulsarClientException.InvalidMessageException.class);
+			.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn)))
+			.verifyError(PulsarClientException.InvalidMessageException.class);
 	}
 
 }

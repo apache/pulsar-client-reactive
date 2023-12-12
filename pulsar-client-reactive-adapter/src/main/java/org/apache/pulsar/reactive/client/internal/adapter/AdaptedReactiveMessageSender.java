@@ -186,28 +186,28 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 
 		if (this.senderSpec.getProperties() != null && !this.senderSpec.getProperties().isEmpty()) {
 			producerBuilder
-					.properties(Collections.unmodifiableMap(new LinkedHashMap<>(this.senderSpec.getProperties())));
+				.properties(Collections.unmodifiableMap(new LinkedHashMap<>(this.senderSpec.getProperties())));
 		}
 	}
 
 	@Override
 	public Mono<MessageId> sendOne(MessageSpec<T> messageSpec) {
 		return createReactiveProducerAdapter()
-				.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
+			.usingProducer((producer, transformer) -> createMessageMono(messageSpec, producer, transformer));
 	}
 
 	private Mono<MessageSendResult<T>> createMessageSendResult(MessageSpec<T> messageSpec, Producer<T> producer,
 			PublisherTransformer transformer) {
 		Mono<MessageSendResult<T>> result = createMessageMono(messageSpec, producer, transformer)
-				.map((messageId) -> new MessageSendResult<>(messageId, messageSpec, null));
+			.map((messageId) -> new MessageSendResult<>(messageId, messageSpec, null));
 
 		if (this.stopOnError) {
-			return result.onErrorResume(
-					(throwable) -> Mono.error(new ReactiveMessageSendingException(throwable, messageSpec)));
+			return result
+				.onErrorResume((throwable) -> Mono.error(new ReactiveMessageSendingException(throwable, messageSpec)));
 		}
 		else {
 			return result
-					.onErrorResume((throwable) -> Mono.just(new MessageSendResult<>(null, messageSpec, throwable)));
+				.onErrorResume((throwable) -> Mono.just(new MessageSendResult<>(null, messageSpec, throwable)));
 		}
 	}
 
@@ -223,8 +223,8 @@ class AdaptedReactiveMessageSender<T> implements ReactiveMessageSender<T> {
 	@Override
 	public Flux<MessageSendResult<T>> sendMany(Publisher<MessageSpec<T>> messageSpecs) {
 		return createReactiveProducerAdapter().usingProducerMany((producer, transformer) -> Flux.from(messageSpecs)
-				.flatMapSequential((messageSpec) -> createMessageSendResult(messageSpec, producer, transformer),
-						this.maxConcurrency));
+			.flatMapSequential((messageSpec) -> createMessageSendResult(messageSpec, producer, transformer),
+					this.maxConcurrency));
 	}
 
 }

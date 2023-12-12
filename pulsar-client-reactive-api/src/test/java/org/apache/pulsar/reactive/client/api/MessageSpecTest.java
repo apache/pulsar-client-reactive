@@ -40,11 +40,20 @@ class MessageSpecTest {
 
 	@Test
 	void builder() {
-		MessageSpec<String> messageSpec = MessageSpec.builder("my-value").key("my-key").keyBytes(new byte[] { 1 })
-				.orderingKey(new byte[] { 2 }).property("my-prop-key-1", "my-prop-value-1")
-				.properties(Collections.singletonMap("my-prop-key-2", "my-prop-value-2")).eventTime(3).sequenceId(4)
-				.replicationClusters(Collections.singletonList("my-cluster")).disableReplication().deliverAt(5)
-				.deliverAfter(6, TimeUnit.SECONDS).correlationMetadata("my-context").build();
+		MessageSpec<String> messageSpec = MessageSpec.builder("my-value")
+			.key("my-key")
+			.keyBytes(new byte[] { 1 })
+			.orderingKey(new byte[] { 2 })
+			.property("my-prop-key-1", "my-prop-value-1")
+			.properties(Collections.singletonMap("my-prop-key-2", "my-prop-value-2"))
+			.eventTime(3)
+			.sequenceId(4)
+			.replicationClusters(Collections.singletonList("my-cluster"))
+			.disableReplication()
+			.deliverAt(5)
+			.deliverAfter(6, TimeUnit.SECONDS)
+			.correlationMetadata("my-context")
+			.build();
 
 		assertThat(messageSpec).isInstanceOf(InternalMessageSpec.class);
 
@@ -55,8 +64,9 @@ class MessageSpecTest {
 		assertThat(typedMessageBuilder.getKey()).isEqualTo("my-key");
 		assertThat(typedMessageBuilder.getKeyBytes()).containsExactly(1);
 		assertThat(typedMessageBuilder.getOrderingKey()).containsExactly(2);
-		assertThat(typedMessageBuilder.getProperties()).hasSize(2).containsEntry("my-prop-key-1", "my-prop-value-1")
-				.containsEntry("my-prop-key-2", "my-prop-value-2");
+		assertThat(typedMessageBuilder.getProperties()).hasSize(2)
+			.containsEntry("my-prop-key-1", "my-prop-value-1")
+			.containsEntry("my-prop-key-2", "my-prop-value-2");
 		assertThat(typedMessageBuilder.getEventTime()).isEqualTo(3);
 		assertThat(typedMessageBuilder.getSequenceId()).isEqualTo(4);
 		assertThat(typedMessageBuilder.getReplicationClusters()).containsExactly("my-cluster");

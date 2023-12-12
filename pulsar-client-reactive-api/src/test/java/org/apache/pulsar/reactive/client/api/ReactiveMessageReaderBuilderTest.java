@@ -73,7 +73,7 @@ class ReactiveMessageReaderBuilderTest {
 	@Test
 	void applySpec() {
 		ReactiveMessageReaderSpec spec = new TestReactiveMessageReaderBuilder().applySpec(createReaderSpec())
-				.getMutableSpec();
+			.getMutableSpec();
 		assertReaderSpecWithAllValues(spec);
 	}
 
@@ -82,8 +82,11 @@ class ReactiveMessageReaderBuilderTest {
 		ArrayList<String> topics = new ArrayList<>();
 		topics.add("topic-1");
 		ReactiveMessageReaderSpec spec = new TestReactiveMessageReaderBuilder().topic("ignored-1")
-				.topic("ignored-2", "ignored-3").topics(topics).topic("topic-2").topic("topic-3", "topic-4")
-				.toImmutableSpec();
+			.topic("ignored-2", "ignored-3")
+			.topics(topics)
+			.topic("topic-2")
+			.topic("topic-3", "topic-4")
+			.toImmutableSpec();
 		assertThat(spec.getTopicNames()).containsExactly("topic-1", "topic-2", "topic-3", "topic-4");
 	}
 
@@ -104,11 +107,15 @@ class ReactiveMessageReaderBuilderTest {
 	}
 
 	private ReactiveMessageReaderBuilder<String> createReaderBuilder() {
-		return new TestReactiveMessageReaderBuilder().topic("my-topic").readerName("my-reader")
-				.subscriptionName("my-sub").generatedSubscriptionNamePrefix("my-prefix-").receiverQueueSize(1)
-				.readCompacted(true).cryptoKeyReader(cryptoKeyReader)
-				.keyHashRanges(Collections.singletonList(new Range(2, 3)))
-				.cryptoFailureAction(ConsumerCryptoFailureAction.FAIL);
+		return new TestReactiveMessageReaderBuilder().topic("my-topic")
+			.readerName("my-reader")
+			.subscriptionName("my-sub")
+			.generatedSubscriptionNamePrefix("my-prefix-")
+			.receiverQueueSize(1)
+			.readCompacted(true)
+			.cryptoKeyReader(cryptoKeyReader)
+			.keyHashRanges(Collections.singletonList(new Range(2, 3)))
+			.cryptoFailureAction(ConsumerCryptoFailureAction.FAIL);
 	}
 
 	static class TestReactiveMessageReaderBuilder implements ReactiveMessageReaderBuilder<String> {

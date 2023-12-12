@@ -149,8 +149,8 @@ public class PulsarReactiveClientModule extends SimpleModule {
 					gen.writeString("immediate");
 					break;
 				case "reactor.core.scheduler.Schedulers$CachedScheduler":
-					gen.writeString(scheduler.toString().substring("Schedulers.".length(),
-							scheduler.toString().length() - "()".length()));
+					gen.writeString(scheduler.toString()
+						.substring("Schedulers.".length(), scheduler.toString().length() - "()".length()));
 					break;
 				default:
 					gen.writeString(scheduler.getClass().getName());
