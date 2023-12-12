@@ -62,4 +62,5 @@ rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = 
 log4j = ["log4j-api", "log4j-core", "log4j-slf4j-impl", "slf4j-api"]
 
 [plugins]
+version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.1"
 versions = "com.github.ben-manes.versions:0.42.0"
