@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link StartAtSpec}
  */
-class StartAtSpecTest {
+class StartAtSpecTests {
 
 	@Test
 	void ofEarliest() {

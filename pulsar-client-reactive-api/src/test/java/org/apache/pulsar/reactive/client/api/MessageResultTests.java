@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link MessageResult}.
  */
-class MessageResultTest {
+class MessageResultTests {
 
 	private static final MessageId MESSAGE_ID = new TestMessageId();
 

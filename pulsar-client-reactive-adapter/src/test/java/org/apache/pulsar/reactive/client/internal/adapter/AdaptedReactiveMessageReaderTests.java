@@ -56,7 +56,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link AdaptedReactiveMessageReader}.
  */
-class AdaptedReactiveMessageReaderTest {
+class AdaptedReactiveMessageReaderTests {
 
 	@Test
 	void readOne() throws Exception {

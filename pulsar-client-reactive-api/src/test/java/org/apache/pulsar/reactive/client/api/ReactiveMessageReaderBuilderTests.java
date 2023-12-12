@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link MutableReactiveMessageReaderSpec} and
  * {@link ImmutableReactiveMessageReaderSpec}.
  */
-class ReactiveMessageReaderBuilderTest {
+class ReactiveMessageReaderBuilderTests {
 
 	private static final CryptoKeyReader cryptoKeyReader = new TestCryptoKeyReader();
 

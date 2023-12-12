@@ -54,7 +54,7 @@ import reactor.util.function.Tuples;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReactiveMessagePipelineE2ETest {
+class ReactiveMessagePipelineE2ETests {
 
 	static final int KEYS_COUNT = 100;
 

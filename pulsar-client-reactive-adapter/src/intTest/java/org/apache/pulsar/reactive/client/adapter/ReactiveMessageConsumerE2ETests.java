@@ -37,7 +37,7 @@ import reactor.core.publisher.Flux;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReactiveMessageConsumerE2ETest {
+class ReactiveMessageConsumerE2ETests {
 
 	@Test
 	void shouldConsumeMessages() throws Exception {

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link MutableReactiveMessageConsumerSpec} and
  * {@link ImmutableReactiveMessageConsumerSpec}.
  */
-class ReactiveMessageConsumerBuilderTest {
+class ReactiveMessageConsumerBuilderTests {
 
 	private static final KeySharedPolicy keySharedPolicy = KeySharedPolicy.autoSplitHashRange();
 

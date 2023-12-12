@@ -51,7 +51,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class CaffeineShadedProducerCacheProviderTest {
+class CaffeineShadedProducerCacheProviderTests {
 
 	@ParameterizedTest
 	@MethodSource

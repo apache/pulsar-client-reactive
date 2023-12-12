@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link MessageSpec}.
  */
-class MessageSpecTest {
+class MessageSpecTests {
 
 	@Test
 	void builder() {

@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-class ReactiveMessagePipelineTest {
+class ReactiveMessagePipelineTests {
 
 	@Test
 	void startStopPipeline() throws Exception {

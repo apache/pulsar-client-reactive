@@ -86,7 +86,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link AdaptedReactiveMessageSender}.
  */
-class AdaptedReactiveMessageSenderTest {
+class AdaptedReactiveMessageSenderTests {
 
 	@Test
 	void sendOne() throws Exception {

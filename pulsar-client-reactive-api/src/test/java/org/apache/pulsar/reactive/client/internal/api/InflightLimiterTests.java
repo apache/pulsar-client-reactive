@@ -42,7 +42,7 @@ import reactor.util.function.Tuple2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InflightLimiterTest {
+class InflightLimiterTests {
 
 	@ParameterizedTest
 	@CsvSource({ "7,100", "13,100", "37,500", "51,1000" })

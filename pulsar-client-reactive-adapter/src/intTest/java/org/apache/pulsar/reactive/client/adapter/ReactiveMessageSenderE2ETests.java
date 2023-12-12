@@ -44,7 +44,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReactiveMessageSenderE2ETest {
+class ReactiveMessageSenderE2ETests {
 
 	private static Stream<Arguments> shouldSendMessageToTopicWithCachedProducer() {
 		return Arrays

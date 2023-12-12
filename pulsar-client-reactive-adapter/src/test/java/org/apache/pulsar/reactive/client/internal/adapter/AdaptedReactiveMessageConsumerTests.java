@@ -70,7 +70,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link AdaptedReactiveMessageConsumer}.
  */
-class AdaptedReactiveMessageConsumerTest {
+class AdaptedReactiveMessageConsumerTests {
 
 	@Test
 	void consumerProperties() throws Exception {

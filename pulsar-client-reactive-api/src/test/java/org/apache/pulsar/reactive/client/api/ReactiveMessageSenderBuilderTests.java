@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link MutableReactiveMessageSenderSpec} and
  * {@link ImmutableReactiveMessageSenderSpec}.
  */
-class ReactiveMessageSenderBuilderTest {
+class ReactiveMessageSenderBuilderTests {
 
 	private static final MessageRouter messageRouter = new MessageRouter() {
 	};

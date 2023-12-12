@@ -57,7 +57,7 @@ import reactor.core.scheduler.Scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PulsarReactiveClientModuleTest {
+class PulsarReactiveClientModuleTests {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new PulsarReactiveClientModule())
 		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
