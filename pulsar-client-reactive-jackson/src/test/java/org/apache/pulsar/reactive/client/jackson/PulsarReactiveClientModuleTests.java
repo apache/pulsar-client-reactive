@@ -103,7 +103,7 @@ class PulsarReactiveClientModuleTests {
 				+ "'autoUpdatePartitions': true,"
 				+ "'autoUpdatePartitionsInterval': 30,"
 				+ "'cryptoKeyReader': {"
-				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader',"
+				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader',"
 				+ "    'args': {'dummy': 'my-dummy'}"
 				+ "},"
 				+ "'cryptoFailureAction': 'FAIL',"
@@ -199,7 +199,7 @@ class PulsarReactiveClientModuleTests {
 				+ "  'autoUpdatePartitions' : true,\n"
 				+ "  'autoUpdatePartitionsInterval' : 30.000000000,\n"
 				+ "  'cryptoKeyReader' : {\n"
-				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader'\n"
+				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader'\n"
 				+ "  },\n"
 				+ "  'cryptoFailureAction' : 'FAIL',\n"
 				+ "  'maxPendingChunkedMessage' : 42,\n"
@@ -240,7 +240,7 @@ class PulsarReactiveClientModuleTests {
 				+ "    'end': 43"
 				+ "}],"
 				+ "'cryptoKeyReader': {"
-				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader',"
+				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader',"
 				+ "    'args': {'dummy': 'my-dummy'}"
 				+ "},"
 				+ "'cryptoFailureAction': 'FAIL'"
@@ -278,7 +278,7 @@ class PulsarReactiveClientModuleTests {
 				+ "    'end' : 43\n"
 				+ "  } ],\n"
 				+ "  'cryptoKeyReader' : {\n"
-				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader'\n"
+				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader'\n"
 				+ "  },\n"
 				+ "  'cryptoFailureAction' : 'FAIL'\n"
 				+ "}").replaceAll("'", "\"");
@@ -325,7 +325,7 @@ class PulsarReactiveClientModuleTests {
 				+ "'hashingScheme': 'JavaStringHash',"
 				+ "'cryptoFailureAction': 'FAIL',"
 				+ "'messageRouter': {"
-				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestMessageRouter',"
+				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestMessageRouter',"
 				+ "    'args': {'dummy': 'my-dummy'}"
 				+ "},"
 				+ "'batchingMaxPublishDelay': 30,"
@@ -338,7 +338,7 @@ class PulsarReactiveClientModuleTests {
 				+ "},"
 				+ "'chunkingEnabled': true,"
 				+ "'cryptoKeyReader': {"
-				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader',"
+				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader',"
 				+ "    'args': {'dummy': 'my-dummy'}"
 				+ "},"
 				+ "'encryptionKeys': ['my-encryption-key'],"
@@ -404,7 +404,7 @@ class PulsarReactiveClientModuleTests {
 				+ "  'cryptoFailureAction' : 'FAIL',\n"
 				+ "  'messageRouter' : {\n"
 				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson"
-				+ ".PulsarReactiveClientModuleTest$TestMessageRouter'\n"
+				+ ".PulsarReactiveClientModuleTests$TestMessageRouter'\n"
 				+ "  },\n"
 				+ "  'batchingMaxPublishDelay' : 30.000000000,\n"
 				+ "  'roundRobinRouterBatchingPartitionSwitchFrequency' : 42,\n"
@@ -414,7 +414,7 @@ class PulsarReactiveClientModuleTests {
 				+ "  'batcherBuilder' : { },\n"
 				+ "  'chunkingEnabled' : true,\n"
 				+ "  'cryptoKeyReader' : {\n"
-				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader'\n"
+				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader'\n"
 				+ "  },\n"
 				+ "  'encryptionKeys' : [ 'my-encryption-key' ],\n"
 				+ "  'compressionType' : 'LZ4',\n"
@@ -445,7 +445,7 @@ class PulsarReactiveClientModuleTests {
 	@Test
 	void shouldSerializeCustomKeySharedPolicy() throws Exception {
 		String json = MAPPER.writeValueAsString(new TestKeySharedPolicy());
-		String expected = "\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestKeySharedPolicy\"";
+		String expected = "\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestKeySharedPolicy\"";
 		assertThat(json).isEqualTo(expected);
 	}
 
@@ -468,7 +468,7 @@ class PulsarReactiveClientModuleTests {
 	@Test
 	void shouldSerializeCustomScheduler() throws Exception {
 		String json = MAPPER.writeValueAsString(new TestScheduler());
-		String expected = "\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestScheduler\"";
+		String expected = "\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestScheduler\"";
 		assertThat(json).isEqualTo(expected);
 	}
 
@@ -498,13 +498,13 @@ class PulsarReactiveClientModuleTests {
 	void shouldSerDeserCryptoKeyReader() throws Exception {
 		// @formatter:off
 		String content = ("{"
-				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader',"
+				+ "    'className': 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader',"
 				+ "    'args': {'dummy': 'my-dummy'}"
 				+ "}").replaceAll("'", "\"");
 		// @formatter:on
 		CryptoKeyReader cryptoKeyReader = MAPPER.readValue(content, CryptoKeyReader.class);
 		String json = MAPPER.writeValueAsString(cryptoKeyReader);
-		String expected = ("{'className':'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTest$TestCryptoKeyReader'}")
+		String expected = ("{'className':'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestCryptoKeyReader'}")
 			.replaceAll("'", "\"");
 		assertThat(json).isEqualTo(expected);
 	}
