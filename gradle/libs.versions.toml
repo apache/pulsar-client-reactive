@@ -17,7 +17,7 @@
 # under the License.
 #
 [versions]
-assertj = "3.23.1"
+assertj = "3.24.2"
 # @pin
 caffeine = "2.9.3"
 checkstyle = "8.45.1"
@@ -25,16 +25,16 @@ checkstyle = "8.45.1"
 jackson = "2.14.2"
 # @pin
 jctools = "3.3.0"
-junit-jupiter = "5.8.2"
+junit-jupiter = "5.10.1"
 licenser = "0.6.1"
-log4j = "2.18.0"
+log4j = "2.22.0"
 mockito = "5.8.0"
 pulsar = "3.1.1"
 rat-gradle = "0.8.0"
 reactor = "3.6.1"
-slf4j = "1.7.36"
-spring-javaformat = "0.0.34"
-testcontainers = "1.17.3"
+slf4j = "2.0.9"
+spring-javaformat = "0.0.40"
+testcontainers = "1.19.3"
 testlogger = "3.2.0"
 
 [libraries]
