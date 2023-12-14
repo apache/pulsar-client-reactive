@@ -17,49 +17,54 @@
 # under the License.
 #
 [versions]
-pulsar = "3.1.1"
-junit-jupiter = "5.8.2"
-log4j = "2.18.0"
-slf4j = "1.7.36"
-reactor = "3.6.1"
 assertj = "3.23.1"
-testcontainers = "1.17.3"
-jctools = "3.3.0"
 caffeine = "2.9.3"
+checkstyle = "8.45.1"
 jackson = "2.14.2"
-checkstyle = '8.45.1'
-spring-javaformat = '0.0.34'
+jctools = "3.3.0"
+junit-jupiter = "5.8.2"
 licenser = "0.6.1"
+log4j = "2.18.0"
 mockito = "5.8.0"
-testlogger = "3.2.0"
+pulsar = "3.1.1"
 rat-gradle = "0.8.0"
+reactor = "3.6.1"
+slf4j = "1.7.36"
+spring-javaformat = "0.0.34"
+testcontainers = "1.17.3"
+testlogger = "3.2.0"
 
 [libraries]
-pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
-pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
-reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
-reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
-log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
-log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
-log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-testcontainers-pulsar = { module = "org.testcontainers:pulsar", version.ref = "testcontainers" }
-jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
+licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
+pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
+rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = "rat-gradle" }
+reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
+reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "spring-javaformat" }
 spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
-licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger"}
-rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = "rat-gradle"}
+testcontainers-pulsar = { module = "org.testcontainers:pulsar", version.ref = "testcontainers" }
+testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger" }
 
 [bundles]
-log4j = ["log4j-api", "log4j-core", "log4j-slf4j-impl", "slf4j-api"]
+log4j = [
+    "log4j-api",
+    "log4j-core",
+    "log4j-slf4j-impl",
+    "slf4j-api",
+]
 
 [plugins]
 version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.1"
