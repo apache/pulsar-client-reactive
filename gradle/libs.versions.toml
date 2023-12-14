@@ -18,9 +18,12 @@
 #
 [versions]
 assertj = "3.23.1"
+# @pin
 caffeine = "2.9.3"
 checkstyle = "8.45.1"
+# @pin
 jackson = "2.14.2"
+# @pin
 jctools = "3.3.0"
 junit-jupiter = "5.8.2"
 licenser = "0.6.1"
