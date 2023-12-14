@@ -35,10 +35,12 @@ abstract class ConverterUtils {
 		if (deadLetterPolicy == null) {
 			return null;
 		}
-		return DeadLetterPolicy.builder().maxRedeliverCount(deadLetterPolicy.getMaxRedeliverCount())
-				.deadLetterTopic(deadLetterPolicy.getDeadLetterTopic())
-				.retryLetterTopic(deadLetterPolicy.getRetryLetterTopic())
-				.initialSubscriptionName(deadLetterPolicy.getInitialSubscriptionName()).build();
+		return DeadLetterPolicy.builder()
+			.maxRedeliverCount(deadLetterPolicy.getMaxRedeliverCount())
+			.deadLetterTopic(deadLetterPolicy.getDeadLetterTopic())
+			.retryLetterTopic(deadLetterPolicy.getRetryLetterTopic())
+			.initialSubscriptionName(deadLetterPolicy.getInitialSubscriptionName())
+			.build();
 	}
 
 	static <T> T toClass(ClassConf conf) {

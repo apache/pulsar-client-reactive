@@ -42,7 +42,7 @@ import reactor.util.function.Tuple2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InflightLimiterTest {
+class InflightLimiterTests {
 
 	@ParameterizedTest
 	@CsvSource({ "7,100", "13,100", "37,500", "51,1000" })
@@ -64,7 +64,7 @@ class InflightLimiterTest {
 				return Mono.delay(Duration.ofMillis(25L)).thenReturn(i).doOnSubscribe((subscription) -> {
 					worker.schedule(() -> {
 						int currentSubscriptionsCount = subscriptionsActiveBeforeCompletingFirstElement
-								.incrementAndGet();
+							.incrementAndGet();
 						subscriptionsMax.accumulateAndGet(currentSubscriptionsCount, Math::max);
 					});
 				}).doOnRequest((requested) -> {
@@ -145,23 +145,27 @@ class InflightLimiterTest {
 
 		Flux<Integer> flux = Flux.fromIterable(inputValues).window(subfluxSize).flatMap((subFlux) -> {
 			AtomicLong currentRequests = new AtomicLong();
-			return subFlux.flatMap((i) -> Mono.delay(Duration.ofMillis(25L)).thenReturn(i)).index()
-					.doOnSubscribe((subscription) -> {
-						int currentSubscriptionsCount = subscriptionsActiveBeforeCompletingFirstElement
-								.incrementAndGet();
-						subscriptionsMax.accumulateAndGet(currentSubscriptionsCount, Math::max);
-					}).doOnRequest((requested) -> {
-						currentRequests.addAndGet(requested);
-						long current = totalRequests.addAndGet(requested);
-						requestsMax.accumulateAndGet(current, Math::max);
-					}).doOnNext((indexed) -> {
-						currentRequests.decrementAndGet();
-						totalRequests.decrementAndGet();
-						if (indexed.getT1() == 0L) {
-							subscriptionsActiveBeforeCompletingFirstElement.decrementAndGet();
-						}
-					}).doFinally((__) -> totalRequests.addAndGet(-currentRequests.getAndSet(0)))
-					.transform(inflightLimiter::transform).subscribeOn(Schedulers.parallel());
+			return subFlux.flatMap((i) -> Mono.delay(Duration.ofMillis(25L)).thenReturn(i))
+				.index()
+				.doOnSubscribe((subscription) -> {
+					int currentSubscriptionsCount = subscriptionsActiveBeforeCompletingFirstElement.incrementAndGet();
+					subscriptionsMax.accumulateAndGet(currentSubscriptionsCount, Math::max);
+				})
+				.doOnRequest((requested) -> {
+					currentRequests.addAndGet(requested);
+					long current = totalRequests.addAndGet(requested);
+					requestsMax.accumulateAndGet(current, Math::max);
+				})
+				.doOnNext((indexed) -> {
+					currentRequests.decrementAndGet();
+					totalRequests.decrementAndGet();
+					if (indexed.getT1() == 0L) {
+						subscriptionsActiveBeforeCompletingFirstElement.decrementAndGet();
+					}
+				})
+				.doFinally((__) -> totalRequests.addAndGet(-currentRequests.getAndSet(0)))
+				.transform(inflightLimiter::transform)
+				.subscribeOn(Schedulers.parallel());
 		}, maxElements).map(Tuple2::getT2);
 
 		List<Integer> values = flux.collectList().block();
@@ -175,16 +179,17 @@ class InflightLimiterTest {
 		InflightLimiter inflightLimiter = new InflightLimiter(1, 0, Schedulers.single(),
 				InflightLimiter.DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
 		List<Integer> values = Flux
-				.merge(100, Flux.range(1, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
-						Flux.range(101, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
-						Flux.range(201, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator))
-				.collectList().block();
-		assertThat(values).containsExactlyInAnyOrderElementsOf(
-				IntStream.rangeClosed(1, 300).boxed().collect(Collectors.toList()));
+			.merge(100, Flux.range(1, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
+					Flux.range(101, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator),
+					Flux.range(201, 100).delayElements(Duration.ofMillis(3)).as(inflightLimiter::createOperator))
+			.collectList()
+			.block();
+		assertThat(values)
+			.containsExactlyInAnyOrderElementsOf(IntStream.rangeClosed(1, 300).boxed().collect(Collectors.toList()));
 		for (int i = 0; i < 100; i = i + 3) {
 			assertThat(new int[] { values.get(i), values.get(i + 1), values.get(i + 2) })
-					.containsExactly(values.get(i), values.get(i) + 100, values.get(i) + 200)
-					.as("values at index %d-%d", i, i + 2);
+				.containsExactly(values.get(i), values.get(i) + 100, values.get(i) + 200)
+				.as("values at index %d-%d", i, i + 2);
 		}
 	}
 

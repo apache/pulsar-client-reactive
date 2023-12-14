@@ -35,7 +35,7 @@ import reactor.core.publisher.Flux;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReactiveMessageReaderE2ETest {
+class ReactiveMessageReaderE2ETests {
 
 	@Test
 	void shouldReadMessages() throws Exception {
@@ -48,11 +48,14 @@ class ReactiveMessageReaderE2ETest {
 			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
 			ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-					.cache(producerCache).topic(topicName).build();
+				.cache(producerCache)
+				.topic(topicName)
+				.build();
 			messageSender.sendMany(Flux.range(1, 100).map(Object::toString).map(MessageSpec::of)).blockLast();
 
 			ReactiveMessageReader<String> messageReader = reactivePulsarClient.messageReader(Schema.STRING)
-					.topic(topicName).build();
+				.topic(topicName)
+				.build();
 			List<String> messages = messageReader.readMany().map(Message::getValue).collectList().block();
 
 			assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());

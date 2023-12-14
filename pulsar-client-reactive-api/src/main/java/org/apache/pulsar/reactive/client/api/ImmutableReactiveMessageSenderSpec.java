@@ -147,7 +147,7 @@ public class ImmutableReactiveMessageSenderSpec implements ReactiveMessageSender
 		this.messageRouter = senderSpec.getMessageRouter();
 		this.batchingMaxPublishDelay = senderSpec.getBatchingMaxPublishDelay();
 		this.roundRobinRouterBatchingPartitionSwitchFrequency = senderSpec
-				.getRoundRobinRouterBatchingPartitionSwitchFrequency();
+			.getRoundRobinRouterBatchingPartitionSwitchFrequency();
 		this.batchingMaxMessages = senderSpec.getBatchingMaxMessages();
 		this.batchingMaxBytes = senderSpec.getBatchingMaxBytes();
 		this.batchingEnabled = senderSpec.getBatchingEnabled();

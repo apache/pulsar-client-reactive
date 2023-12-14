@@ -44,31 +44,34 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReactiveMessageSenderE2ETest {
+class ReactiveMessageSenderE2ETests {
 
 	private static Stream<Arguments> shouldSendMessageToTopicWithCachedProducer() {
-		return Arrays.asList(
-				Arguments.of("ConcurrentHashMapProducerCacheProvider",
-						AdaptedReactivePulsarClientFactory.createCache(new ConcurrentHashMapProducerCacheProvider())),
-				Arguments.of("Default", AdaptedReactivePulsarClientFactory.createCache()),
-				Arguments.of("CaffeineProducerCacheProvider",
-						AdaptedReactivePulsarClientFactory.createCache(new CaffeineProducerCacheProvider())),
-				Arguments.of("CaffeineShadedProducerCacheProvider",
-						AdaptedReactivePulsarClientFactory.createCache(new CaffeineShadedProducerCacheProvider())))
-				.stream();
+		return Arrays
+			.asList(Arguments.of("ConcurrentHashMapProducerCacheProvider",
+					AdaptedReactivePulsarClientFactory.createCache(new ConcurrentHashMapProducerCacheProvider())),
+					Arguments.of("Default", AdaptedReactivePulsarClientFactory.createCache()),
+					Arguments.of("CaffeineProducerCacheProvider",
+							AdaptedReactivePulsarClientFactory.createCache(new CaffeineProducerCacheProvider())),
+					Arguments.of("CaffeineShadedProducerCacheProvider",
+							AdaptedReactivePulsarClientFactory.createCache(new CaffeineShadedProducerCacheProvider())))
+			.stream();
 	}
 
 	@Test
 	void shouldSendMessageToTopic() throws PulsarClientException {
 		try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient()) {
 			String topicName = "test" + UUID.randomUUID();
-			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName)
-					.subscriptionName("sub").subscribe()) {
+			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING)
+				.topic(topicName)
+				.subscriptionName("sub")
+				.subscribe()) {
 
 				ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
 				ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-						.topic(topicName).build();
+					.topic(topicName)
+					.build();
 				MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
 				assertThat(messageId).isNotNull();
 
@@ -86,13 +89,18 @@ class ReactiveMessageSenderE2ETest {
 		try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient();
 				ReactiveMessageSenderCache producerCache = cacheInstance) {
 			String topicName = "test" + UUID.randomUUID();
-			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING).topic(topicName)
-					.subscriptionName("sub").subscribe()) {
+			try (Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING)
+				.topic(topicName)
+				.subscriptionName("sub")
+				.subscribe()) {
 
 				ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 
 				ReactiveMessageSender<String> messageSender = reactivePulsarClient.messageSender(Schema.STRING)
-						.cache(producerCache).maxInflight(1).topic(topicName).build();
+					.cache(producerCache)
+					.maxInflight(1)
+					.topic(topicName)
+					.build();
 				MessageId messageId = messageSender.sendOne(MessageSpec.of("Hello world!")).block();
 				assertThat(messageId).isNotNull();
 

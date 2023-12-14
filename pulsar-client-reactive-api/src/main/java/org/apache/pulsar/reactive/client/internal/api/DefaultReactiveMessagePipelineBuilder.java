@@ -46,7 +46,7 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	static {
 		Iterator<MessageGroupingFunction> groupingFunctionIterator = ServiceLoader.load(MessageGroupingFunction.class)
-				.iterator();
+			.iterator();
 		if (groupingFunctionIterator.hasNext()) {
 			KEY_ORDERED_GROUPING_FUNCTION = groupingFunctionIterator.next();
 		}
@@ -64,10 +64,10 @@ class DefaultReactiveMessagePipelineBuilder<T>
 	private BiConsumer<Message<T>, Throwable> errorLogger;
 
 	private Retry pipelineRetrySpec = Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5))
-			.maxBackoff(Duration.ofMinutes(1))
-			.doBeforeRetry((retrySignal) -> this.LOG.error(
-					"Message handler pipeline failed." + "Retrying to start message handler pipeline, retry #{}",
-					retrySignal.totalRetriesInARow(), retrySignal.failure()));
+		.maxBackoff(Duration.ofMinutes(1))
+		.doBeforeRetry((retrySignal) -> this.LOG.error(
+				"Message handler pipeline failed." + "Retrying to start message handler pipeline, retry #{}",
+				retrySignal.totalRetriesInARow(), retrySignal.failure()));
 
 	private Duration handlingTimeout = Duration.ofSeconds(120);
 

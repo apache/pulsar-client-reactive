@@ -75,7 +75,7 @@ public final class GroupOrderedMessageProcessors {
 			Function<? super Message<T>, ? extends Publisher<? extends R>> messageHandler, Scheduler scheduler,
 			int concurrency) {
 		return groupByProcessingGroup(messageFlux, groupingFunction, concurrency)
-				.flatMap((groupedFlux) -> groupedFlux.publishOn(scheduler).concatMap(messageHandler), concurrency);
+			.flatMap((groupedFlux) -> groupedFlux.publishOn(scheduler).concatMap(messageHandler), concurrency);
 	}
 
 	/**
@@ -94,8 +94,10 @@ public final class GroupOrderedMessageProcessors {
 			MessageGroupingFunction groupingFunction,
 			Function<? super Message<T>, ? extends Publisher<? extends R>> messageHandler, Scheduler scheduler,
 			int parallelism) {
-		return groupByProcessingGroup(messageFlux, groupingFunction, parallelism).parallel(parallelism).runOn(scheduler)
-				.flatMap((groupedFlux) -> groupedFlux.concatMap(messageHandler)).sequential();
+		return groupByProcessingGroup(messageFlux, groupingFunction, parallelism).parallel(parallelism)
+			.runOn(scheduler)
+			.flatMap((groupedFlux) -> groupedFlux.concatMap(messageHandler))
+			.sequential();
 	}
 
 }

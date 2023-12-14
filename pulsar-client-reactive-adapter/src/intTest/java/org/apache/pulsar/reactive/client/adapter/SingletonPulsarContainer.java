@@ -32,15 +32,16 @@ final class SingletonPulsarContainer {
 
 	/** The singleton instance for Pulsar container. */
 	static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(getPulsarImage())
-			.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
+		.withEnv("PULSAR_PREFIX_acknowledgmentAtBatchIndexLevelEnabled", "true");
 
 	static {
 		PULSAR_CONTAINER.start();
 	}
 
 	static PulsarClient createPulsarClient() throws PulsarClientException {
-		return PulsarClient.builder().serviceUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getPulsarBrokerUrl())
-				.build();
+		return PulsarClient.builder()
+			.serviceUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getPulsarBrokerUrl())
+			.build();
 	}
 
 	static DockerImageName getPulsarImage() {

@@ -44,7 +44,7 @@ public final class AdapterImplementationFactory {
 
 	static {
 		Iterator<ProducerCacheProviderFactory> iterator = ServiceLoader.load(ProducerCacheProviderFactory.class)
-				.iterator();
+			.iterator();
 		if (iterator.hasNext()) {
 			PRODUCER_CACHE_PROVIDER_FACTORY = iterator.next();
 		}

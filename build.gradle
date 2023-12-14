@@ -19,6 +19,7 @@
 
 plugins {
     alias(libs.plugins.versions)
+	alias(libs.plugins.version.catalog.update)
 	id 'pulsar-client-reactive.codestyle-conventions'
 }
 
@@ -70,5 +71,18 @@ license {
 		rootProjectExtraFiles {
 			files.from('checkstyle', 'idea', 'shared-test-resources', 'buildSrc/src', 'buildSrc/build.gradle', '.github')
 		}
+	}
+}
+
+tasks.named("dependencyUpdates").configure {
+	rejectVersionIf {
+		it.candidate.version.contains("alpha") || it.candidate.version.contains("beta") || it.candidate.version.contains("rc")
+	}
+}
+
+versionCatalogUpdate {
+	keep {
+		keepUnusedLibraries = true
+		keepUnusedVersions = true
 	}
 }

@@ -41,8 +41,8 @@ class ReactiveReaderAdapter<T> {
 	}
 
 	private Mono<Reader<T>> createReaderMono() {
-		return AdapterImplementationFactory.adaptPulsarFuture(
-				() -> this.readerBuilderFactory.apply(this.pulsarClientSupplier.get()).createAsync());
+		return AdapterImplementationFactory
+			.adaptPulsarFuture(() -> this.readerBuilderFactory.apply(this.pulsarClientSupplier.get()).createAsync());
 	}
 
 	private Mono<Void> closeReader(Reader<?> reader) {

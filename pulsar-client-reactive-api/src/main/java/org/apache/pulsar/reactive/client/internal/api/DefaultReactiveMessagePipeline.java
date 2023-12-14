@@ -80,8 +80,10 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		this.groupingFunction = groupingFunction;
 		this.concurrency = concurrency;
 		this.maxInflight = maxInflight;
-		this.pipeline = messageConsumer.consumeMany(this::createMessageConsumer).then().transform(transformer)
-				.transform(this::decoratePipeline);
+		this.pipeline = messageConsumer.consumeMany(this::createMessageConsumer)
+			.then()
+			.transform(transformer)
+			.transform(this::decoratePipeline);
 	}
 
 	private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
@@ -102,7 +104,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 			Mono<Void> finalPipeline = pipeline;
 			pipeline = Mono.using(() -> new InflightLimiter(this.maxInflight),
 					(inflightLimiter) -> (finalPipeline)
-							.contextWrite(Context.of(INFLIGHT_LIMITER_CONTEXT_KEY, inflightLimiter)),
+						.contextWrite(Context.of(INFLIGHT_LIMITER_CONTEXT_KEY, inflightLimiter)),
 					InflightLimiter::dispose);
 		}
 		if (this.pipelineRetrySpec != null) {
@@ -134,28 +136,31 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 			}
 		}
 		else {
-			return Flux.from(Objects.requireNonNull(this.streamingMessageHandler,
-					"streamingMessageHandler or messageHandler must be set").apply(messageFlux));
+			return Flux.from(Objects
+				.requireNonNull(this.streamingMessageHandler, "streamingMessageHandler or messageHandler must be set")
+				.apply(messageFlux));
 		}
 	}
 
 	private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
-		return Mono.from(this.messageHandler.apply(message)).transform(this::decorateMessageHandler)
-				.thenReturn(MessageResult.acknowledge(message.getMessageId())).onErrorResume((throwable) -> {
-					if (this.errorLogger != null) {
-						try {
-							this.errorLogger.accept(message, throwable);
-						}
-						catch (Exception ex) {
-							LOG.error("Error in calling error logger", ex);
-						}
+		return Mono.from(this.messageHandler.apply(message))
+			.transform(this::decorateMessageHandler)
+			.thenReturn(MessageResult.acknowledge(message.getMessageId()))
+			.onErrorResume((throwable) -> {
+				if (this.errorLogger != null) {
+					try {
+						this.errorLogger.accept(message, throwable);
 					}
-					else {
-						LOG.error("Message handling for message id {} failed.", message.getMessageId(), throwable);
+					catch (Exception ex) {
+						LOG.error("Error in calling error logger", ex);
 					}
-					// TODO: nack doesn't work for batch messages due to Pulsar bugs
-					return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
-				});
+				}
+				else {
+					LOG.error("Message handling for message id {} failed.", message.getMessageId(), throwable);
+				}
+				// TODO: nack doesn't work for batch messages due to Pulsar bugs
+				return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
+			});
 	}
 
 	@Override

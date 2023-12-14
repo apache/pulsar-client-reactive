@@ -60,13 +60,13 @@ class ProducerCacheKeyTests {
 		PulsarClient client = mock(PulsarClient.class);
 		ProducerConfigurationData data = new ProducerConfigurationData();
 		assertThat(new ProducerCacheKey(client, data, Schema.STRING, null))
-				.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, null));
+			.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, null));
 		assertThat(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null))
-				.isEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null));
+			.isEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null));
 		assertThat(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null))
-				.isNotEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Bar.class), null));
+			.isNotEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Bar.class), null));
 		assertThat(new ProducerCacheKey(client, data, Schema.STRING, null))
-				.isNotEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null));
+			.isNotEqualTo(new ProducerCacheKey(client, data, Schema.JSON(Foo.class), null));
 	}
 
 	@Test
@@ -74,11 +74,11 @@ class ProducerCacheKeyTests {
 		PulsarClient client = mock(PulsarClient.class);
 		ProducerConfigurationData data = new ProducerConfigurationData();
 		assertThat(new ProducerCacheKey(client, data, Schema.STRING, null))
-				.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, null));
+			.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, null));
 		assertThat(new ProducerCacheKey(client, data, Schema.STRING, "a"))
-				.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, "a"));
+			.isEqualTo(new ProducerCacheKey(client, data, Schema.STRING, "a"));
 		assertThat(new ProducerCacheKey(client, data, Schema.STRING, "a"))
-				.isNotEqualTo(new ProducerCacheKey(client, data, Schema.STRING, "b"));
+			.isNotEqualTo(new ProducerCacheKey(client, data, Schema.STRING, "b"));
 	}
 
 	static class Foo {
