@@ -30,7 +30,7 @@ jackson = "2.14.2"
 checkstyle = '8.45.1'
 spring-javaformat = '0.0.34'
 licenser = "0.6.1"
-mockito = "4.9.0"
+mockito = "5.8.0"
 testlogger = "3.2.0"
 rat-gradle = "0.8.0"
 
@@ -55,7 +55,6 @@ spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaforma
 spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
 licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
 testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger"}
 rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = "rat-gradle"}
 
