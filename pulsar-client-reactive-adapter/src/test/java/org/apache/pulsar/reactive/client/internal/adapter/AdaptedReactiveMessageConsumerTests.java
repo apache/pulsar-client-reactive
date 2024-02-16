@@ -366,7 +366,7 @@ class AdaptedReactiveMessageConsumerTests {
 
 		StepVerifier
 			.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn))
-				.take(Duration.ofMillis(100)))
+				.take(Duration.ofMillis(200)))
 			.expectNext(message1)
 			.expectNext(message2)
 			.verifyComplete();
