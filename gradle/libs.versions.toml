@@ -17,7 +17,7 @@
 # under the License.
 #
 [versions]
-assertj = "3.25.1"
+assertj = "3.25.3"
 # @pin
 caffeine = "2.9.3"
 checkstyle = "8.45.1"
@@ -25,16 +25,16 @@ checkstyle = "8.45.1"
 jackson = "2.14.2"
 # @pin
 jctools = "3.3.0"
-junit-jupiter = "5.10.1"
+junit-jupiter = "5.10.2"
 licenser = "0.6.1"
-log4j = "2.22.1"
-mockito = "5.8.0"
-pulsar = "3.2.0"
+log4j = "2.23.1"
+mockito = "5.11.0"
+pulsar = "3.2.1"
 rat-gradle = "0.8.0"
-reactor = "3.6.3"
-slf4j = "2.0.11"
-spring-javaformat = "0.0.40"
-testcontainers = "1.19.3"
+reactor = "3.6.4"
+slf4j = "2.0.12"
+spring-javaformat = "0.0.41"
+testcontainers = "1.19.7"
 testlogger = "3.2.0"
 
 [libraries]
@@ -70,5 +70,5 @@ log4j = [
 ]
 
 [plugins]
-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.3"
-versions = "com.github.ben-manes.versions:0.50.0"
+version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"
+versions = "com.github.ben-manes.versions:0.51.0"
