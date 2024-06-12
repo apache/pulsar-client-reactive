@@ -25,7 +25,7 @@ checkstyle = "8.45.1"
 jackson = "2.14.2"
 # @pin
 jctools = "3.3.0"
-junit-jupiter = "5.10.2"
+junit-jupiter = "5.11.0-M2"
 licenser = "0.6.1"
 log4j = "2.23.1"
 mockito = "5.12.0"
