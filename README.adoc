@@ -19,7 +19,7 @@
 = Reactive client for Apache Pulsar
 
 :github: https://github.com/apache/pulsar-client-reactive
-:latest_version: 0.5.5
+:latest_version: 0.5.6
 
 Reactive client for Apache Pulsar which is compatible with the Reactive Streams specification.
 This uses Project Reactor as the Reactive Streams implementation.
