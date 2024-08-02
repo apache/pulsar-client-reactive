@@ -57,6 +57,7 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -77,7 +78,7 @@ class AdaptedReactiveMessageConsumerTests {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 		doReturn(CompletableFuture.completedFuture(new PartitionedTopicMetadata())).when(pulsarClient)
-			.getPartitionedTopicMetadata(anyString());
+			.getPartitionedTopicMetadata(anyString(), anyBoolean());
 
 		Consumer<String> consumer = mock(Consumer.class);
 		doReturn(CompletableFuture.completedFuture(null)).when(consumer).closeAsync();
