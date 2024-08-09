@@ -30,9 +30,14 @@ repositories {
 java {
 	withJavadocJar()
 	withSourcesJar()
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
-sourceCompatibility = '8'
+compileJava {
+	options.release = 8
+}
 
 publishing {
 	repositories {
