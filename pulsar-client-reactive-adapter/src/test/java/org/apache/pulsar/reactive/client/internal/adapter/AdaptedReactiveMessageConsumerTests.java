@@ -78,7 +78,7 @@ class AdaptedReactiveMessageConsumerTests {
 		PulsarClientImpl pulsarClient = spy(
 				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
 		doReturn(CompletableFuture.completedFuture(new PartitionedTopicMetadata())).when(pulsarClient)
-			.getPartitionedTopicMetadata(anyString(), anyBoolean());
+			.getPartitionedTopicMetadata(anyString(), anyBoolean(), anyBoolean());
 
 		Consumer<String> consumer = mock(Consumer.class);
 		doReturn(CompletableFuture.completedFuture(null)).when(consumer).closeAsync();
