@@ -77,6 +77,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -195,11 +196,11 @@ class AdaptedReactiveMessageSenderTests {
 		given(producer.newMessage()).willAnswer((__) -> {
 			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
 					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+			willAnswer((___) -> {
 				CompletableFuture<MessageId> failed = new CompletableFuture<>();
 				failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
 				return failed;
-			});
+			}).given(typedMessageBuilder).sendAsync();
 			return typedMessageBuilder;
 		});
 
@@ -231,7 +232,7 @@ class AdaptedReactiveMessageSenderTests {
 		given(producer.newMessage()).willAnswer((__) -> {
 			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
 					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+			willAnswer((___) -> {
 				if (entryId.get() == 1) {
 					CompletableFuture<MessageId> failed = new CompletableFuture<>();
 					failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
@@ -241,7 +242,7 @@ class AdaptedReactiveMessageSenderTests {
 					.newMessageId(1, entryId.incrementAndGet(), 1);
 				messageIds.add(messageId);
 				return CompletableFuture.completedFuture(messageId);
-			});
+			}).given(typedMessageBuilder).sendAsync();
 			return typedMessageBuilder;
 		});
 
@@ -279,7 +280,7 @@ class AdaptedReactiveMessageSenderTests {
 		given(producer.newMessage()).willAnswer((__) -> {
 			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
 					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-			given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+			willAnswer((___) -> {
 				if (entryId.get() == 2) {
 					CompletableFuture<MessageId> failed = new CompletableFuture<>();
 					failed.completeExceptionally(new ProducerQueueIsFullError("Queue is full"));
@@ -289,7 +290,7 @@ class AdaptedReactiveMessageSenderTests {
 					.newMessageId(1, entryId.incrementAndGet(), 1);
 				messageIds.add(messageId);
 				return CompletableFuture.completedFuture(messageId);
-			});
+			}).given(typedMessageBuilder).sendAsync();
 			return typedMessageBuilder;
 		});
 
@@ -498,7 +499,7 @@ class AdaptedReactiveMessageSenderTests {
 			given(producer.newMessage()).willAnswer((__) -> {
 				TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
 						new TypedMessageBuilderImpl<>(producer, Schema.STRING));
-				given(typedMessageBuilder.sendAsync()).willAnswer((___) -> {
+				willAnswer((___) -> {
 					CompletableFuture<MessageId> messageSender = new CompletableFuture<>();
 					finalExecutorService.execute(() -> {
 						long current = totalRequests.incrementAndGet();
@@ -512,7 +513,7 @@ class AdaptedReactiveMessageSenderTests {
 								DefaultImplementation.getDefaultImplementation().newMessageId(1, encodedEntryId, 1));
 					}, 100, TimeUnit.MILLISECONDS);
 					return messageSender;
-				});
+				}).given(typedMessageBuilder).sendAsync();
 				return typedMessageBuilder;
 			});
 
