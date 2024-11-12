@@ -50,6 +50,82 @@ With Maven:
 </dependencies>
 ----
 
+[[pulsar-client-reactive-bom]]
+=== Pulsar Client Reactive BOM
+
+While the above dependency is sufficient to obtain the Pulsar Reactive Java client, it is recommended to also use the provided BOM to ensure that all Pulsar dependencies are at the same expected version.
+In order to use the BOM, the previous directions are modified slightly as follows:
+
+With Gradle:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+def pulsarReactiveVersion = '{latest_version}'
+
+dependencies {
+  implementation enforcedPlatform("org.apache.pulsar:pulsar-client-reactive-bom:${pulsarVersion}")
+  implementation 'org.apache.pulsar:pulsar-client-reactive-adapter'
+}
+----
+
+With Maven:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<!-- in your <properties> block -->
+<pulsar-reactive.version>{latest_version}</pulsar-reactive.version>
+
+<!-- in your <dependencyManagement>/<dependencies> block -->
+<dependency>
+  <groupId>org.apache.pulsar</groupId>
+  <artifactId>pulsar-client-reactive-bom</artifactId>
+  <version>${pulsar-reactive.version}</version>
+  <type>pom</type>
+  <scope>import</scope>
+</dependency>
+
+<!-- in your <dependencies> block -->
+<dependency>
+  <groupId>org.apache.pulsar</groupId>
+  <artifactId>pulsar-client-reactive-adapter</artifactId>
+</dependency>
+----
+
+=== Spring Boot
+When using the Spring Boot Pulsar Reactive starter there is no need to directly specify the client dependency as described above because it will be automatically added to dependencies as a transitive dependency of the `spring-boot-starter-pulsar-reactive` dependency.
+
+The Spring Boot https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-dependency-versions.html[Dependency Version properties] define `pulsar-reactive.version` for controlling the Pulsar Java Reactive client version.
+
+You can find more information about using Pulsar with Spring Boot in the https://docs.spring.io/spring-boot/reference/messaging/pulsar.html[Spring Boot documentation].
+
+With Gradle:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+// Alternatively, you can set the `pulsar-reactive.version` property in the `gradle.properties` file.
+ext['pulsar-reactive.version'] = '{latest_version}'
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-pulsar-reactive'
+}
+----
+
+With Maven:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<!-- in your <properties> block -->
+<pulsar-reactive.version>{latest_version}</pulsar-reactive.version>
+
+<!-- in your <dependencies> block -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-pulsar-reactive</artifactId>
+</dependency>
+----
+
+NOTE: In both Maven and Gradle cases above, the `pulsar-reactive.version` only needs to be specified when you want to override the version of the client that Spring Boot recommends.
+
 == Usage
 
 === Initializing the library
@@ -111,7 +187,9 @@ Adding Caffeine based producer cache with Maven:
     </dependency>
 </dependencies>
 ----
-
+====
+[small]#When using the xref:pulsar-client-reactive-bom[BOM] the above dependency version numbers can be omitted#
+====
 Usage example of cache
 
 [source,java]
@@ -168,6 +246,9 @@ Adding shaded Caffeine based producer cache with Maven:
     </dependency>
 </dependencies>
 ----
+====
+[small]#When using the xref:pulsar-client-reactive-bom[BOM] the above dependency version numbers can be omitted#
+====
 
 
 === Reading messages

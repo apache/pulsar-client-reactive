@@ -20,6 +20,7 @@
 rootProject.name = 'pulsar-client-reactive'
 include 'pulsar-client-reactive-api'
 include 'pulsar-client-reactive-adapter'
+include 'pulsar-client-reactive-bom'
 include 'pulsar-client-reactive-producer-cache-caffeine'
 include 'pulsar-client-reactive-producer-cache-caffeine-shaded'
 include 'pulsar-client-reactive-jackson'
