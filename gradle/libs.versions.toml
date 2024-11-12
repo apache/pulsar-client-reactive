@@ -25,16 +25,16 @@ checkstyle = "8.45.1"
 jackson = "2.14.2"
 # @pin
 jctools = "3.3.0"
-junit-jupiter = "5.11.2"
+junit-jupiter = "5.11.3"
 licenser = "0.6.1"
 log4j = "2.23.1"
-mockito = "5.14.0"
+mockito = "5.14.2"
 pulsar = "3.3.2"
 rat-gradle = "0.8.0"
-reactor = "3.6.11"
+reactor = "3.6.12"
 slf4j = "2.0.16"
 spring-javaformat = "0.0.43"
-testcontainers = "1.20.2"
+testcontainers = "1.20.3"
 testlogger = "3.2.0"
 
 [libraries]
@@ -70,5 +70,5 @@ log4j = [
 ]
 
 [plugins]
-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"
+version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.5"
 versions = "com.github.ben-manes.versions:0.51.0"
