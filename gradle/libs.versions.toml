@@ -31,10 +31,10 @@ log4j = "2.23.1"
 mockito = "5.14.2"
 pulsar = "4.0.1"
 rat-gradle = "0.8.0"
-reactor = "3.6.12"
+reactor = "3.6.13"
 slf4j = "2.0.16"
 spring-javaformat = "0.0.43"
-testcontainers = "1.20.3"
+testcontainers = "1.20.4"
 testlogger = "3.2.0"
 
 [libraries]
