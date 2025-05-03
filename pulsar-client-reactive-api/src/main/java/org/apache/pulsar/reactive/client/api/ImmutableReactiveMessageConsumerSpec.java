@@ -31,6 +31,7 @@ import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -85,6 +86,10 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 	private final Scheduler acknowledgeScheduler;
 
 	private final Duration negativeAckRedeliveryDelay;
+
+	private final RedeliveryBackoff negativeAckRedeliveryBackoff;
+
+	private final RedeliveryBackoff ackTimeoutRedeliveryBackoff;
 
 	private final DeadLetterPolicy deadLetterPolicy;
 
@@ -160,6 +165,8 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.acknowledgeAsynchronously = consumerSpec.getAcknowledgeAsynchronously();
 		this.acknowledgeScheduler = consumerSpec.getAcknowledgeScheduler();
 		this.negativeAckRedeliveryDelay = consumerSpec.getNegativeAckRedeliveryDelay();
+		this.negativeAckRedeliveryBackoff = consumerSpec.getNegativeAckRedeliveryBackoff();
+		this.ackTimeoutRedeliveryBackoff = consumerSpec.getAckTimeoutRedeliveryBackoff();
 
 		this.deadLetterPolicy = consumerSpec.getDeadLetterPolicy();
 
@@ -192,6 +199,7 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 			Map<String, String> properties, Integer priorityLevel, Boolean readCompacted, Boolean batchIndexAckEnabled,
 			Duration ackTimeout, Duration ackTimeoutTickTime, Duration acknowledgementsGroupTime,
 			Boolean acknowledgeAsynchronously, Scheduler acknowledgeScheduler, Duration negativeAckRedeliveryDelay,
+			RedeliveryBackoff negativeAckRedeliveryBackoff, RedeliveryBackoff ackTimeoutRedeliveryBackoff,
 			DeadLetterPolicy deadLetterPolicy, Boolean retryLetterTopicEnable, Integer receiverQueueSize,
 			Integer maxTotalReceiverQueueSizeAcrossPartitions, Boolean autoUpdatePartitions,
 			Duration autoUpdatePartitionsInterval, CryptoKeyReader cryptoKeyReader,
@@ -219,6 +227,8 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.acknowledgeAsynchronously = acknowledgeAsynchronously;
 		this.acknowledgeScheduler = acknowledgeScheduler;
 		this.negativeAckRedeliveryDelay = negativeAckRedeliveryDelay;
+		this.negativeAckRedeliveryBackoff = negativeAckRedeliveryBackoff;
+		this.ackTimeoutRedeliveryBackoff = ackTimeoutRedeliveryBackoff;
 		this.deadLetterPolicy = deadLetterPolicy;
 		this.retryLetterTopicEnable = retryLetterTopicEnable;
 		this.receiverQueueSize = receiverQueueSize;
@@ -340,6 +350,16 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 	@Override
 	public Duration getNegativeAckRedeliveryDelay() {
 		return this.negativeAckRedeliveryDelay;
+	}
+
+	@Override
+	public RedeliveryBackoff getNegativeAckRedeliveryBackoff() {
+		return this.negativeAckRedeliveryBackoff;
+	}
+
+	@Override
+	public RedeliveryBackoff getAckTimeoutRedeliveryBackoff() {
+		return this.ackTimeoutRedeliveryBackoff;
 	}
 
 	@Override

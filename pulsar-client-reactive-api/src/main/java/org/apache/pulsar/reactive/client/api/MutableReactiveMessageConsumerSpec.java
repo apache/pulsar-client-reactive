@@ -30,6 +30,7 @@ import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -84,6 +85,10 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 	private Scheduler acknowledgeScheduler;
 
 	private Duration negativeAckRedeliveryDelay;
+
+	private RedeliveryBackoff negativeAckRedeliveryBackoff;
+
+	private RedeliveryBackoff ackTimeoutRedeliveryBackoff;
 
 	private DeadLetterPolicy deadLetterPolicy;
 
@@ -165,6 +170,8 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 		this.acknowledgeAsynchronously = consumerSpec.getAcknowledgeAsynchronously();
 		this.acknowledgeScheduler = consumerSpec.getAcknowledgeScheduler();
 		this.negativeAckRedeliveryDelay = consumerSpec.getNegativeAckRedeliveryDelay();
+		this.negativeAckRedeliveryBackoff = consumerSpec.getNegativeAckRedeliveryBackoff();
+		this.ackTimeoutRedeliveryBackoff = consumerSpec.getAckTimeoutRedeliveryBackoff();
 
 		this.deadLetterPolicy = consumerSpec.getDeadLetterPolicy();
 
@@ -483,6 +490,32 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 	}
 
 	@Override
+	public RedeliveryBackoff getAckTimeoutRedeliveryBackoff() {
+		return this.ackTimeoutRedeliveryBackoff;
+	}
+
+	/**
+	 * Sets the redelivery backoff policy for messages that are redelivered due to acknowledgement timeout.
+	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that exceed their ack timeout
+	 */
+	public void setAckTimeoutRedeliveryBackoff(RedeliveryBackoff ackTimeoutRedeliveryBackoff) {
+		this.ackTimeoutRedeliveryBackoff = ackTimeoutRedeliveryBackoff;
+	}
+
+	@Override
+	public RedeliveryBackoff getNegativeAckRedeliveryBackoff() {
+		return this.negativeAckRedeliveryBackoff;
+	}
+
+	/**
+	 * Sets the redelivery backoff policy for messages that are negatively acknowledged.
+	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively acknowledged messages
+	 */
+	public void setNegativeAckRedeliveryBackoff(RedeliveryBackoff negativeAckRedeliveryBackoff) {
+		this.negativeAckRedeliveryBackoff = negativeAckRedeliveryBackoff;
+	}
+
+	@Override
 	public DeadLetterPolicy getDeadLetterPolicy() {
 		return this.deadLetterPolicy;
 	}
@@ -704,6 +737,12 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 		}
 		if (consumerSpec.getNegativeAckRedeliveryDelay() != null) {
 			setNegativeAckRedeliveryDelay(consumerSpec.getNegativeAckRedeliveryDelay());
+		}
+		if (consumerSpec.getNegativeAckRedeliveryBackoff() != null) {
+			setNegativeAckRedeliveryBackoff(consumerSpec.getNegativeAckRedeliveryBackoff());
+		}
+		if (consumerSpec.getAckTimeoutRedeliveryBackoff() != null) {
+			setAckTimeoutRedeliveryBackoff(consumerSpec.getAckTimeoutRedeliveryBackoff());
 		}
 		if (consumerSpec.getDeadLetterPolicy() != null) {
 			setDeadLetterPolicy(consumerSpec.getDeadLetterPolicy());

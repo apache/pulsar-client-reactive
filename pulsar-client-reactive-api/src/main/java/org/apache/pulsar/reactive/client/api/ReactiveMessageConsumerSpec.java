@@ -29,6 +29,7 @@ import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -197,6 +198,22 @@ public interface ReactiveMessageConsumerSpec {
 	 * @see ConsumerBuilder#negativeAckRedeliveryDelay
 	 */
 	Duration getNegativeAckRedeliveryDelay();
+
+	/**
+	 * Get the negative ack redelivery backoff policy for messages
+	 * that are negatively acknowledged.
+	 * @return redeliveryBackoff
+	 * @see ConsumerBuilder#negativeAckRedeliveryBackoff
+	 */
+	RedeliveryBackoff getNegativeAckRedeliveryBackoff();
+
+	/**
+	 * Get the redelivery backoff policy for messages that are redelivered
+	 * due to acknowledgement timeout.
+	 * @return redeliveryBackoff
+	 * @see ConsumerBuilder#ackTimeoutRedeliveryBackoff
+	 */
+	RedeliveryBackoff getAckTimeoutRedeliveryBackoff();
 
 	/**
 	 * Gets the dead letter policy for the consumer.
