@@ -37,6 +37,7 @@ import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.Range;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageConsumerSpec;
 import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageReaderSpec;
 import org.apache.pulsar.reactive.client.api.ImmutableReactiveMessageSenderSpec;
@@ -63,6 +64,8 @@ public class PulsarReactiveClientModule extends SimpleModule {
 		addDeserializer(Scheduler.class, new SchedulerDeserializer());
 		addSerializer(Scheduler.class, new SchedulerSerializer());
 		addDeserializer(DeadLetterPolicy.class, new DeadLetterPolicyDeserializer());
+		addDeserializer(RedeliveryBackoff.class, new ClassDeserializer<>());
+		addSerializer(RedeliveryBackoff.class, new ClassSerializer<>());
 		addDeserializer(CryptoKeyReader.class, new ClassDeserializer<>());
 		addSerializer(CryptoKeyReader.class, new ClassSerializer<>());
 		addDeserializer(Range.class, new RangeDeserializer());

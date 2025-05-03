@@ -32,6 +32,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -524,6 +525,27 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	 */
 	default ReactiveMessageConsumerBuilder<T> negativeAckRedeliveryDelay(Duration negativeAckRedeliveryDelay) {
 		getMutableSpec().setNegativeAckRedeliveryDelay(negativeAckRedeliveryDelay);
+		return this;
+	}
+
+	/**
+	 * Sets the redelivery backoff policy for messages that are negatively acknowledged.
+	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively acknowledged messages
+	 * @return the consumer builder instance
+	 */
+	default ReactiveMessageConsumerBuilder<T> negativeAckRedeliveryBackoff(RedeliveryBackoff negativeAckRedeliveryBackoff) {
+		getMutableSpec().setNegativeAckRedeliveryBackoff(negativeAckRedeliveryBackoff);
+		return this;
+	}
+
+	/**
+	 * Sets the redelivery backoff policy for messages that are redelivered due to
+	 * acknowledgement timeout.
+	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that exceed their ack timeout
+	 * @return the consumer builder instance
+	 */
+	default ReactiveMessageConsumerBuilder<T> ackTimeoutRedeliveryBackoff(RedeliveryBackoff ackTimeoutRedeliveryBackoff) {
+		getMutableSpec().setAckTimeoutRedeliveryBackoff(ackTimeoutRedeliveryBackoff);
 		return this;
 	}
 

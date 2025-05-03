@@ -40,6 +40,7 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
@@ -90,6 +91,8 @@ class AdaptedReactiveMessageConsumerTests {
 			.maxRedeliverCount(1)
 			.build();
 
+		ExponentialRedeliveryBackoff exponentialRedeliveryBackoff = new ExponentialRedeliveryBackoff();
+
 		ConsumerConfigurationData<String> expectedConsumerConf = new ConsumerConfigurationData<>();
 		expectedConsumerConf.setTopicNames(new HashSet<>(Arrays.asList("my-topic", "my-rlt")));
 		expectedConsumerConf.setSubscriptionName("my-sub");
@@ -115,6 +118,8 @@ class AdaptedReactiveMessageConsumerTests {
 		expectedConsumerConf.setTickDurationMillis(TimeUnit.SECONDS.toMillis(4));
 		expectedConsumerConf.setAcknowledgementsGroupTimeMicros(TimeUnit.SECONDS.toMicros(5));
 		expectedConsumerConf.setNegativeAckRedeliveryDelayMicros(TimeUnit.SECONDS.toMicros(6));
+		expectedConsumerConf.setNegativeAckRedeliveryBackoff(exponentialRedeliveryBackoff);
+		expectedConsumerConf.setAckTimeoutRedeliveryBackoff(exponentialRedeliveryBackoff);
 		expectedConsumerConf.setDeadLetterPolicy(deadLetterPolicy);
 		expectedConsumerConf.setRetryEnable(true);
 		expectedConsumerConf.setReceiverQueueSize(7);
@@ -151,6 +156,8 @@ class AdaptedReactiveMessageConsumerTests {
 			.ackTimeoutTickTime(Duration.ofSeconds(4))
 			.acknowledgementsGroupTime(Duration.ofSeconds(5))
 			.negativeAckRedeliveryDelay(Duration.ofSeconds(6))
+			.negativeAckRedeliveryBackoff(exponentialRedeliveryBackoff)
+			.ackTimeoutRedeliveryBackoff(exponentialRedeliveryBackoff)
 			.deadLetterPolicy(deadLetterPolicy)
 			.retryLetterTopicEnable(true)
 			.receiverQueueSize(7)
@@ -406,4 +413,11 @@ class AdaptedReactiveMessageConsumerTests {
 			.verifyError(PulsarClientException.InvalidMessageException.class);
 	}
 
+	static class ExponentialRedeliveryBackoff implements RedeliveryBackoff {
+
+		@Override
+		public long next(int redeliveryCount) {
+			return redeliveryCount * 2L;
+		}
+	}
 }

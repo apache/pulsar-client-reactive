@@ -30,6 +30,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.EncryptionKeyInfo;
 import org.apache.pulsar.client.api.KeySharedPolicy;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -54,6 +55,13 @@ class ReactiveMessageConsumerBuilderTests {
 	private static final DeadLetterPolicy deadLetterPolicy = DeadLetterPolicy.builder().build();
 
 	private static final Scheduler scheduler = Schedulers.newSingle("my-sched");
+
+	private static final RedeliveryBackoff redeliverBackoff = new RedeliveryBackoff() {
+		@Override
+		public long next(int redeliveryCount) {
+			return redeliveryCount * 2L;
+		}
+	};
 
 	@Test
 	void emptyBuilder() {
@@ -154,6 +162,8 @@ class ReactiveMessageConsumerBuilderTests {
 		assertThat(spec.getAcknowledgeAsynchronously()).isTrue();
 		assertThat(spec.getAcknowledgeScheduler()).isSameAs(scheduler);
 		assertThat(spec.getNegativeAckRedeliveryDelay()).hasSeconds(6);
+		assertThat(spec.getAckTimeoutRedeliveryBackoff()).isEqualTo(redeliverBackoff);
+		assertThat(spec.getNegativeAckRedeliveryBackoff()).isEqualTo(redeliverBackoff);
 		assertThat(spec.getDeadLetterPolicy()).isSameAs(deadLetterPolicy);
 		assertThat(spec.getRetryLetterTopicEnable()).isTrue();
 		assertThat(spec.getReceiverQueueSize()).isEqualTo(7);
@@ -194,6 +204,8 @@ class ReactiveMessageConsumerBuilderTests {
 			.acknowledgeAsynchronously(true)
 			.acknowledgeScheduler(scheduler)
 			.negativeAckRedeliveryDelay(Duration.ofSeconds(6))
+			.negativeAckRedeliveryBackoff(redeliverBackoff)
+			.ackTimeoutRedeliveryBackoff(redeliverBackoff)
 			.deadLetterPolicy(deadLetterPolicy)
 			.retryLetterTopicEnable(true)
 			.receiverQueueSize(7)

@@ -173,6 +173,12 @@ class AdaptedReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 			consumerBuilder.negativeAckRedeliveryDelay(this.consumerSpec.getNegativeAckRedeliveryDelay().toMillis(),
 					TimeUnit.MILLISECONDS);
 		}
+		if (this.consumerSpec.getAckTimeoutRedeliveryBackoff() != null) {
+			consumerBuilder.ackTimeoutRedeliveryBackoff(this.consumerSpec.getAckTimeoutRedeliveryBackoff());
+		}
+		if (this.consumerSpec.getNegativeAckRedeliveryBackoff() != null) {
+			consumerBuilder.negativeAckRedeliveryBackoff(this.consumerSpec.getNegativeAckRedeliveryBackoff());
+		}
 		if (this.consumerSpec.getDeadLetterPolicy() != null) {
 			consumerBuilder.deadLetterPolicy(this.consumerSpec.getDeadLetterPolicy());
 		}
