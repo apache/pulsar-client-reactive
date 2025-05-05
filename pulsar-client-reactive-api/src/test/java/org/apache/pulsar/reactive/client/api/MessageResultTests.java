@@ -71,8 +71,8 @@ class MessageResultTests {
 	@Test
 	void acknowledgeByMessage() {
 		Message<String> message = new TestMessage();
-		MessageResult<Void> result = MessageResult.acknowledge(message);
-		assertThat(result.getValue()).isNull();
+		MessageResult<String> result = MessageResult.acknowledge(message);
+		assertThat(result.getValue()).isNotNull();
 		assertThat(result.getMessageId()).isEqualTo(MESSAGE_ID);
 		assertThat(result.isAcknowledgeMessage()).isTrue();
 	}
@@ -80,8 +80,8 @@ class MessageResultTests {
 	@Test
 	void negativeAcknowledgeByMessage() {
 		Message<String> message = new TestMessage();
-		MessageResult<Void> result = MessageResult.negativeAcknowledge(message);
-		assertThat(result.getValue()).isNull();
+		MessageResult<String> result = MessageResult.negativeAcknowledge(message);
+		assertThat(result.getValue()).isNotNull();
 		assertThat(result.getMessageId()).isEqualTo(MESSAGE_ID);
 		assertThat(result.isAcknowledgeMessage()).isFalse();
 	}

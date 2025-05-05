@@ -38,11 +38,20 @@ public interface ReactiveMessagePipelineBuilder<T> {
 
 	/**
 	 * Sets a handler function that processes messages one-by-one.
-	 * @param messageHandler a function that takes a message as input and returns an empty
-	 * Publisher
+	 * @param messageHandler a function that takes a message as input, automatically acknowledge messages
+	 * and returns an empty Publisher.
 	 * @return a builder for the pipeline handling messages one-by-one
 	 */
 	OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Publisher<Void>> messageHandler);
+
+	/**
+	 * Sets a handler function that processes messages one-by-one.
+	 * @param messageHandler a function that takes a message as input and returns
+	 * a {@link MessageResult} that contains the acknowledgement or negative
+	 * acknowledgement value of the processing.
+	 * @return a builder for the pipeline handling messages one-by-one
+	 */
+	OneByOneMessagePipelineBuilder<T> messageHandlerWithResult(Function<Message<T>, Publisher<MessageResult<T>>> messageHandler);
 
 	/**
 	 * Sets a handler function that processes the stream of messages.

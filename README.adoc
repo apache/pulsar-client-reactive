@@ -328,6 +328,41 @@ Thread.sleep(10000L);
 reactiveMessagePipeline.stop();
 ----
 
+=== Consuming messages using a message handler component with redelivery
+
+For demonstration purposes, the `messageHandlerWithResult` negatively acknowledge all messages
+that are redelivered 3 times with an exponential backoff delay and finally goes to the dead letter topic.
+
+[source,java]
+----
+ReactiveMessagePipeline reactiveMessagePipeline =
+    reactivePulsarClient
+        .messageConsumer(Schema.STRING)
+        .subscriptionName("sub")
+        .topic(topicName)
+        .negativeAckRedeliveryBackoff(new ExponentialRedeliveryBackoff(2, 1500))
+        .retryLetterTopicEnable(true)
+        .deadLetterPolicy(DeadLetterPolicy.builder()
+                .maxRedeliverCount(3)
+                .retryLetterTopic(topicName+"-RETRY")
+                .deadLetterTopic(topicName+"-DLQ")
+                .initialSubscriptionName("sub")
+                .build())
+        .build()
+        .messagePipeline()
+        .messageHandlerWithResult(message -> {
+            System.out.println("message date=" + new Date() + " value=" + message.getValue());
+            return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId(), message.getValue()));
+        })
+        .build()
+        .start();
+// for demonstration
+// the reactive message handler is running in the background, delay for 10 seconds
+Thread.sleep(10000L);
+// now stop the message handler component
+reactiveMessagePipeline.stop();
+----
+
 == License
 
 Reactive client for Apache Pulsar is Open Source Software released under the link:www.apache.org/licenses/LICENSE-2.0[Apache Software License 2.0].
