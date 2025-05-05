@@ -78,8 +78,8 @@ public interface MessageResult<T> {
 	 * @param message the message to acknowledge
 	 * @return the result of the message processing
 	 */
-	static <V> MessageResult<Void> acknowledge(Message<V> message) {
-		return acknowledge(message.getMessageId());
+	static <V> MessageResult<V> acknowledge(Message<V> message) {
+		return acknowledge(message.getMessageId(), message.getValue());
 	}
 
 	/**
@@ -89,8 +89,8 @@ public interface MessageResult<T> {
 	 * @param message the message to negatively acknowledge
 	 * @return the result of the message processing
 	 */
-	static <V> MessageResult<Void> negativeAcknowledge(Message<V> message) {
-		return negativeAcknowledge(message.getMessageId());
+	static <V> MessageResult<V> negativeAcknowledge(Message<V> message) {
+		return negativeAcknowledge(message.getMessageId(), message.getValue());
 	}
 
 	/**

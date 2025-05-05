@@ -170,7 +170,7 @@ class ReactiveMessagePipelineTests {
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 		CountDownLatch latch = new CountDownLatch(numMessages);
 		Function<Flux<Message<String>>, Publisher<MessageResult<Void>>> messageHandler = (
-				messageFlux) -> messageFlux.map(MessageResult::acknowledge).doOnNext((__) -> latch.countDown());
+				messageFlux) -> messageFlux.map((m) -> MessageResult.acknowledge(m.getMessageId())).doOnNext((__) -> latch.countDown());
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline()
 			.streamingMessageHandler(messageHandler)
 			.build()) {
@@ -189,7 +189,7 @@ class ReactiveMessagePipelineTests {
 	void bothMessageHandlerAndStreamingHandler() {
 		assertThatIllegalStateException().isThrownBy(() -> new TestConsumer(0).messagePipeline()
 			.messageHandler((m) -> Mono.empty())
-			.streamingMessageHandler((messageFlux) -> messageFlux.map(MessageResult::acknowledge))
+			.streamingMessageHandler((messageFlux) -> messageFlux.map((m) -> MessageResult.acknowledge(m.getMessageId())))
 			.build());
 	}
 
@@ -200,7 +200,7 @@ class ReactiveMessagePipelineTests {
 		CountDownLatch latch = new CountDownLatch(1);
 		testConsumer.setFinishedCallback(latch::countDown);
 		AtomicReference<MessageId> timedoutMessageId = new AtomicReference<>();
-		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> Mono.defer(() -> {
+		Function<Message<String>, Publisher<MessageResult<String>>> messageHandler = (message) -> Mono.defer(() -> {
 			Duration delay;
 			if (message.getValue().equals("5")) {
 				delay = Duration.ofMillis(15);
@@ -209,10 +209,10 @@ class ReactiveMessagePipelineTests {
 			else {
 				delay = Duration.ofMillis(2);
 			}
-			return Mono.delay(delay).then();
+			return Mono.delay(delay).map((d) -> MessageResult.acknowledge(message));
 		});
 		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline()
-			.messageHandler(messageHandler)
+			.messageHandlerWithResult(messageHandler)
 			.handlingTimeout(Duration.ofMillis(5))
 			.build()) {
 			pipeline.start();

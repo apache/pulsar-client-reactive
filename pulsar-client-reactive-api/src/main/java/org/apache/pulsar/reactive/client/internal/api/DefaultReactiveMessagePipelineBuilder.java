@@ -59,7 +59,7 @@ class DefaultReactiveMessagePipelineBuilder<T>
 
 	private final ReactiveMessageConsumer<T> messageConsumer;
 
-	private Function<Message<T>, Publisher<Void>> messageHandler;
+	private Function<Message<T>, Publisher<MessageResult<T>>> messageHandler;
 
 	private BiConsumer<Message<T>, Throwable> errorLogger;
 
@@ -86,7 +86,15 @@ class DefaultReactiveMessagePipelineBuilder<T>
 	}
 
 	@Override
-	public OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Publisher<Void>> messageHandler) {
+	public OneByOneMessagePipelineBuilder<T> messageHandler(Function<Message<T>, Publisher<Void>> messageHandlerWithoutResult) {
+		this.messageHandler = (message) ->
+			Mono.from(messageHandlerWithoutResult.apply(message))
+			.map((v) -> MessageResult.acknowledge(message));
+		return this;
+	}
+
+	@Override
+	public OneByOneMessagePipelineBuilder<T> messageHandlerWithResult(Function<Message<T>, Publisher<MessageResult<T>>> messageHandler) {
 		this.messageHandler = messageHandler;
 		return this;
 	}

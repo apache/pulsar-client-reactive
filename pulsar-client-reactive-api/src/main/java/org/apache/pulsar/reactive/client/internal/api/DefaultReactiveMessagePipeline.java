@@ -51,7 +51,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 
 	private final Mono<Void> pipeline;
 
-	private final Function<Message<T>, Publisher<Void>> messageHandler;
+	private final Function<Message<T>, Publisher<MessageResult<T>>> messageHandler;
 
 	private final BiConsumer<Message<T>, Throwable> errorLogger;
 
@@ -68,7 +68,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	private final MessageGroupingFunction groupingFunction;
 
 	DefaultReactiveMessagePipeline(ReactiveMessageConsumer<T> messageConsumer,
-			Function<Message<T>, Publisher<Void>> messageHandler, BiConsumer<Message<T>, Throwable> errorLogger,
+			Function<Message<T>, Publisher<MessageResult<T>>> messageHandler, BiConsumer<Message<T>, Throwable> errorLogger,
 			Retry pipelineRetrySpec, Duration handlingTimeout, Function<Mono<Void>, Publisher<Void>> transformer,
 			Function<Flux<Message<T>>, Publisher<MessageResult<Void>>> streamingMessageHandler,
 			MessageGroupingFunction groupingFunction, int concurrency, int maxInflight) {
@@ -80,13 +80,18 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		this.groupingFunction = groupingFunction;
 		this.concurrency = concurrency;
 		this.maxInflight = maxInflight;
-		this.pipeline = messageConsumer.consumeMany(this::createMessageConsumer)
-			.then()
-			.transform(transformer)
-			.transform(this::decoratePipeline);
+		this.pipeline = (messageHandler != null)
+			? (messageConsumer.consumeMany(this::createMessageConsumer)
+				.then()
+				.transform(transformer)
+				.transform(this::decoratePipeline))
+			: (messageConsumer.consumeMany(this::createStreamMessageConsumer)
+				.then()
+				.transform(transformer)
+				.transform(this::decoratePipeline));
 	}
 
-	private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
+	private Mono<MessageResult<T>> decorateMessageHandler(Mono<MessageResult<T>> messageHandler) {
 		if (this.handlingTimeout != null) {
 			messageHandler = messageHandler.timeout(this.handlingTimeout);
 		}
@@ -115,7 +120,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		}
 	}
 
-	private Flux<MessageResult<Void>> createMessageConsumer(Flux<Message<T>> messageFlux) {
+	private Flux<MessageResult<T>> createMessageConsumer(Flux<Message<T>> messageFlux) {
 		if (this.messageHandler != null) {
 			if (this.streamingMessageHandler != null) {
 				throw new IllegalStateException(
@@ -135,17 +140,22 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 				return messageFlux.concatMap(this::handleMessage);
 			}
 		}
-		else {
-			return Flux.from(Objects
-				.requireNonNull(this.streamingMessageHandler, "streamingMessageHandler or messageHandler must be set")
-				.apply(messageFlux));
-		}
+		throw new IllegalStateException("messageHandler is not set.");
 	}
 
-	private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
+	private Flux<MessageResult<Void>> createStreamMessageConsumer(Flux<Message<T>> messageFlux) {
+		if (this.messageHandler != null) {
+			throw new IllegalStateException(
+				"messageHandler and streamingMessageHandler cannot be set at the same time.");
+		}
+		return Flux.from(Objects
+				.requireNonNull(this.streamingMessageHandler, "streamingMessageHandler or messageHandler must be set")
+				.apply(messageFlux));
+	}
+
+	private Mono<MessageResult<T>> handleMessage(Message<T> message) {
 		return Mono.from(this.messageHandler.apply(message))
 			.transform(this::decorateMessageHandler)
-			.thenReturn(MessageResult.acknowledge(message.getMessageId()))
 			.onErrorResume((throwable) -> {
 				if (this.errorLogger != null) {
 					try {
@@ -159,7 +169,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 					LOG.error("Message handling for message id {} failed.", message.getMessageId(), throwable);
 				}
 				// TODO: nack doesn't work for batch messages due to Pulsar bugs
-				return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
+				return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId(), message.getValue()));
 			});
 	}
 
