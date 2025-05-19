@@ -27,13 +27,17 @@ import reactor.core.publisher.Mono;
 public interface ReactiveMessagePipeline extends AutoCloseable {
 
 	/**
-	 * Starts the reactive pipeline.
+	 * Starts the reactive pipeline asynchronously. Use the
+	 * {@link #untilConsumingStarted()} method for waiting for the pipeline to start
+	 * consuming messages.
 	 * @return the pipeline
 	 */
 	ReactiveMessagePipeline start();
 
 	/**
-	 * Stops the reactive pipeline.
+	 * Stops the reactive pipeline asynchronously. Use the
+	 * {@link #untilConsumingStopped()} method for waiting for the pipeline to stop
+	 * consuming messages.
 	 * @return the reactive pipeline
 	 */
 	ReactiveMessagePipeline stop();
