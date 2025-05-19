@@ -228,6 +228,28 @@ class ReactiveMessagePipelineTests {
 	}
 
 	@Test
+	void negativeAcknowledgement() throws Exception {
+		int numMessages = 10;
+		TestConsumer testConsumer = new TestConsumer(numMessages);
+		CountDownLatch latch = new CountDownLatch(1);
+		testConsumer.setFinishedCallback(latch::countDown);
+		Function<Message<String>, Publisher<Void>> messageHandler = (message) -> {
+			if (message.getValue().equals("5")) {
+				throw new RuntimeException("Handling message 5 failed");
+			}
+			return Mono.empty();
+		};
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
+			pipeline.start();
+			assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+			// 9 messages should have been acked
+			assertThat(testConsumer.getAcknowledgedMessages()).hasSize(9);
+			// 1 message should have been nacked
+			assertThat(testConsumer.getNackedMessages()).hasSize(1);
+		}
+	}
+
+	@Test
 	void errorLogger() throws Exception {
 		int numMessages = 10;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
