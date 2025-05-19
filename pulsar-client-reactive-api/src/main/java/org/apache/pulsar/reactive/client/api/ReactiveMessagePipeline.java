@@ -19,6 +19,8 @@
 
 package org.apache.pulsar.reactive.client.api;
 
+import reactor.core.publisher.Mono;
+
 /**
  * Reactive message pipeline interface.
  */
@@ -48,6 +50,24 @@ public interface ReactiveMessagePipeline extends AutoCloseable {
 	 */
 	default void close() throws Exception {
 		stop();
+	}
+
+	/**
+	 * Waits for consuming to be started. It is required to call {#@link #start()} before
+	 * calling this method.
+	 * @return a Mono that is completed after the pipeline is consuming messages.
+	 */
+	default Mono<Void> untilConsumingStarted() {
+		return Mono.empty();
+	}
+
+	/**
+	 * Waits until consuming has stopped when stopping the pipeline. It is required to
+	 * call {#@link #stop()} before calling this method.
+	 * @return a Mono that is completed when the pipeline has stopped consuming messages.
+	 */
+	default Mono<Void> untilConsumingStopped() {
+		return Mono.empty();
 	}
 
 }

@@ -21,6 +21,7 @@ package org.apache.pulsar.reactive.client.internal.api;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -66,6 +67,8 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	private final int maxInflight;
 
 	private final MessageGroupingFunction groupingFunction;
+
+	private final AtomicReference<InternalConsumerListenerImpl> consumerListener = new AtomicReference<>();
 
 	DefaultReactiveMessagePipeline(ReactiveMessageConsumer<T> messageConsumer,
 			Function<Message<T>, Publisher<Void>> messageHandler, BiConsumer<Message<T>, Throwable> errorLogger,
@@ -168,12 +171,26 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 		if (this.killSwitch.get() != null) {
 			throw new IllegalStateException("Message handler is already running.");
 		}
-		Disposable disposable = this.pipeline.subscribe(null, this::logError, this::logUnexpectedCompletion);
+		InternalConsumerListenerImpl consumerListener = new InternalConsumerListenerImpl();
+		Disposable disposable = this.pipeline.contextWrite(Context.of(InternalConsumerListener.class, consumerListener))
+			.subscribe(null, this::logError, this::logUnexpectedCompletion);
 		if (!this.killSwitch.compareAndSet(null, disposable)) {
 			disposable.dispose();
 			throw new IllegalStateException("Message handler was already running.");
 		}
+		else {
+			this.consumerListener.set(consumerListener);
+		}
 		return this;
+	}
+
+	@Override
+	public Mono<Void> untilConsumingStarted() {
+		if (!isRunning()) {
+			throw new IllegalStateException("Pipeline isn't running.");
+		}
+		InternalConsumerListenerImpl internalConsumerListener = this.consumerListener.get();
+		return internalConsumerListener.waitForConsumerCreated();
 	}
 
 	private void logError(Throwable throwable) {
@@ -190,14 +207,88 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	public ReactiveMessagePipeline stop() {
 		Disposable disposable = this.killSwitch.getAndSet(null);
 		if (disposable != null) {
+			InternalConsumerListenerImpl internalConsumerListener = this.consumerListener.get();
+			if (internalConsumerListener != null) {
+				internalConsumerListener.beforeConsumerClosed();
+			}
 			disposable.dispose();
 		}
 		return this;
 	}
 
 	@Override
+	public Mono<Void> untilConsumingStopped() {
+		InternalConsumerListenerImpl consumerListener = this.consumerListener.get();
+		if (consumerListener != null) {
+			return consumerListener.waitForConsumerClosed();
+		}
+		else {
+			return Mono.empty();
+		}
+	}
+
+	@Override
 	public boolean isRunning() {
 		return this.killSwitch.get() != null;
+	}
+
+	private static final class InternalConsumerListenerImpl implements InternalConsumerListener {
+
+		private volatile Object currentNativeConsumer;
+
+		private final CompletableFuture<Void> createdFuture;
+
+		private final AtomicReference<CompletableFuture<Void>> closedFuture = new AtomicReference<>();
+
+		private volatile Mono<Void> consumerClosed;
+
+		private InternalConsumerListenerImpl() {
+			this.createdFuture = new CompletableFuture<>();
+		}
+
+		@Override
+		public void onConsumerCreated(Object nativeConsumer) {
+			this.currentNativeConsumer = nativeConsumer;
+			if (!this.createdFuture.isDone()) {
+				this.createdFuture.complete(null);
+			}
+		}
+
+		@Override
+		public void onConsumerClosed(Object nativeConsumer) {
+			this.currentNativeConsumer = null;
+			CompletableFuture<Void> f = this.closedFuture.getAndSet(null);
+			if (f != null) {
+				f.complete(null);
+			}
+		}
+
+		Mono<Void> waitForConsumerCreated() {
+			return Mono.fromFuture(this.createdFuture, true);
+		}
+
+		Mono<Void> waitForConsumerClosed() {
+			return this.consumerClosed;
+		}
+
+		void beforeConsumerClosed() {
+			this.consumerClosed = createConsumerClosedMono();
+		}
+
+		private Mono<Void> createConsumerClosedMono() {
+			if (this.currentNativeConsumer == null) {
+				return Mono.empty();
+			}
+			else {
+				CompletableFuture<Void> f = new CompletableFuture<>();
+				this.closedFuture.set(f);
+				if (this.currentNativeConsumer == null) {
+					f.complete(null);
+				}
+				return Mono.fromFuture(f, true);
+			}
+		}
+
 	}
 
 }

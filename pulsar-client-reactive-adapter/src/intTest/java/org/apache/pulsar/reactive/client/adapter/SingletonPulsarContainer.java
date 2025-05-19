@@ -19,6 +19,7 @@
 
 package org.apache.pulsar.reactive.client.adapter;
 
+import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.testcontainers.containers.PulsarContainer;
@@ -41,6 +42,12 @@ final class SingletonPulsarContainer {
 	static PulsarClient createPulsarClient() throws PulsarClientException {
 		return PulsarClient.builder()
 			.serviceUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getPulsarBrokerUrl())
+			.build();
+	}
+
+	static PulsarAdmin createPulsarAdmin() throws PulsarClientException {
+		return PulsarAdmin.builder()
+			.serviceHttpUrl(SingletonPulsarContainer.PULSAR_CONTAINER.getHttpServiceUrl())
 			.build();
 	}
 

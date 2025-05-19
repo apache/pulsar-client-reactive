@@ -38,6 +38,7 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.internal.DefaultImplementation;
 import org.apache.pulsar.common.api.EncryptionContext;
+import org.apache.pulsar.reactive.client.internal.api.InternalConsumerListener;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -152,6 +153,20 @@ class ReactiveMessagePipelineTests {
 
 	@Test
 	void messageHandler() throws Exception {
+		int numMessages = 10;
+		TestConsumer testConsumer = new TestConsumer(numMessages);
+		CountDownLatch latch = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler = (
+				message) -> Mono.empty().then().doFinally((__) -> latch.countDown());
+		try (ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build()) {
+			pipeline.start();
+			assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
+		}
+
+	}
+
+	@Test
+	void pipelineStartAndWait() throws Exception {
 		int numMessages = 10;
 		TestConsumer testConsumer = new TestConsumer(numMessages);
 		CountDownLatch latch = new CountDownLatch(numMessages);
@@ -474,7 +489,10 @@ class ReactiveMessagePipelineTests {
 
 		@Override
 		public <R> Flux<R> consumeMany(Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
-			return Flux.defer(() -> {
+			return Flux.deferContextual((contextView) -> {
+				Optional<InternalConsumerListener> internalConsumerListener = contextView
+					.getOrEmpty(InternalConsumerListener.class);
+				internalConsumerListener.ifPresent((listener) -> listener.onConsumerCreated(this));
 				Flux<Message<String>> messages = Flux.range(0, this.numMessages)
 					.map(Object::toString)
 					.map(TestMessage::new);
@@ -489,6 +507,7 @@ class ReactiveMessagePipelineTests {
 					if (this.finishedCallback != null) {
 						this.finishedCallback.run();
 					}
+					internalConsumerListener.ifPresent((listener) -> listener.onConsumerClosed(this));
 				});
 			});
 		}
