@@ -20,7 +20,7 @@
 assertj = "3.26.3"
 # @pin
 caffeine = "2.9.3"
-checkstyle = "8.45.1"
+checkstyle = "9.3"
 # @pin
 jackson = "2.14.2"
 # @pin
