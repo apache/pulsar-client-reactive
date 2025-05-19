@@ -37,7 +37,11 @@ import reactor.util.retry.Retry;
 public interface ReactiveMessagePipelineBuilder<T> {
 
 	/**
-	 * Sets a handler function that processes messages one-by-one.
+	 * Sets a handler function that processes messages one-by-one. When the message
+	 * handler completes successfully, the message will be acknowledged. When the message
+	 * handler emits an error, the error logger will be used to log the error and the
+	 * message will be negatively acknowledged. If the error logger is not set, a default
+	 * error message will be logged at the error level.
 	 * @param messageHandler a function that takes a message as input and returns an empty
 	 * Publisher
 	 * @return a builder for the pipeline handling messages one-by-one
@@ -95,6 +99,7 @@ public interface ReactiveMessagePipelineBuilder<T> {
 
 		/**
 		 * Sets a function which will be called when the message handler emits an error.
+		 * If not set, a default message will be logged at the error level.
 		 * @param errorLogger the error logger function
 		 * @return the pipeline builder instance
 		 */
