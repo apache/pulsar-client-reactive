@@ -37,11 +37,23 @@ import reactor.util.retry.Retry;
 public interface ReactiveMessagePipelineBuilder<T> {
 
 	/**
+	 * <p>
 	 * Sets a handler function that processes messages one-by-one. When the message
 	 * handler completes successfully, the message will be acknowledged. When the message
 	 * handler emits an error, the error logger will be used to log the error and the
 	 * message will be negatively acknowledged. If the error logger is not set, a default
 	 * error message will be logged at the error level.
+	 * </p>
+	 * <p>
+	 * NOTE: Be aware that negative acknowledgements on ordered subscription types such as
+	 * Exclusive, Failover and Key_Shared typically cause failed messages to be sent to
+	 * consumers out of their original order. Negative acknowledgements for Key_Shared
+	 * subscriptions may also cause message delivery to be blocked on broker versions
+	 * before Pulsar 4.0. To maintain ordered message processing, it is recommended to
+	 * wrap the message handler with Project Reactor's native retry logic using <a href=
+	 * "https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html#retryWhen-reactor.util.retry.Retry-">Mono.retryWhen</a>
+	 * to retry processing of each message indefinitely with backoff.
+	 * </p>
 	 * @param messageHandler a function that takes a message as input and returns an empty
 	 * Publisher
 	 * @return a builder for the pipeline handling messages one-by-one
