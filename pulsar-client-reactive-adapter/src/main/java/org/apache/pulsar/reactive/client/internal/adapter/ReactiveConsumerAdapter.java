@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.reactive.client.internal.api.InternalConsumerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -45,12 +46,20 @@ class ReactiveConsumerAdapter<T> {
 	}
 
 	private Mono<Consumer<T>> createConsumerMono() {
-		return AdapterImplementationFactory.adaptPulsarFuture(
-				() -> this.consumerBuilderFactory.apply(this.pulsarClientSupplier.get()).subscribeAsync());
+		return Mono.deferContextual((contextView) -> AdapterImplementationFactory
+			.adaptPulsarFuture(
+					() -> this.consumerBuilderFactory.apply(this.pulsarClientSupplier.get()).subscribeAsync())
+			.doOnSuccess((consumer) -> contextView.<InternalConsumerListener>getOrEmpty(InternalConsumerListener.class)
+				.ifPresent((listener) -> listener.onConsumerCreated(consumer))));
 	}
 
 	private Mono<Void> closeConsumer(Consumer<?> consumer) {
-		return Mono.fromFuture(consumer::closeAsync).doOnSuccess((__) -> this.LOG.info("Consumer closed {}", consumer));
+		return Mono.deferContextual((contextView) -> Mono.fromFuture(consumer::closeAsync).doFinally((signalType) -> {
+			this.LOG.info("Consumer closed {}", consumer);
+			contextView.<InternalConsumerListener>getOrEmpty(InternalConsumerListener.class)
+				.ifPresent((listener) -> listener.onConsumerClosed(consumer));
+		}));
+
 	}
 
 	<R> Mono<R> usingConsumer(Function<Consumer<T>, Mono<R>> usingConsumerAction) {

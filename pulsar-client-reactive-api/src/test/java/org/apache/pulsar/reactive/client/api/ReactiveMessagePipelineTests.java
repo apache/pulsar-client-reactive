@@ -28,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,6 +39,7 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.internal.DefaultImplementation;
 import org.apache.pulsar.common.api.EncryptionContext;
+import org.apache.pulsar.reactive.client.internal.api.InternalConsumerListener;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -49,6 +51,7 @@ import reactor.util.retry.Retry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ReactiveMessagePipelineTests {
 
@@ -162,6 +165,27 @@ class ReactiveMessagePipelineTests {
 			assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 		}
 
+	}
+
+	@Test
+	void pipelineUntilStartedAndStopped() throws Exception {
+		int numMessages = 10;
+		Duration subscriptionDelay = Duration.ofSeconds(1);
+		TestConsumer testConsumer = new TestConsumer(numMessages, subscriptionDelay);
+		CountDownLatch latch = new CountDownLatch(numMessages);
+		Function<Message<String>, Publisher<Void>> messageHandler = (
+				message) -> Mono.empty().then().doFinally((__) -> latch.countDown());
+		ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build();
+		pipeline.start();
+		// timeout should occur since subscription delay is 1 second in TestConsumer
+		assertThatThrownBy(() -> pipeline.untilStarted().block(Duration.ofMillis(100)))
+			.isInstanceOf(IllegalStateException.class)
+			.hasCauseInstanceOf(TimeoutException.class);
+		// now wait for consuming to start
+		pipeline.untilStarted().block(Duration.ofSeconds(2));
+		assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
+		// now wait for consuming to stop
+		pipeline.stop().untilStopped().block(Duration.ofSeconds(1));
 	}
 
 	@Test
@@ -480,10 +504,17 @@ class ReactiveMessagePipelineTests {
 
 		private final int numMessages;
 
+		private final Duration subscriptionDelay;
+
 		private volatile Runnable finishedCallback;
 
 		TestConsumer(int numMessages) {
+			this(numMessages, null);
+		}
+
+		TestConsumer(int numMessages, Duration subscriptionDelay) {
 			this.numMessages = numMessages;
+			this.subscriptionDelay = subscriptionDelay;
 		}
 
 		private final List<MessageId> acknowledgedMessages = new CopyOnWriteArrayList<>();
@@ -496,7 +527,10 @@ class ReactiveMessagePipelineTests {
 
 		@Override
 		public <R> Flux<R> consumeMany(Function<Flux<Message<String>>, Publisher<MessageResult<R>>> messageHandler) {
-			return Flux.defer(() -> {
+			Flux<R> flux = Flux.deferContextual((contextView) -> {
+				Optional<InternalConsumerListener> internalConsumerListener = contextView
+					.getOrEmpty(InternalConsumerListener.class);
+				internalConsumerListener.ifPresent((listener) -> listener.onConsumerCreated(this));
 				Flux<Message<String>> messages = Flux.range(0, this.numMessages)
 					.map(Object::toString)
 					.map(TestMessage::new);
@@ -511,8 +545,15 @@ class ReactiveMessagePipelineTests {
 					if (this.finishedCallback != null) {
 						this.finishedCallback.run();
 					}
+					internalConsumerListener.ifPresent((listener) -> listener.onConsumerClosed(this));
 				});
 			});
+			if (this.subscriptionDelay != null) {
+				return flux.delaySubscription(this.subscriptionDelay);
+			}
+			else {
+				return flux;
+			}
 		}
 
 		List<MessageId> getAcknowledgedMessages() {

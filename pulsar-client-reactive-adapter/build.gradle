@@ -35,6 +35,7 @@ dependencies {
 	testImplementation libs.bundles.log4j
 	testImplementation libs.mockito.core
 
+	intTestImplementation libs.pulsar.client.all
 	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
 	intTestImplementation project(path: ':pulsar-client-reactive-producer-cache-caffeine-shaded', configuration: 'shadow')
 	intTestImplementation libs.junit.jupiter

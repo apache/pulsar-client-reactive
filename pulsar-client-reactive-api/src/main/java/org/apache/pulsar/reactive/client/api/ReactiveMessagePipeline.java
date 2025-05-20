@@ -19,20 +19,26 @@
 
 package org.apache.pulsar.reactive.client.api;
 
+import reactor.core.publisher.Mono;
+
 /**
  * Reactive message pipeline interface.
  */
 public interface ReactiveMessagePipeline extends AutoCloseable {
 
 	/**
-	 * Starts the reactive pipeline.
-	 * @return the pipeline
+	 * Starts the reactive pipeline asynchronously.
+	 * @return the pipeline instance
+	 * @see #untilStarted() For returning a reactive publisher (Mono) that completes after
+	 * the pipeline has actually started.
 	 */
 	ReactiveMessagePipeline start();
 
 	/**
-	 * Stops the reactive pipeline.
-	 * @return the reactive pipeline
+	 * Stops the reactive pipeline asynchronously.
+	 * @return the pipeline instance
+	 * @see #untilStopped() For returning a reactive publisher (Mono) that completes after
+	 * the pipeline has actually stopped.
 	 */
 	ReactiveMessagePipeline stop();
 
@@ -43,11 +49,54 @@ public interface ReactiveMessagePipeline extends AutoCloseable {
 	boolean isRunning();
 
 	/**
-	 * Closes the reactive pipeline.
+	 * Closes the reactive pipeline asynchronously without waiting for shutdown
+	 * completion.
 	 * @throws Exception if an error occurs
 	 */
 	default void close() throws Exception {
 		stop();
+	}
+
+	/**
+	 * <p>
+	 * Returns a reactive publisher (Mono) that completes after the pipeline has
+	 * successfully subscribed to the input topic(s) and started consuming messages for
+	 * the first time after pipeline creation. This method is not intended to be used
+	 * after a pipeline restarts following failure. Use this method to wait for consumer
+	 * and Pulsar subscription creation. This helps avoid race conditions when sending
+	 * messages immediately after the pipeline starts.
+	 * </p>
+	 * <p>
+	 * The {@link #start()} method must be called before invoking this method.
+	 * </p>
+	 * <p>
+	 * To wait for the operation to complete synchronously, it is necessary to call
+	 * {@link Mono#block()} on the returned Mono.
+	 * </p>
+	 * @return a Mono that completes after the pipeline has created its underlying Pulsar
+	 * consumer
+	 */
+	default Mono<Void> untilStarted() {
+		return Mono.empty();
+	}
+
+	/**
+	 * <p>
+	 * Returns a reactive publisher (Mono) that completes after the pipeline has closed
+	 * the underlying Pulsar consumer and stopped consuming new messages.
+	 * </p>
+	 * <p>
+	 * The {@link #stop()} method must be called before invoking this method.
+	 * </p>
+	 * <p>
+	 * To wait for the operation to complete synchronously, it is necessary to call
+	 * {@link Mono#block()} on the returned Mono.
+	 * </p>
+	 * @return a Mono that completes when the pipeline has closed the underlying Pulsar
+	 * consumer
+	 */
+	default Mono<Void> untilStopped() {
+		return Mono.empty();
 	}
 
 }

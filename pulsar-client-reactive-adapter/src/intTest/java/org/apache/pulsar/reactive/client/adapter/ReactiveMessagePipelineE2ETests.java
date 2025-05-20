@@ -36,8 +36,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
+import org.apache.pulsar.common.policies.data.SubscriptionStats;
+import org.apache.pulsar.common.policies.data.TopicStats;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.apache.pulsar.reactive.client.api.MessageSpecBuilder;
 import org.apache.pulsar.reactive.client.api.ReactiveMessagePipeline;
@@ -91,6 +94,38 @@ class ReactiveMessagePipelineE2ETests {
 				assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 				assertThat(messages).isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
 			}
+		}
+	}
+
+	@Test
+	void shouldSupportWaitingForConsumingToStartAndStop() throws Exception {
+		try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient();
+				PulsarAdmin pulsarAdmin = SingletonPulsarContainer.createPulsarAdmin()) {
+			String topicName = "test" + UUID.randomUUID();
+			ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
+			ReactiveMessagePipeline pipeline = reactivePulsarClient.messageConsumer(Schema.STRING)
+				.subscriptionName("sub")
+				.topic(topicName)
+				.build()
+				.messagePipeline()
+				.messageHandler((message) -> Mono.empty())
+				.build()
+				.start();
+
+			// wait for consuming to start
+			pipeline.untilStarted().block(Duration.ofSeconds(5));
+			// there should be an existing subscription
+			List<String> subscriptions = pulsarAdmin.topics().getSubscriptions(topicName);
+			assertThat(subscriptions).as("subscription should be created").contains("sub");
+
+			// stop the pipeline
+			pipeline.stop();
+			// and wait for it to stop
+			pipeline.untilStopped().block(Duration.ofSeconds(5));
+			// there should be no consumers
+			TopicStats topicStats = pulsarAdmin.topics().getStats(topicName);
+			SubscriptionStats subStats = topicStats.getSubscriptions().get("sub");
+			assertThat(subStats.getConsumers()).isEmpty();
 		}
 	}
 
