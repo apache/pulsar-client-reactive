@@ -54,12 +54,17 @@ class ReactiveConsumerAdapter<T> {
 	}
 
 	private Mono<Void> closeConsumer(Consumer<?> consumer) {
-		return Mono.deferContextual((contextView) -> Mono.fromFuture(consumer::closeAsync).doFinally((signalType) -> {
-			this.LOG.info("Consumer closed {}", consumer);
-			contextView.<InternalConsumerListener>getOrEmpty(InternalConsumerListener.class)
-				.ifPresent((listener) -> listener.onConsumerClosed(consumer));
-		}));
-
+		return Mono
+			.deferContextual((contextView) -> AdapterImplementationFactory.adaptPulsarFuture(consumer::closeAsync)
+				.onErrorResume((t) -> {
+					this.LOG.debug("Error closing consumer {}", consumer, t);
+					return Mono.empty();
+				})
+				.doFinally((signalType) -> {
+					this.LOG.info("Consumer closed {}", consumer);
+					contextView.<InternalConsumerListener>getOrEmpty(InternalConsumerListener.class)
+						.ifPresent((listener) -> listener.onConsumerClosed(consumer));
+				}));
 	}
 
 	<R> Mono<R> usingConsumer(Function<Consumer<T>, Mono<R>> usingConsumerAction) {

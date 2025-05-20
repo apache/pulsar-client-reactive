@@ -40,6 +40,7 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
@@ -404,6 +405,28 @@ class AdaptedReactiveMessageConsumerTests {
 		StepVerifier
 			.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn)))
 			.verifyError(PulsarClientException.InvalidMessageException.class);
+	}
+
+	@Test
+	void closeConsumerExceptionIsIgnored() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		Consumer<String> consumer = mock(Consumer.class);
+		doReturn(CompletableFuture.failedFuture(new AlreadyClosedException("Already closed"))).when(consumer)
+			.closeAsync();
+
+		doReturn(CompletableFuture.completedFuture(consumer)).when(pulsarClient)
+			.subscribeAsync(any(ConsumerConfigurationData.class), eq(Schema.STRING), isNull());
+
+		ReactiveMessageConsumer<String> reactiveConsumer = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+			.messageConsumer(Schema.STRING)
+			.topic("my-topic")
+			.subscriptionName("my-sub")
+			.build();
+
+		StepVerifier.create(reactiveConsumer.consumeNothing()).expectComplete().verify();
+		verify(consumer).closeAsync();
 	}
 
 }

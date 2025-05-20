@@ -47,6 +47,7 @@ import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
 import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullError;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.MessageIdImpl;
@@ -545,6 +546,37 @@ class AdaptedReactiveMessageSenderTests {
 				executorService.shutdownNow();
 			}
 		}
+	}
+
+	@Test
+	void closeProducerExceptionIsIgnored() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		ProducerBase<String> producer = mock(ProducerBase.class);
+		doReturn(CompletableFuture.failedFuture(new AlreadyClosedException("Already closed"))).when(producer)
+			.closeAsync();
+
+		MessageId messageId = DefaultImplementation.getDefaultImplementation().newMessageId(1, 1, 1);
+
+		given(producer.newMessage()).willAnswer((__) -> {
+			TypedMessageBuilderImpl<String> typedMessageBuilder = spy(
+					new TypedMessageBuilderImpl<>(producer, Schema.STRING));
+			willAnswer((___) -> CompletableFuture.completedFuture(messageId)).given(typedMessageBuilder).sendAsync();
+			return typedMessageBuilder;
+		});
+
+		doReturn(CompletableFuture.completedFuture(producer)).when(pulsarClient)
+			.createProducerAsync(any(), eq(Schema.STRING), isNull());
+
+		ReactiveMessageSender<String> reactiveSender = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+			.messageSender(Schema.STRING)
+			.topic("my-topic")
+			.build();
+
+		StepVerifier.create(reactiveSender.sendOne(MessageSpec.of("test1"))).expectNext(messageId).verifyComplete();
+
+		verify(producer).closeAsync();
 	}
 
 }

@@ -30,6 +30,7 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
 import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.Schema;
@@ -166,6 +167,29 @@ class AdaptedReactiveMessageReaderTests {
 
 		StepVerifier.create(reactiveReader.readOne()).verifyError(PulsarClientException.InvalidMessageException.class);
 		StepVerifier.create(reactiveReader.readMany()).verifyError(PulsarClientException.InvalidMessageException.class);
+	}
+
+	@Test
+	void closeReaderExceptionIsIgnored() throws Exception {
+		PulsarClientImpl pulsarClient = spy(
+				(PulsarClientImpl) PulsarClient.builder().serviceUrl("http://dummy").build());
+
+		Reader<String> reader = mock(Reader.class);
+		doReturn(CompletableFuture.failedFuture(new AlreadyClosedException("Already closed"))).when(reader)
+			.closeAsync();
+		doReturn(CompletableFuture.completedFuture(false)).when(reader).hasMessageAvailableAsync();
+
+		doReturn(CompletableFuture.completedFuture(reader)).when(pulsarClient)
+			.createReaderAsync(any(), eq(Schema.STRING));
+
+		ReactiveMessageReader<String> reactiveReader = AdaptedReactivePulsarClientFactory.create(pulsarClient)
+			.messageReader(Schema.STRING)
+			.endOfStreamAction(EndOfStreamAction.COMPLETE)
+			.topic("my-topic")
+			.build();
+
+		StepVerifier.create(reactiveReader.readOne()).expectComplete().verify();
+		verify(reader).closeAsync();
 	}
 
 	@Test
