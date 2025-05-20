@@ -30,13 +30,17 @@ public interface InternalConsumerListener {
 	 * consumer is created initially or as a result of a reactive pipeline retry.
 	 * @param nativeConsumer the native consumer instance
 	 */
-	void onConsumerCreated(Object nativeConsumer);
+	default void onConsumerCreated(Object nativeConsumer) {
+		// no-op
+	}
 
 	/**
 	 * Called when a native consumer is closed. This is called each time a consumer is
 	 * closed as a result of a reactive pipeline retry or when the pipeline is closed.
 	 * @param nativeConsumer the native consumer instance
 	 */
-	void onConsumerClosed(Object nativeConsumer);
+	default void onConsumerClosed(Object nativeConsumer) {
+		// no-op
+	}
 
 }
