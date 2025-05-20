@@ -168,7 +168,7 @@ class ReactiveMessagePipelineTests {
 	}
 
 	@Test
-	void pipelineUntilConsumingStartedAndStopped() throws Exception {
+	void pipelineUntilStartedAndStopped() throws Exception {
 		int numMessages = 10;
 		Duration subscriptionDelay = Duration.ofSeconds(1);
 		TestConsumer testConsumer = new TestConsumer(numMessages, subscriptionDelay);
@@ -178,14 +178,14 @@ class ReactiveMessagePipelineTests {
 		ReactiveMessagePipeline pipeline = testConsumer.messagePipeline().messageHandler(messageHandler).build();
 		pipeline.start();
 		// timeout should occur since subscription delay is 1 second in TestConsumer
-		assertThatThrownBy(() -> pipeline.untilConsumingStarted().block(Duration.ofMillis(100)))
+		assertThatThrownBy(() -> pipeline.untilStarted().block(Duration.ofMillis(100)))
 			.isInstanceOf(IllegalStateException.class)
 			.hasCauseInstanceOf(TimeoutException.class);
 		// now wait for consuming to start
-		pipeline.untilConsumingStarted().block(Duration.ofSeconds(2));
+		pipeline.untilStarted().block(Duration.ofSeconds(2));
 		assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
 		// now wait for consuming to stop
-		pipeline.stop().untilConsumingStopped().block(Duration.ofSeconds(1));
+		pipeline.stop().untilStopped().block(Duration.ofSeconds(1));
 	}
 
 	@Test

@@ -29,16 +29,16 @@ public interface ReactiveMessagePipeline extends AutoCloseable {
 	/**
 	 * Starts the reactive pipeline asynchronously.
 	 * @return the pipeline instance
-	 * @see #untilConsumingStarted() For returning a reactive publisher (Mono) that
-	 * completes after consuming has actually started.
+	 * @see #untilStarted() For returning a reactive publisher (Mono) that completes after
+	 * the pipeline has actually started.
 	 */
 	ReactiveMessagePipeline start();
 
 	/**
 	 * Stops the reactive pipeline asynchronously.
 	 * @return the pipeline instance
-	 * @see #untilConsumingStopped() For returning a reactive publisher (Mono) that
-	 * completes after consuming has actually stopped.
+	 * @see #untilStopped() For returning a reactive publisher (Mono) that completes after
+	 * the pipeline has actually stopped.
 	 */
 	ReactiveMessagePipeline stop();
 
@@ -76,7 +76,7 @@ public interface ReactiveMessagePipeline extends AutoCloseable {
 	 * @return a Mono that completes after the pipeline has created its underlying Pulsar
 	 * consumer
 	 */
-	default Mono<Void> untilConsumingStarted() {
+	default Mono<Void> untilStarted() {
 		return Mono.empty();
 	}
 
@@ -95,7 +95,7 @@ public interface ReactiveMessagePipeline extends AutoCloseable {
 	 * @return a Mono that completes when the pipeline has closed the underlying Pulsar
 	 * consumer
 	 */
-	default Mono<Void> untilConsumingStopped() {
+	default Mono<Void> untilStopped() {
 		return Mono.empty();
 	}
 

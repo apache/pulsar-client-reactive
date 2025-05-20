@@ -113,7 +113,7 @@ class ReactiveMessagePipelineE2ETests {
 				.start();
 
 			// wait for consuming to start
-			pipeline.untilConsumingStarted().block(Duration.ofSeconds(5));
+			pipeline.untilStarted().block(Duration.ofSeconds(5));
 			// there should be an existing subscription
 			List<String> subscriptions = pulsarAdmin.topics().getSubscriptions(topicName);
 			assertThat(subscriptions).as("subscription should be created").contains("sub");
@@ -121,7 +121,7 @@ class ReactiveMessagePipelineE2ETests {
 			// stop the pipeline
 			pipeline.stop();
 			// and wait for it to stop
-			pipeline.untilConsumingStopped().block(Duration.ofSeconds(5));
+			pipeline.untilStopped().block(Duration.ofSeconds(5));
 			// there should be no consumers
 			TopicStats topicStats = pulsarAdmin.topics().getStats(topicName);
 			SubscriptionStats subStats = topicStats.getSubscriptions().get("sub");

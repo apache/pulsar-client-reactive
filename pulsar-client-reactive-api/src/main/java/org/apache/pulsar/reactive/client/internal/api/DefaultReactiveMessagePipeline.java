@@ -90,12 +90,12 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 			.transform(transformer)
 			.transform(this::decoratePipeline)
 			.doFinally((signalType) -> {
-				CompletableFuture<Void> f = pipelineStoppedFuture.get();
+				CompletableFuture<Void> f = this.pipelineStoppedFuture.get();
 				if (f != null) {
 					f.complete(null);
 				}
 			})
-			.doFirst(() -> pipelineStoppedFuture.set(new CompletableFuture<>()));
+			.doFirst(() -> this.pipelineStoppedFuture.set(new CompletableFuture<>()));
 	}
 
 	private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
@@ -194,7 +194,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	}
 
 	@Override
-	public Mono<Void> untilConsumingStarted() {
+	public Mono<Void> untilStarted() {
 		if (!isRunning()) {
 			throw new IllegalStateException("Pipeline isn't running. Call start first.");
 		}
@@ -222,11 +222,11 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	}
 
 	@Override
-	public Mono<Void> untilConsumingStopped() {
+	public Mono<Void> untilStopped() {
 		if (isRunning()) {
 			throw new IllegalStateException("Pipeline is running. Call stop first.");
 		}
-		CompletableFuture<Void> f = pipelineStoppedFuture.get();
+		CompletableFuture<Void> f = this.pipelineStoppedFuture.get();
 		if (f != null) {
 			return Mono.fromFuture(f, true);
 		}
