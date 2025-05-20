@@ -187,9 +187,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 			disposable.dispose();
 			throw new IllegalStateException("Message handler was already running.");
 		}
-		else {
-			this.consumerListener.set(consumerListener);
-		}
+		this.consumerListener.set(consumerListener);
 		return this;
 	}
 
