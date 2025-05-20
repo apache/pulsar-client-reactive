@@ -143,7 +143,7 @@ class DefaultReactiveMessagePipeline<T> implements ReactiveMessagePipeline {
 	}
 
 	private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
-		return Mono.from(this.messageHandler.apply(message))
+		return Mono.defer(() -> Mono.from(this.messageHandler.apply(message)))
 			.transform(this::decorateMessageHandler)
 			.thenReturn(MessageResult.acknowledge(message.getMessageId()))
 			.onErrorResume((throwable) -> {
