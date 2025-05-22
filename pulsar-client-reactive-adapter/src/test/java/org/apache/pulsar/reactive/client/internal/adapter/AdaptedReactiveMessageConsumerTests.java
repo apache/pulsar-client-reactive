@@ -92,7 +92,7 @@ class AdaptedReactiveMessageConsumerTests {
 			.maxRedeliverCount(1)
 			.build();
 
-		TestRedeliveryBackoff exponentialRedeliveryBackoff = new TestRedeliveryBackoff();
+		TestRedeliveryBackoff testRedeliveryBackoff = new TestRedeliveryBackoff();
 
 		ConsumerConfigurationData<String> expectedConsumerConf = new ConsumerConfigurationData<>();
 		expectedConsumerConf.setTopicNames(new HashSet<>(Arrays.asList("my-topic", "my-rlt")));
@@ -119,8 +119,8 @@ class AdaptedReactiveMessageConsumerTests {
 		expectedConsumerConf.setTickDurationMillis(TimeUnit.SECONDS.toMillis(4));
 		expectedConsumerConf.setAcknowledgementsGroupTimeMicros(TimeUnit.SECONDS.toMicros(5));
 		expectedConsumerConf.setNegativeAckRedeliveryDelayMicros(TimeUnit.SECONDS.toMicros(6));
-		expectedConsumerConf.setNegativeAckRedeliveryBackoff(exponentialRedeliveryBackoff);
-		expectedConsumerConf.setAckTimeoutRedeliveryBackoff(exponentialRedeliveryBackoff);
+		expectedConsumerConf.setNegativeAckRedeliveryBackoff(testRedeliveryBackoff);
+		expectedConsumerConf.setAckTimeoutRedeliveryBackoff(testRedeliveryBackoff);
 		expectedConsumerConf.setDeadLetterPolicy(deadLetterPolicy);
 		expectedConsumerConf.setRetryEnable(true);
 		expectedConsumerConf.setReceiverQueueSize(7);
@@ -157,8 +157,8 @@ class AdaptedReactiveMessageConsumerTests {
 			.ackTimeoutTickTime(Duration.ofSeconds(4))
 			.acknowledgementsGroupTime(Duration.ofSeconds(5))
 			.negativeAckRedeliveryDelay(Duration.ofSeconds(6))
-			.negativeAckRedeliveryBackoff(exponentialRedeliveryBackoff)
-			.ackTimeoutRedeliveryBackoff(exponentialRedeliveryBackoff)
+			.negativeAckRedeliveryBackoff(testRedeliveryBackoff)
+			.ackTimeoutRedeliveryBackoff(testRedeliveryBackoff)
 			.deadLetterPolicy(deadLetterPolicy)
 			.retryLetterTopicEnable(true)
 			.receiverQueueSize(7)

@@ -509,7 +509,7 @@ class PulsarReactiveClientModuleTests {
 	}
 
 	@Test
-	void shouldSerDeserTestRedeliveryBackoff() throws Exception {
+	void shouldSerDeserEmptyRedeliveryBackoff() throws Exception {
 		TestRedeliveryBackoff backoff = MAPPER.readValue("{}", TestRedeliveryBackoff.class);
 		String json = MAPPER.writeValueAsString(backoff);
 		assertThat(json).isEqualTo("{\"className\":\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestRedeliveryBackoff\"}");
@@ -530,7 +530,7 @@ class PulsarReactiveClientModuleTests {
 	}
 
 	@Test
-	void shouldSerDeserExponentialDeliveryBackoff() throws Exception {
+	void shouldSerDeserTestDeliveryBackoff() throws Exception {
 		// @formatter:off
 		String content = ("{"
 				+ "    'className': '" + TestRedeliveryBackoff.class.getName() + "'"
