@@ -197,10 +197,10 @@ class PulsarReactiveClientModuleTests {
 				+ "  'acknowledgeScheduler' : 'boundedElastic',\n"
 				+ "  'negativeAckRedeliveryDelay' : 30.000000000,\n"
 				+ "  'negativeAckRedeliveryBackoff' : {\n"
-				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestRedeliveryBackoff'\n"
+				+ "    'className' : '" + TestRedeliveryBackoff.class.getName() + "'\n"
 				+ "  },\n"
 				+ "  'ackTimeoutRedeliveryBackoff' : {\n"
-				+ "    'className' : 'org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestRedeliveryBackoff'\n"
+				+ "    'className' : '" + TestRedeliveryBackoff.class.getName() + "'\n"
 				+ "  },\n"
 				+ "  'deadLetterPolicy' : {\n"
 				+ "    'maxRedeliverCount' : 1,\n"
@@ -512,7 +512,7 @@ class PulsarReactiveClientModuleTests {
 	void shouldSerDeserEmptyRedeliveryBackoff() throws Exception {
 		TestRedeliveryBackoff backoff = MAPPER.readValue("{}", TestRedeliveryBackoff.class);
 		String json = MAPPER.writeValueAsString(backoff);
-		assertThat(json).isEqualTo("{\"className\":\"org.apache.pulsar.reactive.client.jackson.PulsarReactiveClientModuleTests$TestRedeliveryBackoff\"}");
+		assertThat(json).isEqualTo("{\"className\":\"" + TestRedeliveryBackoff.class.getName() + "\"}");
 	}
 
 	@Test
@@ -530,7 +530,7 @@ class PulsarReactiveClientModuleTests {
 	}
 
 	@Test
-	void shouldSerDeserTestDeliveryBackoff() throws Exception {
+	void shouldSerDeserDeliveryBackoff() throws Exception {
 		// @formatter:off
 		String content = ("{"
 				+ "    'className': '" + TestRedeliveryBackoff.class.getName() + "'"
