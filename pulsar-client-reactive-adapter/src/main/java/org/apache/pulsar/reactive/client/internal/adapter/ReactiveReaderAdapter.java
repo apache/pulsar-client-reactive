@@ -25,10 +25,14 @@ import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.ReaderBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class ReactiveReaderAdapter<T> {
+
+	private static final Logger log = LoggerFactory.getLogger(ReactiveReaderAdapter.class);
 
 	private final Supplier<PulsarClient> pulsarClientSupplier;
 
@@ -46,7 +50,10 @@ class ReactiveReaderAdapter<T> {
 	}
 
 	private Mono<Void> closeReader(Reader<?> reader) {
-		return AdapterImplementationFactory.adaptPulsarFuture(reader::closeAsync);
+		return AdapterImplementationFactory.adaptPulsarFuture(reader::closeAsync).onErrorResume((t) -> {
+			log.debug("Error closing reader {}", reader, t);
+			return Mono.empty();
+		});
 	}
 
 	<R> Mono<R> usingReader(Function<Reader<T>, Mono<R>> usingReaderAction) {
