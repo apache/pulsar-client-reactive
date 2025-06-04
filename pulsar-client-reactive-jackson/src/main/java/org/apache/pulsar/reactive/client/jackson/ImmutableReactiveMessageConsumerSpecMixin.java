@@ -31,6 +31,7 @@ import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.DeadLetterPolicy;
 import org.apache.pulsar.client.api.KeySharedPolicy;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -64,6 +65,8 @@ abstract class ImmutableReactiveMessageConsumerSpecMixin {
 			@JsonProperty("acknowledgeAsynchronously") Boolean acknowledgeAsynchronously,
 			@JsonProperty("acknowledgeScheduler") Scheduler acknowledgeScheduler,
 			@JsonProperty("negativeAckRedeliveryDelay") Duration negativeAckRedeliveryDelay,
+			@JsonProperty("negativeAckRedeliveryBackoff") RedeliveryBackoff negativeAckRedeliveryBackoff,
+			@JsonProperty("ackTimeoutRedeliveryBackoff") RedeliveryBackoff ackTimeoutRedeliveryBackoff,
 			@JsonProperty("deadLetterPolicy") DeadLetterPolicy deadLetterPolicy,
 			@JsonProperty("retryLetterTopicEnable") Boolean retryLetterTopicEnable,
 			@JsonProperty("receiverQueueSize") Integer receiverQueueSize,
