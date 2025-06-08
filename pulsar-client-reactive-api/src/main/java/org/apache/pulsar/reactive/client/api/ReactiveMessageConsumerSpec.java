@@ -200,16 +200,16 @@ public interface ReactiveMessageConsumerSpec {
 	Duration getNegativeAckRedeliveryDelay();
 
 	/**
-	 * Get the negative ack redelivery backoff policy for messages
-	 * that are negatively acknowledged.
+	 * Get the negative ack redelivery backoff policy for messages that are negatively
+	 * acknowledged.
 	 * @return redeliveryBackoff
 	 * @see ConsumerBuilder#negativeAckRedeliveryBackoff
 	 */
 	RedeliveryBackoff getNegativeAckRedeliveryBackoff();
 
 	/**
-	 * Get the redelivery backoff policy for messages that are redelivered
-	 * due to acknowledgement timeout.
+	 * Get the redelivery backoff policy for messages that are redelivered due to
+	 * acknowledgement timeout.
 	 * @return redeliveryBackoff
 	 * @see ConsumerBuilder#ackTimeoutRedeliveryBackoff
 	 */

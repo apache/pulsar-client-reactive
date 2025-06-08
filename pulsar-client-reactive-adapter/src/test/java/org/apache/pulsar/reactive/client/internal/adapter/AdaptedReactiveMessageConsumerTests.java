@@ -412,7 +412,7 @@ class AdaptedReactiveMessageConsumerTests {
 			.create(reactiveConsumer.consumeMany((messages) -> messages.map(MessageResult::acknowledgeAndReturn)))
 			.verifyError(PulsarClientException.InvalidMessageException.class);
 	}
-	
+
 	@Test
 	void closeConsumerExceptionIsIgnored() throws Exception {
 		PulsarClientImpl pulsarClient = spy(
@@ -441,5 +441,7 @@ class AdaptedReactiveMessageConsumerTests {
 		public long next(int redeliveryCount) {
 			return redeliveryCount * 2L;
 		}
+
 	}
+
 }

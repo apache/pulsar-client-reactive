@@ -619,6 +619,7 @@ class PulsarReactiveClientModuleTests {
 		public int hashCode() {
 			return TestRedeliveryBackoff.class.hashCode();
 		}
+
 	}
 
 }

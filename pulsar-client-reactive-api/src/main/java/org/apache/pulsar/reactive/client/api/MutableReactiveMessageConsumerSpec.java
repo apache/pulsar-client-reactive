@@ -495,8 +495,10 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 	}
 
 	/**
-	 * Sets the redelivery backoff policy for messages that are redelivered due to acknowledgement timeout.
-	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that exceed their ack timeout
+	 * Sets the redelivery backoff policy for messages that are redelivered due to
+	 * acknowledgement timeout.
+	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that
+	 * exceed their ack timeout
 	 */
 	public void setAckTimeoutRedeliveryBackoff(RedeliveryBackoff ackTimeoutRedeliveryBackoff) {
 		this.ackTimeoutRedeliveryBackoff = ackTimeoutRedeliveryBackoff;
@@ -509,7 +511,8 @@ public class MutableReactiveMessageConsumerSpec implements ReactiveMessageConsum
 
 	/**
 	 * Sets the redelivery backoff policy for messages that are negatively acknowledged.
-	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively acknowledged messages
+	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively
+	 * acknowledged messages
 	 */
 	public void setNegativeAckRedeliveryBackoff(RedeliveryBackoff negativeAckRedeliveryBackoff) {
 		this.negativeAckRedeliveryBackoff = negativeAckRedeliveryBackoff;

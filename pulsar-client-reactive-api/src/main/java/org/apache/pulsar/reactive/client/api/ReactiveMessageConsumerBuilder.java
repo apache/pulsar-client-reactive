@@ -530,10 +530,12 @@ public interface ReactiveMessageConsumerBuilder<T> {
 
 	/**
 	 * Sets the redelivery backoff policy for messages that are negatively acknowledged.
-	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively acknowledged messages
+	 * @param negativeAckRedeliveryBackoff the backoff policy to use for negatively
+	 * acknowledged messages
 	 * @return the consumer builder instance
 	 */
-	default ReactiveMessageConsumerBuilder<T> negativeAckRedeliveryBackoff(RedeliveryBackoff negativeAckRedeliveryBackoff) {
+	default ReactiveMessageConsumerBuilder<T> negativeAckRedeliveryBackoff(
+			RedeliveryBackoff negativeAckRedeliveryBackoff) {
 		getMutableSpec().setNegativeAckRedeliveryBackoff(negativeAckRedeliveryBackoff);
 		return this;
 	}
@@ -541,10 +543,12 @@ public interface ReactiveMessageConsumerBuilder<T> {
 	/**
 	 * Sets the redelivery backoff policy for messages that are redelivered due to
 	 * acknowledgement timeout.
-	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that exceed their ack timeout
+	 * @param ackTimeoutRedeliveryBackoff the backoff policy to use for messages that
+	 * exceed their ack timeout
 	 * @return the consumer builder instance
 	 */
-	default ReactiveMessageConsumerBuilder<T> ackTimeoutRedeliveryBackoff(RedeliveryBackoff ackTimeoutRedeliveryBackoff) {
+	default ReactiveMessageConsumerBuilder<T> ackTimeoutRedeliveryBackoff(
+			RedeliveryBackoff ackTimeoutRedeliveryBackoff) {
 		getMutableSpec().setAckTimeoutRedeliveryBackoff(ackTimeoutRedeliveryBackoff);
 		return this;
 	}
