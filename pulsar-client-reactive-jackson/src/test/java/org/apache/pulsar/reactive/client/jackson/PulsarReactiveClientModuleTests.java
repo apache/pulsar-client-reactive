@@ -35,6 +35,7 @@ import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerAccessMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.Range;
+import org.apache.pulsar.client.api.RedeliveryBackoff;
 import org.apache.pulsar.client.api.RegexSubscriptionMode;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionMode;
@@ -91,6 +92,12 @@ class PulsarReactiveClientModuleTests {
 				+ "'acknowledgeAsynchronously': true,"
 				+ "'acknowledgeScheduler': 'boundedElastic',"
 				+ "'negativeAckRedeliveryDelay': 30,"
+				+ "'negativeAckRedeliveryBackoff': {"
+				+ "    'className': '" + TestRedeliveryBackoff.class.getName() + "'"
+				+ "},"
+				+ "'ackTimeoutRedeliveryBackoff': {"
+				+ "    'className': '" + TestRedeliveryBackoff.class.getName() + "'"
+				+ "},"
 				+ "'deadLetterPolicy': {"
 				+ "    'maxRedeliverCount': 1,"
 				+ "    'retryLetterTopic': 'my-retry-topic',"
@@ -139,6 +146,8 @@ class PulsarReactiveClientModuleTests {
 		assertThat(spec.getAcknowledgeAsynchronously()).isTrue();
 		assertThat(spec.getAcknowledgeScheduler().toString()).isEqualTo("Schedulers.boundedElastic()");
 		assertThat(spec.getNegativeAckRedeliveryDelay()).hasMillis(30_000);
+		assertThat(spec.getNegativeAckRedeliveryBackoff()).isEqualTo(new TestRedeliveryBackoff());
+		assertThat(spec.getAckTimeoutRedeliveryBackoff()).isEqualTo(new TestRedeliveryBackoff());
 		assertThat(spec.getDeadLetterPolicy().getMaxRedeliverCount()).isEqualTo(1);
 		assertThat(spec.getDeadLetterPolicy().getDeadLetterTopic()).isEqualTo("my-dlq");
 		assertThat(spec.getDeadLetterPolicy().getRetryLetterTopic()).isEqualTo("my-retry-topic");
@@ -187,6 +196,12 @@ class PulsarReactiveClientModuleTests {
 				+ "  'acknowledgeAsynchronously' : true,\n"
 				+ "  'acknowledgeScheduler' : 'boundedElastic',\n"
 				+ "  'negativeAckRedeliveryDelay' : 30.000000000,\n"
+				+ "  'negativeAckRedeliveryBackoff' : {\n"
+				+ "    'className' : '" + TestRedeliveryBackoff.class.getName() + "'\n"
+				+ "  },\n"
+				+ "  'ackTimeoutRedeliveryBackoff' : {\n"
+				+ "    'className' : '" + TestRedeliveryBackoff.class.getName() + "'\n"
+				+ "  },\n"
 				+ "  'deadLetterPolicy' : {\n"
 				+ "    'maxRedeliverCount' : 1,\n"
 				+ "    'retryLetterTopic' : 'my-retry-topic',\n"
@@ -494,6 +509,13 @@ class PulsarReactiveClientModuleTests {
 	}
 
 	@Test
+	void shouldSerDeserEmptyRedeliveryBackoff() throws Exception {
+		TestRedeliveryBackoff backoff = MAPPER.readValue("{}", TestRedeliveryBackoff.class);
+		String json = MAPPER.writeValueAsString(backoff);
+		assertThat(json).isEqualTo("{\"className\":\"" + TestRedeliveryBackoff.class.getName() + "\"}");
+	}
+
+	@Test
 	void shouldSerDeserCryptoKeyReader() throws Exception {
 		// @formatter:off
 		String content = ("{"
@@ -504,6 +526,19 @@ class PulsarReactiveClientModuleTests {
 		CryptoKeyReader cryptoKeyReader = MAPPER.readValue(content, CryptoKeyReader.class);
 		String json = MAPPER.writeValueAsString(cryptoKeyReader);
 		String expected = ("{'className':'" + TestCryptoKeyReader.class.getName() + "'}").replaceAll("'", "\"");
+		assertThat(json).isEqualTo(expected);
+	}
+
+	@Test
+	void shouldSerDeserDeliveryBackoff() throws Exception {
+		// @formatter:off
+		String content = ("{"
+				+ "    'className': '" + TestRedeliveryBackoff.class.getName() + "'"
+				+ "}").replaceAll("'", "\"");
+		// @formatter:on
+		RedeliveryBackoff backoffReader = MAPPER.readValue(content, RedeliveryBackoff.class);
+		String json = MAPPER.writeValueAsString(backoffReader);
+		String expected = ("{'className':'" + TestRedeliveryBackoff.class.getName() + "'}").replaceAll("'", "\"");
 		assertThat(json).isEqualTo(expected);
 	}
 
@@ -560,6 +595,30 @@ class PulsarReactiveClientModuleTests {
 			this.params = params;
 		}
 		// CHECKSTYLE:ON
+
+	}
+
+	static class TestRedeliveryBackoff implements RedeliveryBackoff {
+
+		// CHECKSTYLE:OFF
+		public TestRedeliveryBackoff() {
+		}
+		// CHECKSTYLE:ON
+
+		@Override
+		public long next(int redeliveryCount) {
+			return redeliveryCount * 2L;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return (o instanceof TestRedeliveryBackoff);
+		}
+
+		@Override
+		public int hashCode() {
+			return TestRedeliveryBackoff.class.hashCode();
+		}
 
 	}
 
