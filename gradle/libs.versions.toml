@@ -27,14 +27,14 @@ jackson = "2.14.2"
 jctools = "3.3.0"
 junit-jupiter = "5.11.3"
 licenser = "0.6.1"
-log4j = "2.23.1"
-mockito = "5.14.2"
-pulsar = "4.0.4"
+log4j = "2.24.3"
+mockito = "5.18.0"
+pulsar = "4.0.5"
 rat-gradle = "0.8.0"
 reactor = "3.6.17"
 slf4j = "2.0.17"
-spring-javaformat = "0.0.43"
-testcontainers = "1.20.6"
+spring-javaformat = "0.0.46"
+testcontainers = "1.21.1"
 testlogger = "3.2.0"
 
 [libraries]
@@ -50,9 +50,9 @@ log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+pulsar-client-all = { module = "org.apache.pulsar:pulsar-client-all", version.ref = "pulsar" }
 pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
 pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
-pulsar-client-all = { module = "org.apache.pulsar:pulsar-client-all", version.ref = "pulsar" }
 rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = "rat-gradle" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
 reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
