@@ -191,7 +191,170 @@ public class ImmutableReactiveMessageConsumerSpec implements ReactiveMessageCons
 		this.expireTimeOfIncompleteChunkedMessage = consumerSpec.getExpireTimeOfIncompleteChunkedMessage();
 	}
 
+	/**
+	 * Constructs an instance with the specified parameters.
+	 * @param topicNames the topics to subscribe to
+	 * @param topicsPattern the topics pattern of the topics to subscribe to
+	 * @param topicsPatternSubscriptionMode the type of topics to subscribe to when using
+	 * a topic pattern - Persistent, Non-Persistent, or both
+	 * @param topicsPatternAutoDiscoveryPeriod the topics auto discovery period when using
+	 * a topic pattern
+	 * @param subscriptionName the subscription name
+	 * @param subscriptionMode the subscription mode
+	 * @param subscriptionType the subscription type
+	 * @param subscriptionInitialPosition the subscription initial position
+	 * @param keySharedPolicy the policy used for {@link SubscriptionType#Key_Shared}
+	 * subscriptions
+	 * @param replicateSubscriptionState whether the subscription shall be replicated
+	 * @param subscriptionProperties the properties for the subscription
+	 * @param consumerName the consumer name
+	 * @param properties the consumer properties
+	 * @param priorityLevel the priority level for the consumer to which a broker gives
+	 * more priority while dispatching messages
+	 * @param readCompacted whether to read messages from the compacted topic rather than
+	 * reading the full message backlog of the topic
+	 * @param batchIndexAckEnabled whether batch index acknowledgement is enabled
+	 * @param ackTimeout the timeout duration for unacknowledged messages
+	 * @param ackTimeoutTickTime the tick time of the ack-timeout redelivery
+	 * @param acknowledgementsGroupTime the duration used to group acknowledgements
+	 * @param acknowledgeAsynchronously whether to ignore the acknowledge operation
+	 * completion and make it asynchronous from the message consuming processing to
+	 * improve performance by allowing the acknowledges and message processing to
+	 * interleave
+	 * @param acknowledgeScheduler the scheduler to use to handle acknowledgements
+	 * @param negativeAckRedeliveryDelay the delay to wait before re-delivering messages
+	 * that have failed to be processed
+	 * @param deadLetterPolicy the dead letter policy for the consumer
+	 * @param retryLetterTopicEnable whether the retries are enabled
+	 * @param receiverQueueSize the size of the consumer receive queue
+	 * @param maxTotalReceiverQueueSizeAcrossPartitions the maximum total receiver queue
+	 * size across partitions
+	 * @param autoUpdatePartitions whether the consumer shall subscribe automatically to
+	 * new partitions of partitioned topics
+	 * @param autoUpdatePartitionsInterval the interval of updating partitions when
+	 * autoUpdatePartitions is enabled
+	 * @param cryptoKeyReader the key reader to be used to decrypt the message payloads
+	 * @param cryptoFailureAction the action the consumer will take in case of decryption
+	 * failures
+	 * @param maxPendingChunkedMessage the maximum number of messages in the queue holding
+	 * pending chunked messages
+	 * @param autoAckOldestChunkedMessageOnQueueFull whether to automatically acknowledge
+	 * pending chunked messages when maxPendingChunkedMessage is reached
+	 * @param expireTimeOfIncompleteChunkedMessage the time interval to expire incomplete
+	 * chunks if a consumer fails to receive all the chunks
+	 * @deprecated since 0.7.0 for removal in 0.9.0 in favor of
+	 * {@link #ImmutableReactiveMessageConsumerSpec(List, Pattern, RegexSubscriptionMode, Duration, String, SubscriptionMode, SubscriptionType, SubscriptionInitialPosition, KeySharedPolicy, Boolean, Map, String, Map, Integer, Boolean, Boolean, Duration, Duration, Duration, Boolean, Scheduler, Duration, RedeliveryBackoff, RedeliveryBackoff, DeadLetterPolicy, Boolean, Integer, Integer, Boolean, Duration, CryptoKeyReader, ConsumerCryptoFailureAction, Integer, Boolean, Duration)}
+	 */
+	@Deprecated
 	public ImmutableReactiveMessageConsumerSpec(List<String> topicNames, Pattern topicsPattern,
+			RegexSubscriptionMode topicsPatternSubscriptionMode, Duration topicsPatternAutoDiscoveryPeriod,
+			String subscriptionName, SubscriptionMode subscriptionMode, SubscriptionType subscriptionType,
+			SubscriptionInitialPosition subscriptionInitialPosition, KeySharedPolicy keySharedPolicy,
+			Boolean replicateSubscriptionState, Map<String, String> subscriptionProperties, String consumerName,
+			Map<String, String> properties, Integer priorityLevel, Boolean readCompacted, Boolean batchIndexAckEnabled,
+			Duration ackTimeout, Duration ackTimeoutTickTime, Duration acknowledgementsGroupTime,
+			Boolean acknowledgeAsynchronously, Scheduler acknowledgeScheduler, Duration negativeAckRedeliveryDelay,
+			DeadLetterPolicy deadLetterPolicy, Boolean retryLetterTopicEnable, Integer receiverQueueSize,
+			Integer maxTotalReceiverQueueSizeAcrossPartitions, Boolean autoUpdatePartitions,
+			Duration autoUpdatePartitionsInterval, CryptoKeyReader cryptoKeyReader,
+			ConsumerCryptoFailureAction cryptoFailureAction, Integer maxPendingChunkedMessage,
+			Boolean autoAckOldestChunkedMessageOnQueueFull, Duration expireTimeOfIncompleteChunkedMessage) {
+		this.topicNames = topicNames;
+		this.topicsPattern = topicsPattern;
+		this.topicsPatternSubscriptionMode = topicsPatternSubscriptionMode;
+		this.topicsPatternAutoDiscoveryPeriod = topicsPatternAutoDiscoveryPeriod;
+		this.subscriptionName = subscriptionName;
+		this.subscriptionMode = subscriptionMode;
+		this.subscriptionType = subscriptionType;
+		this.subscriptionInitialPosition = subscriptionInitialPosition;
+		this.keySharedPolicy = keySharedPolicy;
+		this.replicateSubscriptionState = replicateSubscriptionState;
+		this.subscriptionProperties = subscriptionProperties;
+		this.consumerName = consumerName;
+		this.properties = properties;
+		this.priorityLevel = priorityLevel;
+		this.readCompacted = readCompacted;
+		this.batchIndexAckEnabled = batchIndexAckEnabled;
+		this.ackTimeout = ackTimeout;
+		this.ackTimeoutTickTime = ackTimeoutTickTime;
+		this.acknowledgementsGroupTime = acknowledgementsGroupTime;
+		this.acknowledgeAsynchronously = acknowledgeAsynchronously;
+		this.acknowledgeScheduler = acknowledgeScheduler;
+		this.negativeAckRedeliveryDelay = negativeAckRedeliveryDelay;
+		this.negativeAckRedeliveryBackoff = null;
+		this.ackTimeoutRedeliveryBackoff = null;
+		this.deadLetterPolicy = deadLetterPolicy;
+		this.retryLetterTopicEnable = retryLetterTopicEnable;
+		this.receiverQueueSize = receiverQueueSize;
+		this.maxTotalReceiverQueueSizeAcrossPartitions = maxTotalReceiverQueueSizeAcrossPartitions;
+		this.autoUpdatePartitions = autoUpdatePartitions;
+		this.autoUpdatePartitionsInterval = autoUpdatePartitionsInterval;
+		this.cryptoKeyReader = cryptoKeyReader;
+		this.cryptoFailureAction = cryptoFailureAction;
+		this.maxPendingChunkedMessage = maxPendingChunkedMessage;
+		this.autoAckOldestChunkedMessageOnQueueFull = autoAckOldestChunkedMessageOnQueueFull;
+		this.expireTimeOfIncompleteChunkedMessage = expireTimeOfIncompleteChunkedMessage;
+	}
+
+	/**
+	 * Constructs an instance with the specified parameters. Intended for use by the
+	 * Jackson mixin for the Jackson serde.
+	 * @param topicNames the topics to subscribe to
+	 * @param topicsPattern the topics pattern of the topics to subscribe to
+	 * @param topicsPatternSubscriptionMode the type of topics to subscribe to when using
+	 * a topic pattern - Persistent, Non-Persistent, or both
+	 * @param topicsPatternAutoDiscoveryPeriod the topics auto discovery period when using
+	 * a topic pattern
+	 * @param subscriptionName the subscription name
+	 * @param subscriptionMode the subscription mode
+	 * @param subscriptionType the subscription type
+	 * @param subscriptionInitialPosition the subscription initial position
+	 * @param keySharedPolicy the policy used for {@link SubscriptionType#Key_Shared}
+	 * subscriptions
+	 * @param replicateSubscriptionState whether the subscription shall be replicated
+	 * @param subscriptionProperties the properties for the subscription
+	 * @param consumerName the consumer name
+	 * @param properties the consumer properties
+	 * @param priorityLevel the priority level for the consumer to which a broker gives
+	 * more priority while dispatching messages
+	 * @param readCompacted whether to read messages from the compacted topic rather than
+	 * reading the full message backlog of the topic
+	 * @param batchIndexAckEnabled whether batch index acknowledgement is enabled
+	 * @param ackTimeout the timeout duration for unacknowledged messages
+	 * @param ackTimeoutTickTime the tick time of the ack-timeout redelivery
+	 * @param acknowledgementsGroupTime the duration used to group acknowledgements
+	 * @param acknowledgeAsynchronously whether to ignore the acknowledge operation
+	 * completion and make it asynchronous from the message consuming processing to
+	 * improve performance by allowing the acknowledges and message processing to
+	 * interleave
+	 * @param acknowledgeScheduler the scheduler to use to handle acknowledgements
+	 * @param negativeAckRedeliveryDelay the delay to wait before re-delivering messages
+	 * that have failed to be processed
+	 * @param deadLetterPolicy the dead letter policy for the consumer
+	 * @param negativeAckRedeliveryBackoff the redelivery backoff policy for messages that
+	 * are negatively acknowledged
+	 * @param ackTimeoutRedeliveryBackoff the redelivery backoff policy for messages that
+	 * are redelivered due to acknowledgement timeout
+	 * @param retryLetterTopicEnable whether the retries are enabled
+	 * @param receiverQueueSize the size of the consumer receive queue
+	 * @param maxTotalReceiverQueueSizeAcrossPartitions the maximum total receiver queue
+	 * size across partitions
+	 * @param autoUpdatePartitions whether the consumer shall subscribe automatically to
+	 * new partitions of partitioned topics
+	 * @param autoUpdatePartitionsInterval the interval of updating partitions when
+	 * autoUpdatePartitions is enabled
+	 * @param cryptoKeyReader the key reader to be used to decrypt the message payloads
+	 * @param cryptoFailureAction the action the consumer will take in case of decryption
+	 * failures
+	 * @param maxPendingChunkedMessage the maximum number of messages in the queue holding
+	 * pending chunked messages
+	 * @param autoAckOldestChunkedMessageOnQueueFull whether to automatically acknowledge
+	 * pending chunked messages when maxPendingChunkedMessage is reached
+	 * @param expireTimeOfIncompleteChunkedMessage the time interval to expire incomplete
+	 * chunks if a consumer fails to receive all the chunks
+	 */
+	@SuppressWarnings("unused")
+	ImmutableReactiveMessageConsumerSpec(List<String> topicNames, Pattern topicsPattern,
 			RegexSubscriptionMode topicsPatternSubscriptionMode, Duration topicsPatternAutoDiscoveryPeriod,
 			String subscriptionName, SubscriptionMode subscriptionMode, SubscriptionType subscriptionType,
 			SubscriptionInitialPosition subscriptionInitialPosition, KeySharedPolicy keySharedPolicy,
