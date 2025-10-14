@@ -40,7 +40,7 @@ if ! command -v gradle &>/dev/null; then
 fi
 
 DOCKER_CONTAINER_NAME=pulsar-standalone-$$
-: ${DOCKER_IMAGE_NAME:=apachepulsar/pulsar:4.0.4}
+: ${DOCKER_IMAGE_NAME:=apachepulsar/pulsar:4.1.1}
 
 mkdir test-app-reactive-$$
 cd test-app-reactive-$$
@@ -90,7 +90,7 @@ public class HelloPulsarClientReactive {
 
     public static void main(String[] args) throws PulsarClientException, InterruptedException {
         // Before running this, start Pulsar within docker with this command:
-        // docker run -it -p 8080:8080 -p 6650:6650 apachepulsar/pulsar:4.0.4 /pulsar/bin/pulsar standalone -nss -nfw
+        // docker run -it -p 8080:8080 -p 6650:6650 apachepulsar/pulsar:4.1.1 /pulsar/bin/pulsar standalone -nss -nfw
 
         try (PulsarClient pulsarClient = PulsarClient.builder().serviceUrl("pulsar://localhost:6650").build()) {
 
