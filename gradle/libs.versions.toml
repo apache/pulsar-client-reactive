@@ -22,19 +22,20 @@ assertj = "3.26.3"
 caffeine = "2.9.3"
 checkstyle = "9.3"
 # @pin
-jackson = "2.14.2"
+jackson = "2.20.0"
+
 # @pin
 jctools = "3.3.0"
 junit-jupiter = "5.11.3"
 licenser = "0.6.1"
-log4j = "2.24.3"
-mockito = "5.18.0"
-pulsar = "4.0.5"
+log4j = "2.25.2"
+mockito = "5.20.0"
+pulsar = "4.1.1"
 rat-gradle = "0.8.0"
-reactor = "3.6.17"
+reactor = "3.8.0-RC1"
 slf4j = "2.0.17"
-spring-javaformat = "0.0.46"
-testcontainers = "1.21.1"
+spring-javaformat = "0.0.47"
+testcontainers = "1.21.3"
 testlogger = "3.2.0"
 
 [libraries]
