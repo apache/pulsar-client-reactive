@@ -22,7 +22,7 @@ assertj = "3.26.3"
 caffeine = "2.9.3"
 checkstyle = "9.3"
 # @pin
-jackson = "2.18.4"
+jackson = "2.18.5"
 # @pin
 jctools = "3.3.0"
 junit-jupiter = "5.11.3"
