@@ -25,7 +25,7 @@ checkstyle = "9.3"
 jackson = "2.18.5"
 # @pin
 jctools = "3.3.0"
-junit-jupiter = "5.11.3"
+junit-jupiter = "5.11.4"
 licenser = "0.6.1"
 log4j = "2.24.3"
 mockito = "5.18.0"
@@ -34,7 +34,7 @@ rat-gradle = "0.8.0"
 reactor = "3.7.14"
 slf4j = "2.0.17"
 spring-javaformat = "0.0.47"
-testcontainers = "1.21.3"
+testcontainers = "1.21.4"
 testlogger = "3.2.0"
 
 [libraries]
