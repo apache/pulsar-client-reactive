@@ -52,7 +52,7 @@ final class SingletonPulsarContainer {
 	}
 
 	static DockerImageName getPulsarImage() {
-		return DockerImageName.parse("apachepulsar/pulsar:4.1.1");
+		return DockerImageName.parse("apachepulsar/pulsar:4.1.2");
 	}
 
 }
