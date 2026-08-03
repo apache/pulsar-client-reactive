@@ -193,6 +193,9 @@ class AdaptedReactiveMessageConsumerTests {
 		expectedConsumerConf.setSubscriptionName("my-sub");
 		expectedConsumerConf.setSubscriptionType(SubscriptionType.Key_Shared);
 		expectedConsumerConf.setKeySharedPolicy(keySharedPolicy);
+		// ConsumerBuilderImpl applies this default at subscribe time when neither
+		// cryptoFailureAction nor decryptFailListener is configured
+		expectedConsumerConf.setCryptoFailureAction(ConsumerCryptoFailureAction.FAIL);
 
 		CompletableFuture<String> failedConsumer = new CompletableFuture<>();
 		failedConsumer.completeExceptionally(new RuntimeException("didn't match expected consumer conf"));
@@ -229,6 +232,9 @@ class AdaptedReactiveMessageConsumerTests {
 		expectedConsumerConf.setTopicsPattern(topicsPattern);
 		expectedConsumerConf.setRegexSubscriptionMode(RegexSubscriptionMode.AllTopics);
 		expectedConsumerConf.setPatternAutoDiscoveryPeriod(1);
+		// ConsumerBuilderImpl applies this default at subscribe time when neither
+		// cryptoFailureAction nor decryptFailListener is configured
+		expectedConsumerConf.setCryptoFailureAction(ConsumerCryptoFailureAction.FAIL);
 
 		CompletableFuture<String> failedConsumer = new CompletableFuture<>();
 		failedConsumer.completeExceptionally(new RuntimeException("didn't match expected consumer conf"));
