@@ -17,23 +17,23 @@
 # under the License.
 #
 [versions]
-assertj = "3.26.3"
+assertj = "3.27.7"
 # @pin
 caffeine = "2.9.3"
 checkstyle = "9.3"
 # @pin
-jackson = "2.18.5"
+jackson = "2.18.9"
 # @pin
 jctools = "3.3.0"
 junit-jupiter = "5.11.4"
 licenser = "0.6.1"
 log4j = "2.24.3"
-mockito = "5.18.0"
+mockito = "5.23.0"
 pulsar = "4.2.4"
 rat-gradle = "0.8.0"
-reactor = "3.7.14"
-slf4j = "2.0.17"
-spring-javaformat = "0.0.47"
+reactor = "3.7.19"
+slf4j = "2.0.18"
+spring-javaformat = "0.0.48"
 testcontainers = "1.21.4"
 testlogger = "3.2.0"
 
@@ -45,6 +45,7 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
 licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
