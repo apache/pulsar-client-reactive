@@ -38,6 +38,10 @@ compileJava {
 	options.release = 8
 }
 
+dependencies {
+	testRuntimeOnly libs.junit.platform.launcher
+}
+
 tasks.withType(Test) {
 	useJUnitPlatform()
 }

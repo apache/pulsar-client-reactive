@@ -42,6 +42,7 @@ dependencies {
 	def sharedTestResourcesEntry = files(new File(rootDir, "shared-test-resources"))
 	intTestRuntimeOnly sharedTestResourcesEntry
 	testRuntimeOnly sharedTestResourcesEntry
+	intTestRuntimeOnly libs.junit.platform.launcher
 }
 
 tasks.register('integrationTest', Test) {
