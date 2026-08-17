@@ -60,14 +60,8 @@ publishing {
 				}
 				developers {
 					developer {
-						id = "lhotari"
-						name = "Lari Hotari"
-						email = "lhotari@apache.org"
-					}
-					developer {
-						id = "cbornet"
-						name = "Christophe Bornet"
-						email = "cbornet@apache.org"
+						organization = "Apache Pulsar developers"
+						organizationUrl = "https://pulsar.apache.org/"
 					}
 				}
 				scm {
