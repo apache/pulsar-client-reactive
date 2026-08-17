@@ -18,19 +18,23 @@
  */
 
 plugins {
-	id 'pulsar-client-reactive.codestyle-conventions'
-	id 'pulsar-client-reactive.library-conventions'
-	id 'pulsar-client-reactive.test-conventions'
+	id("pulsar-client-reactive.codestyle-conventions")
+	id("pulsar-client-reactive.library-conventions")
+	id("pulsar-client-reactive.test-conventions")
 }
 
 dependencies {
-	api project(':pulsar-client-reactive-api')
-	api libs.jackson.databind
-	api libs.jackson.datatype.jsr310
+	api(libs.reactor.core)
+	api(libs.pulsar.client.api)
+	api(libs.slf4j.api)
+	implementation(libs.jctools.core)
 
-	testImplementation libs.pulsar.client.shaded
-	testImplementation libs.junit.jupiter
-	testImplementation libs.assertj.core
+	testImplementation(libs.pulsar.client.shaded)
+	testImplementation(libs.junit.jupiter)
+	testImplementation(libs.junit.jupiter.params)
+	testImplementation(libs.reactor.test)
+	testImplementation(libs.assertj.core)
+	testImplementation(libs.bundles.log4j)
 }
 
-description = "Jackson module for the reactive client configuration"
+description = "Reactive Java client for Apache Pulsar"

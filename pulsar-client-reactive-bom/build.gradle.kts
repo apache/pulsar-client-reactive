@@ -18,24 +18,28 @@
  */
 
 plugins {
-	id 'checkstyle'
-	id "org.cadixdev.licenser"
+	`java-platform`
+	id("pulsar-client-reactive.publish-conventions")
 }
 
+// Listed explicitly rather than derived from `rootProject.subprojects`, which would be
+// cross-project configuration.
 dependencies {
-	checkstyle libs.spring.javaformat.checkstyle
+	constraints {
+		api(project(":pulsar-client-reactive-adapter"))
+		api(project(":pulsar-client-reactive-api"))
+		api(project(":pulsar-client-reactive-jackson"))
+		api(project(":pulsar-client-reactive-producer-cache-caffeine"))
+		api(project(":pulsar-client-reactive-producer-cache-caffeine-shaded"))
+	}
 }
 
-checkstyle {
-	toolVersion libs.versions.checkstyle.get()
-	configFile project.rootProject.file('checkstyle/checkstyle.xml')
-}
-
-license {
-	header = rootProject.file('checkstyle/HEADER.txt')
-	tasks {
-		gradle {
-			files.from('build.gradle', 'settings.gradle', 'gradle.properties')
+publishing {
+	publications {
+		named<MavenPublication>("mavenJava") {
+			from(components["javaPlatform"])
 		}
 	}
 }
+
+description = "Reactive Java client for Apache Pulsar (Bill of Materials)"

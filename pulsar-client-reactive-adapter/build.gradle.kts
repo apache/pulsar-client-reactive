@@ -18,30 +18,30 @@
  */
 
 plugins {
-	id 'pulsar-client-reactive.codestyle-conventions'
-	id 'pulsar-client-reactive.library-conventions'
-	id 'pulsar-client-reactive.test-conventions'
+	id("pulsar-client-reactive.codestyle-conventions")
+	id("pulsar-client-reactive.library-conventions")
+	id("pulsar-client-reactive.test-conventions")
 }
 
 dependencies {
-	api project(':pulsar-client-reactive-api')
-	api libs.pulsar.client.shaded
-	api libs.reactor.core
-	api libs.slf4j.api
+	api(project(":pulsar-client-reactive-api"))
+	api(libs.pulsar.client.shaded)
+	api(libs.reactor.core)
+	api(libs.slf4j.api)
 
-	testImplementation libs.junit.jupiter
-	testImplementation libs.reactor.test
-	testImplementation libs.assertj.core
-	testImplementation libs.bundles.log4j
-	testImplementation libs.mockito.core
+	testImplementation(libs.junit.jupiter)
+	testImplementation(libs.reactor.test)
+	testImplementation(libs.assertj.core)
+	testImplementation(libs.bundles.log4j)
+	testImplementation(libs.mockito.core)
 
-	intTestImplementation libs.pulsar.client.all
-	intTestImplementation project(':pulsar-client-reactive-producer-cache-caffeine')
-	intTestImplementation project(path: ':pulsar-client-reactive-producer-cache-caffeine-shaded', configuration: 'shadow')
-	intTestImplementation libs.junit.jupiter
-	intTestImplementation libs.testcontainers.pulsar
-	intTestImplementation libs.assertj.core
-	intTestImplementation libs.bundles.log4j
+	"intTestImplementation"(libs.pulsar.client.all)
+	"intTestImplementation"(project(":pulsar-client-reactive-producer-cache-caffeine"))
+	"intTestImplementation"(project(":pulsar-client-reactive-producer-cache-caffeine-shaded", configuration = "shadow"))
+	"intTestImplementation"(libs.junit.jupiter)
+	"intTestImplementation"(libs.testcontainers.pulsar)
+	"intTestImplementation"(libs.assertj.core)
+	"intTestImplementation"(libs.bundles.log4j)
 }
 
 description = "Reactive Streams adapter for Apache Pulsar Java client"

@@ -18,43 +18,51 @@
  */
 
 plugins {
-	id 'java-library'
-	id 'pulsar-client-reactive.publish-conventions'
+	`java-library`
+	id("pulsar-client-reactive.publish-conventions")
 }
 
-repositories {
-	mavenCentral()
-}
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 java {
 	withJavadocJar()
 	withSourcesJar()
+	// Pinning the toolchain decouples the build from whichever JDK happens to be on PATH
+	// and keeps the compiled output reproducible.
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
-compileJava {
+tasks.withType<JavaCompile>().configureEach {
+	options.encoding = "UTF-8"
+}
+
+tasks.named<JavaCompile>(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
 	options.release = 8
 }
 
-dependencies {
-	testRuntimeOnly libs.junit.platform.launcher
+tasks.withType<Javadoc>().configureEach {
+	options.encoding = "UTF-8"
 }
 
-tasks.withType(Test) {
+dependencies {
+	testRuntimeOnly(libs.findLibrary("junit-platform-launcher").get())
+}
+
+tasks.withType<Test>().configureEach {
 	useJUnitPlatform()
 }
 
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+		named<MavenPublication>("mavenJava") {
+			from(components["java"])
 			versionMapping {
-				usage('java-api') {
-					fromResolutionOf('runtimeClasspath')
+				usage(Usage.JAVA_API) {
+					fromResolutionOf(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
 				}
-				usage('java-runtime') {
+				usage(Usage.JAVA_RUNTIME) {
 					fromResolutionResult()
 				}
 			}

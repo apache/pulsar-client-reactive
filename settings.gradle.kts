@@ -17,20 +17,25 @@
  * under the License.
  */
 
-plugins {
-	id 'pulsar-client-reactive.codestyle-conventions'
-	id 'pulsar-client-reactive.library-conventions'
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+	includeBuild("build-logic")
 }
 
-dependencies {
-	api project(':pulsar-client-reactive-adapter')
-	api libs.caffeine
-	testImplementation libs.junit.jupiter
-	testImplementation libs.assertj.core
-	testImplementation libs.reactor.test
-	testImplementation libs.mockito.core
+dependencyResolutionManagement {
+	repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+	repositories {
+		mavenCentral()
+	}
 }
 
-description = "Caffeine implementation of producer cache"
+rootProject.name = "pulsar-client-reactive"
 
-
+include("pulsar-client-reactive-api")
+include("pulsar-client-reactive-adapter")
+include("pulsar-client-reactive-bom")
+include("pulsar-client-reactive-producer-cache-caffeine")
+include("pulsar-client-reactive-producer-cache-caffeine-shaded")
+include("pulsar-client-reactive-jackson")
