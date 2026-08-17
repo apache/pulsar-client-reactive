@@ -18,9 +18,21 @@
  */
 
 dependencyResolutionManagement {
+	repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+	repositories {
+		mavenCentral()
+		// The test-logger plugin is published to the Gradle Plugin Portal only, so restrict
+		// the portal to that group instead of letting it answer for every dependency.
+		exclusiveContent {
+			forRepository { gradlePluginPortal() }
+			filter { includeGroup("com.adarshr") }
+		}
+	}
 	versionCatalogs {
-		libs {
+		create("libs") {
 			from(files("../gradle/libs.versions.toml"))
 		}
 	}
 }
+
+rootProject.name = "build-logic"

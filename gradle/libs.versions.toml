@@ -20,22 +20,24 @@
 assertj = "3.27.7"
 # @pin
 caffeine = "2.9.3"
+# @pin pinned by spring-javaformat-checkstyle, which depends on checkstyle 9.3
 checkstyle = "9.3"
 # @pin
 jackson = "2.18.9"
 # @pin
 jctools = "3.3.0"
 junit-jupiter = "6.1.3"
-licenser = "0.6.1"
 log4j = "2.24.3"
 mockito = "5.23.0"
 pulsar = "4.2.4"
-rat-gradle = "0.8.0"
+rat = "0.8.1"
 reactor = "3.7.19"
+shadow = "9.6.1"
 slf4j = "2.0.18"
+spotless = "8.10.0"
 spring-javaformat = "0.0.48"
 testcontainers = "1.21.4"
-testlogger = "3.2.0"
+testlogger = "4.0.0"
 
 [libraries]
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
@@ -46,7 +48,6 @@ jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
-licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "licenser" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
@@ -54,14 +55,17 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 pulsar-client-all = { module = "org.apache.pulsar:pulsar-client-all", version.ref = "pulsar" }
 pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version.ref = "pulsar" }
 pulsar-client-shaded = { module = "org.apache.pulsar:pulsar-client", version.ref = "pulsar" }
-rat-gradle = { module = "org.nosphere.apache:creadur-rat-gradle", version.ref = "rat-gradle" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
 reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "spring-javaformat" }
-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
 testcontainers-pulsar = { module = "org.testcontainers:pulsar", version.ref = "testcontainers" }
-testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger" }
+
+# Gradle plugin implementations, used on the `build-logic` compile classpath so that the
+# convention plugins can apply them. Keep in sync with the matching `[plugins]` aliases.
+spotless-gradle-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "spring-javaformat" }
+testlogger-gradle-plugin = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger" }
 
 [bundles]
 log4j = [
@@ -72,5 +76,7 @@ log4j = [
 ]
 
 [plugins]
-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.5"
-versions = "com.github.ben-manes.versions:0.51.0"
+rat = { id = "org.nosphere.apache.rat", version.ref = "rat" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+version-catalog-update = "nl.littlerobots.version-catalog-update:1.1.1"
+versions = "io.github.ben-manes.versions:0.61.0"

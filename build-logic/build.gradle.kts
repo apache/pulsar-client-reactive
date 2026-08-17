@@ -17,10 +17,12 @@
  * under the License.
  */
 
-rootProject.name = 'pulsar-client-reactive'
-include 'pulsar-client-reactive-api'
-include 'pulsar-client-reactive-adapter'
-include 'pulsar-client-reactive-bom'
-include 'pulsar-client-reactive-producer-cache-caffeine'
-include 'pulsar-client-reactive-producer-cache-caffeine-shaded'
-include 'pulsar-client-reactive-jackson'
+plugins {
+	`kotlin-dsl`
+}
+
+dependencies {
+	implementation(libs.spotless.gradle.plugin)
+	implementation(libs.spring.javaformat.gradle.plugin)
+	implementation(libs.testlogger.gradle.plugin)
+}

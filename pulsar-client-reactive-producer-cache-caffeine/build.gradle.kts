@@ -18,27 +18,18 @@
  */
 
 plugins {
-	id 'java-platform'
-	id 'pulsar-client-reactive.publish-conventions'
+	id("pulsar-client-reactive.codestyle-conventions")
+	id("pulsar-client-reactive.library-conventions")
 }
 
 dependencies {
-	constraints {
-		project.rootProject.subprojects
-				.sort { "$it.name" }
-				.findAll { it.name != "pulsar-client-reactive-bom" }
-				.each {
-					api it
-				}
-	}
+	api(project(":pulsar-client-reactive-adapter"))
+	api(libs.caffeine)
+
+	testImplementation(libs.junit.jupiter)
+	testImplementation(libs.assertj.core)
+	testImplementation(libs.reactor.test)
+	testImplementation(libs.mockito.core)
 }
 
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.javaPlatform
-		}
-	}
-}
-
-description = 'Reactive Java client for Apache Pulsar (Bill of Materials)'
+description = "Caffeine implementation of producer cache"
